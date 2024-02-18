@@ -1,0 +1,3 @@
+lw  x5  5(x6)
+sw  x2  5(x3)
+addi x6 x0 5
