@@ -4,13 +4,14 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include <bits/stdc++.h>
 using namespace std;
 
 class Core {
 private:
-    unordered_map<string, int> reg;
+    map<string, int> reg;
     int PC;
-    vector<string> instructions;
+    vector<pair<string, int>> instructions;
     ifstream& file;
 
 public:
@@ -20,29 +21,48 @@ public:
         }
     }
 
-    void readInstructionsFromFile(const string& filename) {
+    void readInstructionsFromFile(const string& filename, int* RAM) {
         ifstream file(filename);
         if (!file.is_open()) {
             cerr << "Error opening file." << endl;
             return;
         }
-
+        int index = 0;
         string line;
         while (getline(file, line)) {
-            instructions.push_back(line);
+            instructions.push_back(make_pair(line, index));
+            index++;
         }
 
         file.close();
     }
 
-    void executeInstructions(int* RAM) {
-        for (const string& instruction : instructions) {
-            execute(instruction, RAM);
+    int findLabelIndex(const string& label) {
+        for (const auto& instruction : instructions) {
+            istringstream iss(instruction.first);
+            vector<string> tokens;
+            string token;
+            while (iss >> token) {
+                tokens.push_back(token);
+            }
+            if (tokens.size() > 0 && tokens[0] == (label+':')) {
+               
+                // Return the index of the label
+                return instruction.second;
+            }
         }
-        file.seekg(PC);
-          for (auto it = reg.begin(); it != reg.end(); ++it) {
-        cout << it->first << ": " << it->second << endl;
+        cerr << "Error: Label not found - " << label << endl;
+        return PC; // Default to current PC if label is not found
     }
+
+    void executeInstructions(int* RAM) {
+        while (PC < instructions.size()) {
+            execute(instructions[PC].first, RAM);
+        }
+
+        for (auto it = reg.begin(); it != reg.end(); ++it) {
+            cout << it->first << ": " << it->second << endl;
+        }
     }
 
 private:
@@ -94,14 +114,54 @@ private:
         } else if (opcode == "add" || opcode == "sub" || opcode == "addi") {
             // Arithmetic instructions
             executeArithmeticInstruction(tokens);
+        } else if (opcode == "jalr") {
+            reg[rd] = PC + 1;
+            PC = reg[tokens[2]];
+
+        } else if (opcode == "jal") {
+            // Jump to the label
+            PC = findLabelIndex(tokens[2]);
+
+        } else if (opcode == "slli") {
+            // Handle slli instruction
+            // ...
+
+        } else if (opcode == "bne" || opcode == "blt" || opcode == "bgt" || opcode == "beq") {
+            control_executions(opcode, tokens);
         } else {
             // Unknown opcode
             cerr << "Error: Unknown opcode." << endl;
         }
 
         // Increment PC
-        PC += 4; // Assuming each instruction is 4 bytes long
+        PC += 1; // Increment PC to point to the next instruction
     }
+
+    void control_executions(string s, vector<string> tokens) {
+        string rs1 = tokens[1];
+        string rs2 = tokens[2];
+        if (s == "bne") {
+            if (reg[rs1] != reg[rs2]) {
+                PC = findLabelIndex(tokens[3]);
+            }
+        }
+        if (s == "blt") {
+            if (reg[rs1] < reg[rs2]) {
+                PC = findLabelIndex(tokens[3]);
+            }
+        }
+        if (s == "bgt") {
+            if (reg[rs1] > reg[rs2]) {
+                PC = findLabelIndex(tokens[3]);
+            }
+        }
+        if (s == "beq") {
+            if (reg[rs1] == reg[rs2]) {
+                PC = findLabelIndex(tokens[3]);
+            }
+        }
+    }
+    
 
     void executeArithmeticInstruction(const vector<string>& tokens) {
         string opcode = tokens[0];
@@ -132,17 +192,16 @@ public:
     int clock = 0;
 
     void run() {
-               ifstream instructionsFile("instuctions.txt");
-            //    f.open(instructionsFile);
+        ifstream instructionsFile("instuctions.txt");
         if (!instructionsFile.is_open()) {
             cerr << "Error opening file." << endl;
             return;
         }
 
         Core core(instructionsFile);
-        core.readInstructionsFromFile("instuctions.txt");
+        core.readInstructionsFromFile("instuctions.txt", RAM);
         core.executeInstructions(RAM);
-        
+
         instructionsFile.close();
     }
 };
@@ -150,7 +209,7 @@ public:
 int main() {
     Processor processor;
     processor.run();
-     cout << "Register values:" << endl;
+    cout << "Register values:" << endl;
 
     return 0;
 }
