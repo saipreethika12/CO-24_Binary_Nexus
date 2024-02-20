@@ -47,12 +47,23 @@ public:
                     // Randomize the index for array declaration
                     long long int address = rand() % 4096; // Adjust as needed
                     labelToAddress[label] = address;
+                     string value;
+                   while(iss >> value) {
+                    try {
+                        int intValue = stoi(value);
+                        RAM[address++] = intValue;
+                    } catch (const exception& e) {
+                        cerr << "Error converting string to integer: " << e.what() << endl;
+                        cerr << "Problematic string: '" << value << "'" << endl;
+                        // Handle the error as needed
+                    }
+                }
 
                     // string value;
                     // while (iss >> value) {
                     //     int k=stoi(value);
                     //     RAM[address++] = k;
-                     }
+                 }
             // if (label.back() == ':') {
             //     // It's an array declaration
             //     label.pop_back(); // Remove the colon from the label
