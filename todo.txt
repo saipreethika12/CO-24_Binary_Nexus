@@ -1,2 +1,4 @@
 #implement add sub addi subi
-#
+#la li 
+#.data .text 
+#slli,andi ,........
