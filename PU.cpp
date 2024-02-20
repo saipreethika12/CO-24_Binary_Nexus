@@ -9,6 +9,7 @@ using namespace std;
 
 class Core {
 private:
+ map<string, long long int> labelToAddress;
     map<string, int> reg;
     int PC;
     vector<pair<string, int>> instructions;
@@ -20,22 +21,62 @@ public:
             reg["x" + to_string(i)] = 0;
         }
     }
+   void readInstructionsFromFile(const string& filename, int* RAM) {
+    ifstream file(filename);
+    if (!file.is_open()) {
+        cerr << "Error opening file." << endl;
+        return;
+    }
 
-    void readInstructionsFromFile(const string& filename, int* RAM) {
-        ifstream file(filename);
-        if (!file.is_open()) {
-            cerr << "Error opening file." << endl;
-            return;
-        }
-        int index = 0;
-        string line;
-        while (getline(file, line)) {
+    int index = 0;
+    string line;
+    bool isDataSection = false;
+
+    while (getline(file, line)) {
+        if (line == ".data") {
+            isDataSection = true;
+            continue;
+        } else if (isDataSection) {
+            istringstream iss(line);
+            string label;
+            iss >> label;
+                   if (label.back() == ':') {
+                    // It's an array declaration
+                    label.pop_back(); // Remove the colon from the label
+                   
+                    // Randomize the index for array declaration
+                    long long int address = rand() % 4096; // Adjust as needed
+                    labelToAddress[label] = address;
+
+                    // string value;
+                    // while (iss >> value) {
+                    //     int k=stoi(value);
+                    //     RAM[address++] = k;
+                     }
+            // if (label.back() == ':') {
+            //     // It's an array declaration
+            //     label.pop_back(); // Remove the colon from the label
+            //     int value;
+            //     while (iss >> value) {
+            //         RAM[index++] = value;
+            //     }
+
+            //     // Store the address of the array in a register (you may need to adjust this based on your design)
+            //     reg[label] = ;
+            else {
+                // Not an array declaration, exit the data section
+                isDataSection = false;
+            }
+             
+        } else {
             instructions.push_back(make_pair(line, index));
             index++;
         }
-
-        file.close();
     }
+
+    file.close();
+}
+
 
     int findLabelIndex(const string& label) {
         for (const auto& instruction : instructions) {
@@ -63,6 +104,9 @@ public:
         for (auto it = reg.begin(); it != reg.end(); ++it) {
             cout << it->first << ": " << it->second << endl;
         }
+         for (int i = 0; i < 4096; ++i) {
+            cout << "RAM[" << i << "]: " << RAM[i] << endl;
+        }
     }
 
 private:
@@ -79,7 +123,6 @@ private:
             return;
         }
 
-        // Extract opcode
         string opcode = tokens[0];
         string rd = tokens[1];
 
@@ -97,7 +140,7 @@ private:
 
             int index = reg[baseRegister] + stoi(offset);
             reg[rd] = RAM[index];  // Load value from RAM
-        } else if (opcode == "sw") {
+        }else if (opcode == "sw") {
             // Store instruction
             string offsetBase = tokens[2];
             size_t openParen = offsetBase.find_first_of('(');
@@ -161,7 +204,7 @@ private:
             }
         }
     }
-    
+
 
     void executeArithmeticInstruction(const vector<string>& tokens) {
         string opcode = tokens[0];
@@ -203,7 +246,9 @@ public:
         core.executeInstructions(RAM);
 
         instructionsFile.close();
+    
     }
+
 };
 
 int main() {
@@ -213,3 +258,4 @@ int main() {
 
     return 0;
 }
+
