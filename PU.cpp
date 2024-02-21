@@ -53,8 +53,7 @@ public:
                         int intValue = stoi(value);
                         RAM[address++] = intValue;
                     } catch (const exception& e) {
-                        cerr << "Error converting string to integer: " << e.what() << endl;
-                        cerr << "Problematic string: '" << value << "'" << endl;
+                        
                         // Handle the error as needed
                     }
                 }
@@ -115,9 +114,9 @@ public:
         for (auto it = reg.begin(); it != reg.end(); ++it) {
             cout << it->first << ": " << it->second << endl;
         }
-         for (int i = 0; i < 4096; ++i) {
-            cout << "RAM[" << i << "]: " << RAM[i] << endl;
-        }
+        //  for (int i = 0; i < 4096; ++i) {
+        //     cout << "RAM[" << i << "]: " << RAM[i] << endl;
+        // }
     }
 
 private:
@@ -165,7 +164,11 @@ private:
 
             int index = reg[baseRegister] + stoi(offset);
             RAM[index] = reg[rd];  // Store value to RAM
-        } else if (opcode == "add" || opcode == "sub" || opcode == "addi") {
+        }else if(opcode=="li"){
+            int iv = stoi(tokens[2]);
+              reg[rd] = iv;
+        } 
+        else if (opcode == "add" || opcode == "sub" || opcode == "addi") {
             // Arithmetic instructions
             executeArithmeticInstruction(tokens);
         } else if (opcode == "jalr") {
@@ -177,8 +180,10 @@ private:
             PC = findLabelIndex(tokens[2]);
 
         } else if (opcode == "slli") {
-            // Handle slli instruction
-            // ...
+        string rs1 = tokens[2];
+        int b = stoi(tokens[3]);
+
+        reg[rd] = reg[rs1] << b;
 
         } else if (opcode == "bne" || opcode == "blt" || opcode == "bgt" || opcode == "beq") {
             control_executions(opcode, tokens);

@@ -10,3 +10,5 @@ loop:
     add x19 x19 x0
     addi x0 x0 1
     blt x0 x7 loop
+li x8 1
+slli x10 x4 1
