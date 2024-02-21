@@ -167,7 +167,14 @@ private:
         }else if(opcode=="li"){
             int iv = stoi(tokens[2]);
               reg[rd] = iv;
-        } 
+        }else if(opcode=="la"){
+        string label = tokens[2];
+        if (labelToAddress.find(label) != labelToAddress.end()) {
+            reg[rd] = labelToAddress[label];
+        }else {
+            cerr << "Error: Label not found - " << label << endl;
+        }
+        }
         else if (opcode == "add" || opcode == "sub" || opcode == "addi") {
             // Arithmetic instructions
             executeArithmeticInstruction(tokens);
