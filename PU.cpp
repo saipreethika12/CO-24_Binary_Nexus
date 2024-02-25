@@ -377,14 +377,14 @@ public:
     bool visited[4096]={0};
     void run() {
         std::cout<<"Sorted Array by bubble sort"<<std::endl;
-        std::ifstream instructionsFile("instuctions.txt");
+        std::ifstream instructionsFile("bubble_sort.txt");
         if (!instructionsFile.is_open()) {
             std::cerr << "Error opening file." <<std:: endl;
             return;
         }
        
         Core core1(instructionsFile);
-        core1.readInstructionsFromFile("instuctions.txt", RAM,visited);
+        core1.readInstructionsFromFile("bubble_sort.txt", RAM,visited);
         core1.executeInstructions(RAM);
 
         instructionsFile.close();
