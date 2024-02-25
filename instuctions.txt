@@ -1,14 +1,47 @@
 .data
-arr: .word 10 20 30 40
-addi x9 x0 8
-addi x7 x0 5
-addi x5 x0 6
-addi x4 x0 6
-jal x1 loop
-loop:
-    addi x18 x18 1 
-    add x19 x19 x0
-    addi x0 x0 1
-    blt x0 x7 loop
-li x8 1
-slli x10 x4 1
+arr: .word 40 20 30 95 5 6
+arr_len: .word 6
+.text
+la x19 arr
+la x12 arr
+lw x5 arr_len
+addi x6 x5 -1
+li x2 0
+li x7 0
+li x31 0
+li x11 0
+j loop1
+loop1:
+li x3 0
+j loop2
+loop2:
+lw x8 0(x19)
+lw x9 4(x19)
+blt x9 x8 swap
+addi x19 x19 4
+addi x3 x3 1
+sub x7 x6 x2
+blt x3 x7 loop2
+addi x19 x12 0
+addi x2 x2 1
+blt x2 x5 loop1
+j print_loop
+swap:
+sw x9 0(x19)
+sw x8 4(x19) 
+addi x19 x19 4
+addi x3 x3 1
+sub x7 x6 x2
+blt x3 x7 loop2
+addi x19 x12 0
+addi x2 x2 1
+blt x2 x5 loop1
+j print_loop
+print_loop:
+lw x6 0(x12)
+addi x10 x6 0
+li x17 1    
+ecall        
+addi x12 x12 4
+addi x11 x11 1
+blt x11 x5 print_loop
