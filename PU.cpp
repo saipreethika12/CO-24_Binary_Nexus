@@ -1,283 +1,419 @@
 #include <iostream>
-#include <unordered_map>
+#include <map>
 #include <fstream>
 #include <sstream>
 #include <vector>
 #include <string>
+#include <cstdint> // for uintptr_t
+#include <ctime> 
 #include <bits/stdc++.h>
-using namespace std;
+//using namespace std;
 
 class Core {
 private:
- map<string, long long int> labelToAddress;
-    map<string, int> reg;
+  std::  unordered_map<std::string, long long int> labelToAddress;
+   std:: unordered_map<std::string, long long int> reg;
     int PC;
-    vector<pair<string, int>> instructions;
-    ifstream& file;
+   std:: vector<std::pair<std::string, int>> instructions;
+   std:: ifstream& file;
+
 
 public:
-    Core(ifstream& file) : file(file), PC(0) {
+    Core(std::ifstream& file) : file(file), PC(0) {
         for (int i = 0; i <= 31; ++i) {
-            reg["x" + to_string(i)] = 0;
-        }
-    }
-   void readInstructionsFromFile(const string& filename, int* RAM) {
-    ifstream file(filename);
-    if (!file.is_open()) {
-        cerr << "Error opening file." << endl;
-        return;
-    }
-
-    int index = 0;
-    string line;
-    bool isDataSection = false;
-
-    while (getline(file, line)) {
-        if (line == ".data") {
-            isDataSection = true;
-            continue;
-        } else if (isDataSection) {
-            istringstream iss(line);
-            string label;
-            iss >> label;
-                   if (label.back() == ':') {
-                    // It's an array declaration
-                    label.pop_back(); // Remove the colon from the label
-                   
-                    // Randomize the index for array declaration
-                    long long int address = rand() % 4096; // Adjust as needed
-                    labelToAddress[label] = address;
-                     string value;
-                   while(iss >> value) {
-                    try {
-                        int intValue = stoi(value);
-                        RAM[address++] = intValue;
-                    } catch (const exception& e) {
-                        
-                        // Handle the error as needed
-                    }
-                }
-
-                    // string value;
-                    // while (iss >> value) {
-                    //     int k=stoi(value);
-                    //     RAM[address++] = k;
-                 }
-            // if (label.back() == ':') {
-            //     // It's an array declaration
-            //     label.pop_back(); // Remove the colon from the label
-            //     int value;
-            //     while (iss >> value) {
-            //         RAM[index++] = value;
-            //     }
-
-            //     // Store the address of the array in a register (you may need to adjust this based on your design)
-            //     reg[label] = ;
-            else {
-                // Not an array declaration, exit the data section
-                isDataSection = false;
-            }
-             
-        } else {
-            instructions.push_back(make_pair(line, index));
-            index++;
+            reg["x" + std::to_string(i)] = 0;
         }
     }
 
-    file.close();
-}
-
-
-    int findLabelIndex(const string& label) {
-        for (const auto& instruction : instructions) {
-            istringstream iss(instruction.first);
-            vector<string> tokens;
-            string token;
-            while (iss >> token) {
-                tokens.push_back(token);
-            }
-            if (tokens.size() > 0 && tokens[0] == (label+':')) {
-               
-                // Return the index of the label
-                return instruction.second;
-            }
-        }
-        cerr << "Error: Label not found - " << label << endl;
-        return PC; // Default to current PC if label is not found
-    }
-
-    void executeInstructions(int* RAM) {
-        while (PC < instructions.size()) {
-            execute(instructions[PC].first, RAM);
-        }
-
-        for (auto it = reg.begin(); it != reg.end(); ++it) {
-            cout << it->first << ": " << it->second << endl;
-        }
-        //  for (int i = 0; i < 4096; ++i) {
-        //     cout << "RAM[" << i << "]: " << RAM[i] << endl;
-        // }
-    }
-
-private:
-    void execute(const string& instruction, int* RAM) {
-        istringstream iss(instruction);
-        vector<string> tokens;
-        string token;
-        while (iss >> token) {
-            tokens.push_back(token);
-        }
-
-        if (tokens.empty()) {
-            cerr << "Error: Empty instruction." << endl;
+    void readInstructionsFromFile(const std:: string& filename, char* RAM,bool*vis) {
+        std::ifstream file(filename);
+        if (!file.is_open()) {
+           std:: cerr << "Error opening file." <<std:: endl;
             return;
         }
 
-        string opcode = tokens[0];
-        string rd = tokens[1];
+        int index = 0;
+        std::string line;
+        bool isDataSection = false;
+        bool istextsec = false;
 
-        if (opcode == "lw") {
-            // Load instruction
-            string offsetBase = tokens[2];
-            size_t openParen = offsetBase.find_first_of('(');
-            if (openParen == string::npos) {
-                cerr << "Error: Invalid offset(base) format." << endl;
-                return;
+        while (getline(file, line)) {
+            if (line == ".data") {
+              // std:: cout<<"d";
+                isDataSection = true;
+             
+                continue;
+            } 
+            if (line == ".text") {
+               // std:: cout<<"t";
+                istextsec = true;
+                continue;
             }
-
-            string baseRegister = offsetBase.substr(openParen + 1, offsetBase.size() - openParen - 2);
-            string offset = offsetBase.substr(0, openParen);
-
-            int index = reg[baseRegister] + stoi(offset);
-            reg[rd] = RAM[index];  // Load value from RAM
-        }else if (opcode == "sw") {
-            // Store instruction
-            string offsetBase = tokens[2];
-            size_t openParen = offsetBase.find_first_of('(');
-            if (openParen == string::npos) {
-                cerr << "Error: Invalid offset(base) format." << endl;
-                return;
+             if (istextsec) {
+                instructions.push_back(make_pair(line, index));
+                index++;
+                continue;
             }
+           if(isDataSection && !istextsec){
+               std:: istringstream iss(line);
+               std:: string label;
+                iss >> label;
+                if (label.back() == ':') {
+                    label.pop_back();
+                   
+                    std::string value;
+                    int x;
+                    labelToAddress[label]=get_index(vis);
+                    // // if(label=="arr"){
+                    //         labelToAddress[label] = 2000;}
+                    //         if(label=="arr_len"){
+                    //             labelToAddress[label]=400;
+                    //         }
+                        x=labelToAddress[label];
+                    while (iss >> value) {
+                       if(value == ".word")continue;
+                            if (isInteger(value)) {
+                            int val = std::stoi(value);
+                            //val 8 8  8 8
+                           for(int i=0;i<4;i++)
+                            {
+                                int t=0;
+                                for(int j=0;j<8;j++)
+                                {
+                                    if((val>>(8*i+j)&1==1)) t+=pow(2,j);
+                                }
+                                RAM[x]=t;
+                                vis[x]=1;
+                                x++;
+                            }
 
-            string baseRegister = offsetBase.substr(openParen + 1, offsetBase.size() - openParen - 2);
-            string offset = offsetBase.substr(0, openParen);
+                        
+                        } 
+                    }
+                }
+                }
 
-            int index = reg[baseRegister] + stoi(offset);
-            RAM[index] = reg[rd];  // Store value to RAM
-        }else if(opcode=="li"){
-            int iv = stoi(tokens[2]);
-              reg[rd] = iv;
-        }else if(opcode=="la"){
-        string label = tokens[2];
-        if (labelToAddress.find(label) != labelToAddress.end()) {
-            reg[rd] = labelToAddress[label];
-        }else {
-            cerr << "Error: Label not found - " << label << endl;
+             
+            else {
+               std:: cout<<line[0]<<std::endl;
+                        std::cerr << "Error: Invalid .word instruction format." << std::endl;
+                    
+                }
+           
         }
+
+        file.close();
+    }
+    int get_index(bool*vis){
+        int k=rand()%4096;
+        while(vis[k]!=0){
+       
+            k=(k+1000)%4096;
+        }
+      return k;
+    }
+   bool isInteger(const std::string& value) {
+    // Check if the string is empty or contains only whitespace
+    if (value.empty() || value.find_first_not_of(" \t\v\n") == std::string::npos)
+        return false;
+
+    // Check for a negative sign at the beginning
+    size_t start = 0;
+    if (value[0] == '-') {
+        if (value.length() == 1) // Just a negative sign without any digits
+            return false;
+        start = 1;
+    }
+
+    // Check if the remaining characters are digits
+    return value.find_first_not_of("0123456789", start) == std::string::npos;
+      }
+    int findLabelIndex(const std::string& label) {
+        for (const auto& instruction : instructions) {
+            std::istringstream iss(instruction.first);
+           std:: vector<std::string> tokens;
+           std:: string token;
+            while (iss >> token) {
+                tokens.push_back(token);
+            }
+            if (tokens.size() > 0 && tokens[0] == (label + ':')) {
+                return instruction.second;
+            }
+        }
+       std:: cerr << "Error: Label not found - " << label << std::endl;
+        return PC;
+    }
+
+     void handleSyscall(long long int syscallNumber) {
+    switch (syscallNumber) {
+        case 1: 
+            handlePrintSyscall();
+            break;
+        default:
+           std:: cerr << "Error: Unknown syscall number." << std::endl;
+           
+    }
+    PC++;
+    }
+
+     void handlePrintSyscall() {
+     long long int message = reg["x10"];
+     std::cout << message <<std:: endl;
+     }
+
+
+    void executeInstructions(char* RAM) {
+        while (PC < instructions.size()){
+            std::string instruction = instructions[PC].first;
+            std::cout<<instruction<<std::endl;
+             std::cout<<instructions[PC].second<<std::endl;
+
+        if (instruction.substr(0,5) == "ecall") {
+             int syscallNumber = reg["x17"];
+        handleSyscall(syscallNumber);
+}
+        else {
+            execute(instruction, RAM);
+        }
+        }
+
+        // for (auto it = reg.begin(); it != reg.end(); ++it) {
+        //    std:: cout << it->first << ": " << it->second << endl;
+        // }
+        int s=0;
+        int t=5;
+        int  index=2000;
+          while(t--){
+           s=0;
+             for(int i=0;i<4;i++)
+            {
+             
+            int  c=RAM[index];
+                for(int j=0;j<8;j++)
+                {
+                    if(i==3 && j==7)
+                    {
+                        if(c>>7&1==1) s-=pow(2,31);
+                        continue;
+                    }
+                    if(c>>j&1==1) s+=pow(2,8*i+j);
+                }
+                 index+=1;
+            
+            }
+           // cout<<s<<" "<<endl;
+            }
+
+    }
+
+private:
+    void execute(const std::string& instruction, char* RAM) {
+       std:: istringstream iss(instruction);
+       std:: vector<std::string> tokens;
+       std:: string token;
+        while (iss >> token) {
+            tokens.push_back(token);
+        }
+         std:: string opcode = tokens[0];
+       // cout<<opcode<<endl;
+         std::cout<< (opcode.back()==':')<<std::endl;
+        if (tokens.empty()) {
+           std:: cerr << "Error: Empty instruction." <<std:: endl;
+            return;
+        }
+         
+      std::  string rd = tokens[1];
+      std::cout<<tokens[1]<<std::endl;
+        if (opcode == "lw") {
+         // std::  cout<<"e"<<endl;
+        std:: string baseRegister;
+         std::string offset;
+         int x;
+         if(labelToAddress.find(tokens[2])!=labelToAddress.end()){
+           // reg[rd]=labelToAddress[tokens[2]];
+            offset="0";
+            x=labelToAddress[tokens[2]];
+         }
+         else{
+          std::  string offsetBase = tokens[2];
+            size_t openParen = offsetBase.find_first_of('(');
+            if (openParen ==std:: string::npos) {
+              std::  cerr << "Error: Invalid offset(base) format." <<std:: endl;
+                return;
+            }
+             x = reg[offsetBase.substr(openParen + 1, offsetBase.size() - openParen - 2)];
+            offset = offsetBase.substr(0, openParen);}
+            int index=0;
+          
+              int s=0;
+               for(int i=0;i<4;i++)
+            {
+
+           int c=RAM[stoi(offset)+x+i];
+                for(int j=0;j<8;j++)
+                {
+                    if(i==3 && j==7)
+                    {
+                        if(c>>7&1==1) s-=pow(2,31);
+                        continue;
+                    }
+                    if(c>>j&1==1) s+=pow(2,8*i+j);
+                }
+            
+            }
+            reg[rd]=s;
+            }
+        
+          
+        else if (opcode == "sw") {
+           std:: string offsetBase = tokens[2];
+           std:: size_t openParen = offsetBase.find_first_of('(');
+            if (openParen == std::string::npos) {
+               std:: cerr << "Error: Invalid offset(base) format." << std::endl;
+                return;
+            }
+          std::  string baseRegister = offsetBase.substr(openParen + 1, offsetBase.size() - openParen - 2);
+          std::  string offset = offsetBase.substr(0, openParen);
+           // int index = reg[baseRegister] + stoi(offset)/4; RAM[index] = reg[rd];
+               int s=reg[rd];
+            for(int i=0;i<4;i++)
+            {
+                int t=0;
+                for(int j=0;j<8;j++)
+                {
+                    if((s>>(8*i+j)&1==1)) t+=pow(2,j);
+                }
+                RAM[std::stoi(offset)+reg[baseRegister]+i]=t;
+            }
+
+         
+            }
+            else if(opcode=="la"){
+                if(labelToAddress.find(tokens[2])!=labelToAddress.end()){
+            reg[rd]=labelToAddress[tokens[2]];
+         }
+            
+            }
+           
+         else if (opcode == "li") {
+            int iv = stoi(tokens[2]);
+            reg[rd] = iv;
+        } else if (opcode == "slli") {
+           std:: string rs1 = tokens[2];
+            int b = stoi(tokens[3]);
+            reg[rd] = reg[rs1] << b;
+        } else if (opcode == "bne" || opcode == "blt" || opcode == "bgt" || opcode == "beq"|| opcode=="bge") {
+            control_executions(opcode, tokens);
+        }else if (opcode == "jalr") {
+            reg[rd] = PC + 1;
+            PC = reg[tokens[2]];
+
+        } else if (opcode == "j") {
+            // Jump to the label
+            PC = findLabelIndex(tokens[1]);
+
         }
         else if (opcode == "add" || opcode == "sub" || opcode == "addi") {
             // Arithmetic instructions
             executeArithmeticInstruction(tokens);
-        } else if (opcode == "jalr") {
-            reg[rd] = PC + 1;
-            PC = reg[tokens[2]];
-
-        } else if (opcode == "jal") {
-            // Jump to the label
-            PC = findLabelIndex(tokens[2]);
-
-        } else if (opcode == "slli") {
-        string rs1 = tokens[2];
-        int b = stoi(tokens[3]);
-
-        reg[rd] = reg[rs1] << b;
-
-        } else if (opcode == "bne" || opcode == "blt" || opcode == "bgt" || opcode == "beq") {
-            control_executions(opcode, tokens);
-        } else {
-            // Unknown opcode
-            cerr << "Error: Unknown opcode." << endl;
+        }
+        else if(opcode[opcode.length()-1]==':'){
+            PC++;
+            std::cout<<"s"<<std::endl;
+        }
+         else {
+            std::cout<<opcode[opcode.length()-1]<<std::endl;
+            std::cerr << "Error: Unknown opcode." <<std:: endl;
+           //std:: cout<<opcode<<endl;
         }
 
-        // Increment PC
-        PC += 1; // Increment PC to point to the next instruction
+        PC += 1;
+        return;
     }
 
-    void control_executions(string s, vector<string> tokens) {
-        string rs1 = tokens[1];
-        string rs2 = tokens[2];
+    void control_executions(std::string s,std:: vector<std::string> tokens) {
+       std:: string rs1 = tokens[1];
+       std:: string rs2 = tokens[2];
         if (s == "bne") {
             if (reg[rs1] != reg[rs2]) {
                 PC = findLabelIndex(tokens[3]);
             }
-        }
-        if (s == "blt") {
+        } else if (s == "blt") {
             if (reg[rs1] < reg[rs2]) {
                 PC = findLabelIndex(tokens[3]);
             }
-        }
-        if (s == "bgt") {
+        } else if (s == "bgt") {
             if (reg[rs1] > reg[rs2]) {
                 PC = findLabelIndex(tokens[3]);
             }
-        }
-        if (s == "beq") {
+        } else if (s == "beq") {
             if (reg[rs1] == reg[rs2]) {
                 PC = findLabelIndex(tokens[3]);
+            }
+        }else if(s=="bge"){
+            if(reg[rs1]>=reg[rs2]){
+                PC=findLabelIndex(tokens[3]);
             }
         }
     }
 
-
-    void executeArithmeticInstruction(const vector<string>& tokens) {
-        string opcode = tokens[0];
-        string rd = tokens[1];
+    void executeArithmeticInstruction(const std::vector<std::string>& tokens) {
+        std::string opcode = tokens[0];
+        std::string rd = tokens[1];
 
         if (opcode == "add") {
-            // Addition instruction
             int op1 = reg[tokens[2]];
             int op2 = reg[tokens[3]];
             reg[rd] = op1 + op2;
         } else if (opcode == "sub") {
-            // Subtraction instruction
             int op1 = reg[tokens[2]];
             int op2 = reg[tokens[3]];
             reg[rd] = op1 - op2;
         } else if (opcode == "addi") {
-            // Add immediate instruction
             int op1 = reg[tokens[2]];
             int op2 = stoi(tokens[3]);
             reg[rd] = op1 + op2;
+
         }
     }
 };
 
 class Processor {
 public:
-    int RAM[4096];
+    char RAM[4096];
     int clock = 0;
-
+    bool visited[4096]={0};
     void run() {
-        ifstream instructionsFile("instuctions.txt");
+        std::cout<<"Sorted Array by bubble sort"<<std::endl;
+        std::ifstream instructionsFile("instuctions.txt");
         if (!instructionsFile.is_open()) {
-            cerr << "Error opening file." << endl;
+            std::cerr << "Error opening file." <<std:: endl;
             return;
         }
-
-        Core core(instructionsFile);
-        core.readInstructionsFromFile("instuctions.txt", RAM);
-        core.executeInstructions(RAM);
+       
+        Core core1(instructionsFile);
+        core1.readInstructionsFromFile("instuctions.txt", RAM,visited);
+        core1.executeInstructions(RAM);
 
         instructionsFile.close();
-    
-    }
+        std::ifstream instructionsFilee("selection.txt");
+        if (!instructionsFilee.is_open()) {
+           std:: cerr << "Error opening file." <<std:: endl;
+            return;
+        }
+       std::cout<<"Sorted Array by selection sort"<<std::endl;
+        Core core2(instructionsFilee);
+        core2.readInstructionsFromFile("selection.txt", RAM,visited);
+        core2.executeInstructions(RAM);
 
+        instructionsFilee.close();
+    }
 };
 
 int main() {
     Processor processor;
+    //cout << "Register values:" << endl;
     processor.run();
-    cout << "Register values:" << endl;
 
     return 0;
 }
