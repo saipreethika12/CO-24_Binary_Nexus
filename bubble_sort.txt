@@ -2,14 +2,15 @@
 arr: .word 40 20 30 95 5 4
 arr_len: .word 6
 .text
-la x19 arr
-la x12 arr
-lw x5 arr_len
-addi x6 x5 -1
-li x2 0
-li x7 0
-li x31 0
-li x11 0
+
+  la x19 arr
+  la x12 arr
+    lw x5 arr_len
+    addi x6 x5 -1
+    li x2 0
+    li x7 0
+    li x31 0
+    li x11 0
 loop1:
 li x3 0
 loop2:

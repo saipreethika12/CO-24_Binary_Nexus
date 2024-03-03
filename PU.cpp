@@ -4,10 +4,9 @@
 #include <sstream>
 #include <vector>
 #include <string>
-#include <cstdint> 
+#include <cstdint>
 #include <ctime>
 #include <bits/stdc++.h>
-
 
 class Core
 {
@@ -43,6 +42,20 @@ public:
 
         while (getline(file, line))
         {
+            size_t commentPos = line.find('#');
+            if (commentPos != std::string::npos)
+            {
+                line = line.substr(0, commentPos); // Remove everything after #
+            }
+
+            // Trim leading and trailing whitespaces
+            line = trim(line);
+
+            // Skip empty lines
+            if (line.empty())
+            {
+                continue;
+            }
             if (line == ".data")
             {
                 // std:: cout<<"d";
@@ -108,13 +121,40 @@ public:
 
             else
             {
-               // std::cout << line[0] << std::endl;
+                // std::cout << line[0] << std::endl;
                 std::cerr << "Error: Invalid .word instruction format." << std::endl;
             }
         }
 
         file.close();
     }
+    std::string trim(const std::string &str)
+    {
+        size_t first = 0;
+        size_t last = str.length() - 1;
+
+        // Find the index of the first non-whitespace character
+        while (first < str.length() && (str[first] == ' ' || str[first] == '\t' || str[first] == '\r' || str[first] == '\n'))
+        {
+            ++first;
+        }
+
+        // If the string contains only whitespace characters, return an empty string
+        if (first == str.length())
+        {
+            return "";
+        }
+
+        // Find the index of the last non-whitespace character
+        while (last > first && (str[last] == ' ' || str[last] == '\t' || str[last] == '\r' || str[last] == '\n'))
+        {
+            --last;
+        }
+
+        // Extract the trimmed substring from the original string
+        return str.substr(first, last - first + 1);
+    }
+
     int get_index(bool *vis)
     {
         int k = rand() % 4096;
@@ -186,7 +226,7 @@ public:
     {
         while (PC < instructions.size())
         {
-          //  std::cout << PC << std::endl;
+            //  std::cout << PC << std::endl;
             std::string instruction = instructions[PC].first;
             if (instruction.substr(0, 5) == "ecall")
             {
@@ -239,7 +279,7 @@ private:
             tokens.push_back(token);
             // std:: cout<<token<<" ";
         }
-        
+
         if (tokens.empty())
         {
             std::cerr << "Error: Empty instruction." << std::endl;
@@ -247,7 +287,7 @@ private:
         }
 
         std::string opcode = tokens[0];
-      //  std::cout << opcode.back() << std::endl;
+        //  std::cout << opcode.back() << std::endl;
         std::string rd;
         if (tokens.size() > 1)
         {
@@ -256,7 +296,6 @@ private:
 
         if (opcode.back() == ':')
         {
-            
         }
         else if (opcode == "lw")
         {
@@ -369,7 +408,7 @@ private:
         else
         {
             std::cerr << "Error: Unknown opcode." << std::endl;
-          //  std::cout << opcode << std::endl;
+            //  std::cout << opcode << std::endl;
         }
 
         PC += 1;
