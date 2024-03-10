@@ -1,0 +1,21 @@
+First off we apologize for not being able to complete the entire requirements of this phase.
+What all did we try implementing?
+Pipeling without forwarding.
+Pipelining with forwarding.[Partly works]
+Static Branch Prediction.(while operand forwarding is enabled)
+Latencies for opcodes(addi,sub,mul,add)
+          Having said that there are instances where we failed to terminate the execution of the program.
+          We couldnot pipeline for the execution of bubble sort and selection sort but our implementation did work for all kinds of  hazards that arise with and without forwarding.
+          We have attached the input output format in the input_output.txt file.
+Dependencies:
+   We believe that the dependencies that are caused by built_in cpp functions that are heavily used. 
+  
+Pipelining without forwarding:
+We have tried to implement the things exactly how it works in the pipeline by containing temprorary latches for each pipeline stage.
+Stalls have been handled through flags and pipeline has been flushed for every branch execution.
+Pipeline with forwarding;
+We have implemented this using hazard detection and fetching contents from previous latches and then trying to use them.function and then we have also added the branch predictor which is "ALWAYS NOT TAKEN" which did correctly work.
+Trying to access multiple things many no of times is also causing a flaw to the execution.Though we have been working on structuring the code little did we succeed finally and that led to unusual errors which is why we are attaching the input output files.
+Static Branch Prediction:just a predict and flusihng when mispredicted.
+ Latencies also are working.
+While we tried to debug we have found that it is stroing garbage values even for addi and that is why it is not terminating for bubble and selection sort.
