@@ -1,0 +1,129 @@
+INPUT:
+.data
+arr: .word 34 32 11
+.text
+la x19 arr
+lw x11 0(x19)
+sw x11 0(x13)
+sub x18 x11 x13
+addi x12 x11 4
+OUTPUT:
+Enter the latency for ADD:
+
+1
+Enter the latency for SUB:
+
+1
+Enter the latency for ADDI:
+
+1
+The index i chose41
+la x19 arr
+F5
+1
+
+ONE cycle finish
+la
+IDlw x11 0(x19)
+F5
+2
+
+ONE cycle finish
+Elw
+IDsw x11 0(x13)
+F5
+3
+
+ONE cycle finish
+4299752
+MEFirst:
+sw
+DECODED sw
+311
+013
+IDsub x18 x11 x13
+F5
+4
+
+ONE cycle finish
+WBFirst: PC, Second: 0
+First: fetched_instruction, Second: la x19 arr
+First: Opcode, Second: la
+First: rd, Second: x19
+First: Label, Second: arr
+First: result, Second: 4299752
+First: loaded_value, Second: 41
+x19
+41
+MEFirst:
+sub
+IDaddi x12 x11 4
+F5
+5
+
+ONE cycle finish
+WBFirst: PC, Second: 1
+First: fetched_instruction, Second: lw x11 0(x19)
+First: Opcode, Second: lw
+First: rd, Second: x11
+First: baseReg_value, Second: 41
+First: baseRegister, Second: x19
+First: Offset, Second: 0
+First: rs1_value, Second: 0
+First: result, Second: 41
+First: loaded_value, Second: 34
+0
+MEaddi
+IDReached eof
+F5
+6
+
+ONE cycle finish
+WBFirst: PC, Second: 2
+First: fetched_instruction, Second: sw x11 0(x13)
+First: Opcode, Second: sw
+First: baseRegister, Second: x13
+First: baseReg_value, Second: 0
+First: Offset, Second: 0
+First: rd, Second: x11
+First: rd_val, Second: 0
+First: rs1_value, Second: 0
+First: result, Second: 0
+First: loaded_value, Second: 0
+0
+MEcame here but a stall;)
+3
+7
+
+ONE cycle finish
+WBFirst: PC, Second: 3
+First: fetched_instruction, Second: sub x18 x11 x13
+First: Opcode, Second: sub
+First: rd, Second: x18
+First: rs1, Second: x11
+First: rs1_value, Second: 0
+First: rs2, Second: x13
+First: rs2_value, Second: 0
+First: result, Second: 0
+38
+Mcame here but a stall;)
+2
+8
+
+ONE cycle finish
+WBFirst: PC, Second: 4
+First: fetched_instruction, Second: addi x12 x11 4
+First: Opcode, Second: addi
+First: rd, Second: x12
+First: rs1, Second: x11
+First: rs1_value, Second: 34
+First: immediate, Second: 4
+First: result, Second: 38
+2
+10
+---------------pipeline table------------------
+0   F D E M W
+1     F D   E M W
+2       F   D E M W
+3           F D E M W
+4             F D E M W
