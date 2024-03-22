@@ -84,9 +84,56 @@
 // bool stall_mul = false;
 // bool executed_branch = false;
 // int count = 1;
+/*
+CHANGE EACH OF THE names to _WF to have seperate variables and avoid conflictt
+*/
+class PIPE_WF: public Core{
+      private:
+     std::vector<std::pair<std::string, std::string>> latch_IF;
+    std::vector<std::pair<std::string, std::string>> latch_IDRF;
+    std::vector<std::pair<std::string, std::string>> latch_EXE;
+    std::vector<std::pair<std::string, std::string>> latch_MEM;
+    std::map<std::string, int> latency_map;
 
-void Core::FetchWF()
+    bool ishazard_notified = false;
+    int stalls = 0;
+    bool eof = false;
+    int ins = 0;
+    int prevPC = 0;
+    int prevprevPC = 0;
+    bool mis_predict = false;
+    bool stall_flag = false;
+    bool stall_flag2 = false;
+    bool branch_flag = false;
+    bool stall_mul = false;
+    bool executed_branch = false;
+    int count = 1;
+    int deof = false;
+    int loop = 0;
+    bool keep_going = true;
+    int v = 50;
+
+    std::vector<std::vector<std::string>> pip;
+    std::vector<std::string> ins_type1;
+    std::vector<std::string> ins_type2;
+    std::vector<std::string> ins_type3;
+    std::vector<std::string> ins_type4;
+    std::vector<std::string> ins_type5;
+    std::vector<std::string> ins_type6;
+public:
+    // Constructor
+   PIPE_WF(): Core(file) {
+        pip.resize(100, std::vector<std::string>(1000, " "));
+        ins_type1 = {"add", "sub", "and", "or", "slt", "mul"};
+        ins_type2 = {"addi", "andi", "ori", "sll", "srl", "slli"};
+        ins_type3 = {"bne", "beq", "bge", "bgt", "blt"};
+        ins_type4 = {"lw", "sw", "la"};
+        ins_type5 = {"j", "jal", "jalr"};
+        ins_type6 = {"lui"};
+    }
+void FetchWF()
 {
+    
     if (PC < instructions.size())
     {
         std::string fetched_instruction = instructions[PC].first;
@@ -102,7 +149,6 @@ void Core::FetchWF()
         prevPC = PC;
         PC += 1;
         ins++;
-        std::cout << " bloody i" << ins << std::endl;
     }
     else
     {
@@ -111,7 +157,7 @@ void Core::FetchWF()
     }
     return;
 }
-void Core::DecodeWF()
+void DecodeWF()
 {
     if (!stall_flag && !stall_flag2)
     {
@@ -550,7 +596,7 @@ int executeArithmeticInstruction(int op1, int op2, std::string opcode)
     return res;
 }
 
-void Core::ExecuteWF(std::vector<std::pair<std::string, std::string>> latch_IDRF)
+void ExecuteWF(std::vector<std::pair<std::string, std::string>> latch_IDRF)
 {
     latch_EXE = latch_IDRF;
     std::string opcode;
@@ -693,7 +739,7 @@ void Core::ExecuteWF(std::vector<std::pair<std::string, std::string>> latch_IDRF
         latch_EXE.push_back({"result", std::to_string(result)});
     }
 }
-void Core::MemoryWF(std::vector<std::pair<std::string, std::string>> latch_EXE, char *RAM)
+void MemoryWF(std::vector<std::pair<std::string, std::string>> latch_EXE, char *RAM)
 {
     std::cout << "MEM opcode" << std::endl;
     std::string rd;
@@ -810,7 +856,7 @@ void Core::MemoryWF(std::vector<std::pair<std::string, std::string>> latch_EXE, 
     }
 }
 
-void Core::WriteBackWF(std::vector<std::pair<std::string, std::string>> latch_MEM)
+void WriteBackWF(std::vector<std::pair<std::string, std::string>> latch_MEM)
 {
 
     std::string opcode = search_latch("Opcode", latch_MEM);
@@ -860,7 +906,7 @@ void Core::WriteBackWF(std::vector<std::pair<std::string, std::string>> latch_ME
     }
 }
 
-void Core::Step_countWF(char *RAM)
+void Step_countWF(char *RAM)
 {
     int latency_addi = latency_map["ADDI"] - 1;
     int latency_add = latency_map["ADD"] - 1;
@@ -1088,3 +1134,4 @@ void Core::Step_countWF(char *RAM)
 //     instructionsFile.close();
 //     return 0;
 // }
+};

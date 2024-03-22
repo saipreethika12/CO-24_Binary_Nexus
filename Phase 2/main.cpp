@@ -1,5 +1,5 @@
 #include <iostream>
-#include "PU.h"
+#include "Processor.h"
 int main()
 {
     Processor processor;
@@ -18,7 +18,7 @@ int main()
               << std::endl;
     std::cin >> x;
     latency_map["ADDI"] = x;
-    processor.run(choice);
+    processor.run(1);
 
     return 0;
 }
