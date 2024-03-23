@@ -114,22 +114,22 @@ class PIPE_WF: public Core{
     int v = 50;
 
     std::vector<std::vector<std::string>> pip;
-    std::vector<std::string> ins_type1;
-    std::vector<std::string> ins_type2;
-    std::vector<std::string> ins_type3;
-    std::vector<std::string> ins_type4;
-    std::vector<std::string> ins_type5;
-    std::vector<std::string> ins_type6;
+    std::vector<std::string> ins_type1_wf;
+    std::vector<std::string> ins_type2_wf;
+    std::vector<std::string> ins_type3_wf;
+    std::vector<std::string> ins_type4_wf;
+    std::vector<std::string> ins_type5_wf;
+    std::vector<std::string> ins_type6_wf;
 public:
     // Constructor
    PIPE_WF(): Core(file) {
         pip.resize(100, std::vector<std::string>(1000, " "));
-        ins_type1 = {"add", "sub", "and", "or", "slt", "mul"};
-        ins_type2 = {"addi", "andi", "ori", "sll", "srl", "slli"};
-        ins_type3 = {"bne", "beq", "bge", "bgt", "blt"};
-        ins_type4 = {"lw", "sw", "la"};
-        ins_type5 = {"j", "jal", "jalr"};
-        ins_type6 = {"lui"};
+        ins_type1_wf = {"add", "sub", "and", "or", "slt", "mul"};
+        ins_type2_wf = {"addi", "andi", "ori", "sll", "srl", "slli"};
+        ins_type3_wf = {"bne", "beq", "bge", "bgt", "blt"};
+        ins_type4_wf = {"lw", "sw", "la"};
+        ins_type5_wf = {"j", "jal", "jalr"};
+        ins_type6_wf = {"lui"};
     }
 void FetchWF()
 {
@@ -202,7 +202,7 @@ void DecodeWF()
         std::cout << "PREV OPCODE" << prev_opcode << std::endl;
     }
 
-    if (std::find(ins_type1.begin(), ins_type1.end(), opcode) != ins_type1.end())
+    if (std::find(ins_type1_wf.begin(), ins_type1_wf.end(), opcode) != ins_type1_wf.end())
     {
 
         std::string rs1 = tokens[2];
@@ -302,7 +302,7 @@ void DecodeWF()
 
         // reg_state[returnIndex(rd)] = 'd';
     }
-    if (std::find(ins_type2.begin(), ins_type2.end(), opcode) != ins_type2.end())
+    if (std::find(ins_type2_wf.begin(), ins_type2_wf.end(), opcode) != ins_type2_wf.end())
     {
         int rs1_value;
         std::string rs1 = tokens[2];
@@ -348,7 +348,7 @@ void DecodeWF()
             reg_state[returnIndex(rd)] = 2;
         }
     }
-    if (std::find(ins_type3.begin(), ins_type3.end(), opcode) != ins_type3.end())
+    if (std::find(ins_type3_wf.begin(), ins_type3_wf.end(), opcode) != ins_type3_wf.end())
     {
         branch_flag_wf = true;
         executed_branch_wf = false;
@@ -429,7 +429,7 @@ void DecodeWF()
             latch_IDRF_wf.push_back({"Label", tokens[3]});
         }
     }
-    if (std::find(ins_type4.begin(), ins_type4.end(), opcode) != ins_type4.end())
+    if (std::find(ins_type4_wf.begin(), ins_type4_wf.end(), opcode) != ins_type4_wf.end())
     {
         std::cout << "decoding type4" << std::endl;
         std::string offset;
@@ -547,7 +547,7 @@ void DecodeWF()
             latch_IDRF.push_back({"Label", tokens[2]});
         }
     }
-    if (std::find(ins_type5.begin(), ins_type5.end(), opcode) != ins_type5.end())
+    if (std::find(ins_type5_wf.begin(), ins_type5_wf.end(), opcode) != ins_type5_wf.end())
     {
         branch_flag_wf = true;
 
@@ -642,7 +642,7 @@ void ExecuteWF(std::vector<std::pair<std::string, std::string>> latch_IDRF_wf)
             rd = pair.second;
         }
     }
-    if (std::find(ins_type1.begin(), ins_type1.end(), opcode) != ins_type1.end() || std::find(ins_type2.begin(), ins_type2.end(), opcode) != ins_type2.end())
+    if (std::find(ins_type1_wf.begin(), ins_type1_wf.end(), opcode) != ins_type1_wf.end() || std::find(ins_type2_wf.begin(), ins_type2_wf.end(), opcode) != ins_type2_wf.end())
     {
 
         if (opcode == "add" || opcode == "sub" || opcode == "addi")
@@ -653,7 +653,7 @@ void ExecuteWF(std::vector<std::pair<std::string, std::string>> latch_IDRF_wf)
         reg[returnIndex(rd)] = result;
         reg_state[returnIndex(rd)] = 3;
     }
-    if (std::find(ins_type3.begin(), ins_type3.end(), opcode) != ins_type3.end())
+    if (std::find(ins_type3_wf.begin(), ins_type3_wf.end(), opcode) != ins_type3_wf.end())
     {
         for (const auto &pair : latch_EXE_wf)
         {
@@ -672,7 +672,7 @@ void ExecuteWF(std::vector<std::pair<std::string, std::string>> latch_IDRF_wf)
         branch_flag_wf = false;
         executed_branch_wf = true;
     }
-    if (std::find(ins_type4.begin(), ins_type4.end(), opcode) != ins_type4.end())
+    if (std::find(ins_type4_wf.begin(), ins_type4_wf.end(), opcode) != ins_type4_wf.end())
     {
         std::cout << "in" << std::endl;
         int baseReg = 0;
@@ -726,7 +726,7 @@ void ExecuteWF(std::vector<std::pair<std::string, std::string>> latch_IDRF_wf)
 
         reg_state[returnIndex(rd)] = 3;
     }
-    if (std::find(ins_type5.begin(), ins_type5.end(), opcode) != ins_type5.end())
+    if (std::find(ins_type5_wf.begin(), ins_type5_wf.end(), opcode) != ins_type5_wf.end())
     {
         if (opcode == "jalr")
         {
@@ -766,16 +766,16 @@ void MemoryWF(std::vector<std::pair<std::string, std::string>> latch_EXE_wf, cha
         }
     }
 
-    if (std::find(ins_type1.begin(), ins_type1.end(), opcode) != ins_type1.end() || std::find(ins_type2.begin(), ins_type2.end(), opcode) != ins_type2.end())
+    if (std::find(ins_type1_wf.begin(), ins_type1_wf.end(), opcode) != ins_type1_wf.end() || std::find(ins_type2_wf.begin(), ins_type2_wf.end(), opcode) != ins_type2_wf.end())
     {
         latch_MEM_wf = latch_EXE_wf;
         reg_state[returnIndex(rd)] = 4;
     }
-    if (std::find(ins_type3.begin(), ins_type3.end(), opcode) != ins_type3.end())
+    if (std::find(ins_type3_wf.begin(), ins_type3_wf.end(), opcode) != ins_type3_wf.end())
     {
         //  executed_branch = true;
     }
-    if (std::find(ins_type4.begin(), ins_type4.end(), opcode) != ins_type4.end())
+    if (std::find(ins_type4_wf.begin(), ins_type4_wf.end(), opcode) != ins_type4_wf.end())
 
     {
         int loaded_value = 0;
@@ -850,7 +850,7 @@ void MemoryWF(std::vector<std::pair<std::string, std::string>> latch_EXE_wf, cha
 
         latch_MEM.push_back({"loaded_value", std::to_string(loaded_value)});
     }
-    if (std::find(ins_type5.begin(), ins_type5.end(), opcode) != ins_type5.end())
+    if (std::find(ins_type5_wf.begin(), ins_type5_wf.end(), opcode) != ins_type5_wf.end())
     {
         executed_branch_wf = true;
     }
@@ -863,7 +863,7 @@ void WriteBackWF(std::vector<std::pair<std::string, std::string>> latch_MEM_wf)
 
     std::string rd = search_latch("rd", latch_MEM_wf);
     // std::cout<<opcode<<std::endl;
-    if (std::find(ins_type1.begin(), ins_type1.end(), opcode) != ins_type1.end() || std::find(ins_type2.begin(), ins_type2.end(), opcode) != ins_type2.end())
+    if (std::find(ins_type1_wf.begin(), ins_type1_wf.end(), opcode) != ins_type1_wf.end() || std::find(ins_type2_wf.begin(), ins_type2_wf.end(), opcode) != ins_type2_wf.end())
     {
         int result = stoi(search_latch("result", latch_MEM_wf));
 
@@ -871,10 +871,10 @@ void WriteBackWF(std::vector<std::pair<std::string, std::string>> latch_MEM_wf)
         reg[returnIndex(rd)] = result;
         reg_state[returnIndex(rd)] = 5;
     }
-    if (std::find(ins_type3.begin(), ins_type3.end(), opcode) != ins_type3.end())
+    if (std::find(ins_type3_wf.begin(), ins_type3_wf.end(), opcode) != ins_type3_wf.end())
     {
     }
-    if (std::find(ins_type4.begin(), ins_type4.end(), opcode) != ins_type4.end())
+    if (std::find(ins_type4_wf.begin(), ins_type4_wf.end(), opcode) != ins_type4_wf.end())
     {
         if (opcode == "lw")
         {
@@ -896,7 +896,7 @@ void WriteBackWF(std::vector<std::pair<std::string, std::string>> latch_MEM_wf)
         }
         reg_state[returnIndex(rd)] = 5;
     }
-    if (std::find(ins_type4.begin(), ins_type4.end(), opcode) != ins_type4.end())
+    if (std::find(ins_type4_wf.begin(), ins_type4_wf.end(), opcode) != ins_type4_wf.end())
     {
         if (opcode == "jalr")
         {
