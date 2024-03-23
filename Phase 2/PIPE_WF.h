@@ -131,6 +131,16 @@ public:
         ins_type5_wf = {"j", "jal", "jalr"};
         ins_type6_wf = {"lui"};
     }
+    bool isHazard(std::string rs, std::vector<std::pair<std::string, std::string>> v)
+{
+    if (latch_MEM_wf.size() > 0)
+    {
+        std::cout<<"CAME HERE"<<" "<<(rs == search_latch("rd", v))<<std::endl;
+        return rs == search_latch("rd", v);
+    }
+    else
+        return false;
+}
 void FetchWF()
 {
     
@@ -159,7 +169,7 @@ void FetchWF()
 }
 void DecodeWF()
 {
-    if (!stall_flag && !stall_flag2)
+    if (!stall_flag_wf && !stall_flag2_wf)
     {
         latch_IDRF_wf = latch_IF_wf;
     }
@@ -254,7 +264,7 @@ void DecodeWF()
             {
                 rs1_value = stoi(search_latch("result", latch_EXE_wf));
             }
-            if (isHazard(rs2, latch_EXE))
+            if (isHazard(rs2, latch_EXE_wf))
             {
                 rs2_value = stoi(search_latch("result", latch_EXE_wf));
             }
@@ -292,12 +302,12 @@ void DecodeWF()
         }
         if (!stall_flag_wf && !stall_flag2_wf)
         {
-            latch_IDRF.push_back({"Opcode", opcode});
-            latch_IDRF.push_back({"rd", rd});
-            latch_IDRF.push_back({"rs1", rs1});
-            latch_IDRF.push_back({"rs1_value", std::to_string(rs1_value)});
-            latch_IDRF.push_back({"rs2", rs2});
-            latch_IDRF.push_back({"rs2_value", std::to_string(rs2_value)});
+            latch_IDRF_wf.push_back({"Opcode", opcode});
+            latch_IDRF_wf.push_back({"rd", rd});
+            latch_IDRF_wf.push_back({"rs1", rs1});
+            latch_IDRF_wf.push_back({"rs1_value", std::to_string(rs1_value)});
+            latch_IDRF_wf.push_back({"rs2", rs2});
+            latch_IDRF_wf.push_back({"rs2_value", std::to_string(rs2_value)});
         }
 
         // reg_state[returnIndex(rd)] = 'd';
@@ -310,7 +320,7 @@ void DecodeWF()
         if (prev_opcode != "lw" && !ishazard_notified_wf)
         {
             std::cout << "prev is lw" << std::endl;
-            if (isHazard(rs1, latch_EXE))
+            if (isHazard(rs1, latch_EXE_wf))
             {
                 rs1_value = stoi(search_latch("result", latch_EXE_wf));
             }
@@ -340,11 +350,11 @@ void DecodeWF()
         }
         if (!stall_flag_wf && !stall_flag2_wf)
         {
-            latch_IDRF.push_back({"Opcode", opcode});
-            latch_IDRF.push_back({"rd", rd});
-            latch_IDRF.push_back({"rs1", rs1});
-            latch_IDRF.push_back({"rs1_value", std::to_string(rs1_value)});
-            latch_IDRF.push_back({"immediate", tokens[3]});
+            latch_IDRF_wf.push_back({"Opcode", opcode});
+            latch_IDRF_wf.push_back({"rd", rd});
+            latch_IDRF_wf.push_back({"rs1", rs1});
+            latch_IDRF_wf.push_back({"rs1_value", std::to_string(rs1_value)});
+            latch_IDRF_wf.push_back({"immediate", tokens[3]});
             reg_state[returnIndex(rd)] = 2;
         }
     }
@@ -452,7 +462,7 @@ void DecodeWF()
             {
                 if (isHazard(baseRegister, latch_MEM_wf))
                 {
-                    rs1_value = stoi(search_latch("result", latch_MEM));
+                    rs1_value = stoi(search_latch("result", latch_MEM_wf));
                 }
 
                 else
@@ -464,24 +474,24 @@ void DecodeWF()
             {
                 if (isHazard(rd, latch_MEM_wf))
                 {
-                    stall_flag = true;
-                    stalls += 1;
+                    stall_flag_wf = true;
+                    stalls_wf += 1;
                 }
 
                 else
                 {
-                    stall_flag = false;
+                    stall_flag_wf = false;
                     // stall_flag2 = false;
                     rs1_value = reg[rs1num];
                 }
             }
             if (!stall_flag_wf && !stall_flag2_wf)
             {
-                latch_IDRF.push_back({"Opcode", opcode});
-                latch_IDRF.push_back({"rd", rd});
-                latch_IDRF.push_back({"baseReg_value", std::to_string(rs1_value)});
-                latch_IDRF.push_back({"baseRegister", baseRegister});
-                latch_IDRF.push_back({"Offset", offset});
+                latch_IDRF_wf.push_back({"Opcode", opcode});
+                latch_IDRF_wf.push_back({"rd", rd});
+                latch_IDRF_wf.push_back({"baseReg_value", std::to_string(rs1_value)});
+                latch_IDRF_wf.push_back({"baseRegister", baseRegister});
+                latch_IDRF_wf.push_back({"Offset", offset});
                 reg_state[rdnum] = 2;
             }
            
@@ -531,20 +541,20 @@ void DecodeWF()
             }
             if (!stall_flag_wf && !stall_flag2_wf)
             {
-                latch_IDRF.push_back({"Opcode", opcode});
-                latch_IDRF.push_back({"baseRegister", baseRegister});
-                latch_IDRF.push_back({"baseReg_value", std::to_string(baseRegister_value)});
-                latch_IDRF.push_back({"Offset", offset});
-                latch_IDRF.push_back({"rd", rd});
-                latch_IDRF.push_back({"rd_val", std::to_string(rd_value)});
+                latch_IDRF_wf.push_back({"Opcode", opcode});
+                latch_IDRF_wf.push_back({"baseRegister", baseRegister});
+                latch_IDRF_wf.push_back({"baseReg_value", std::to_string(baseRegister_value)});
+                latch_IDRF_wf.push_back({"Offset", offset});
+                latch_IDRF_wf.push_back({"rd", rd});
+                latch_IDRF_wf.push_back({"rd_val", std::to_string(rd_value)});
                 reg_state[rdnum] = 2;
             }
         }
         else if (opcode == "la")
         {
-            latch_IDRF.push_back({"Opcode", opcode});
-            latch_IDRF.push_back({"rd", rd});
-            latch_IDRF.push_back({"Label", tokens[2]});
+            latch_IDRF_wf.push_back({"Opcode", opcode});
+            latch_IDRF_wf.push_back({"rd", rd});
+            latch_IDRF_wf.push_back({"Label", tokens[2]});
         }
     }
     if (std::find(ins_type5_wf.begin(), ins_type5_wf.end(), opcode) != ins_type5_wf.end())
@@ -552,12 +562,12 @@ void DecodeWF()
         branch_flag_wf = true;
 
         executed_branch_wf = false;
-        latch_IDRF.push_back({"Opcode", opcode});
+        latch_IDRF_wf.push_back({"Opcode", opcode});
         if (opcode == "j" || opcode == "jal")
         {
             PC = findLabelIndex(rd);
 
-            latch_IDRF.push_back({"Label", rd});
+            latch_IDRF_wf.push_back({"Label", rd});
         }
         if (opcode == "jalr")
         {
@@ -565,10 +575,10 @@ void DecodeWF()
             int rs1Num = returnIndex(tokens[2]);
             int rs1_value = reg[rs1Num];
 
-            latch_IDRF.push_back({"rd", rd});
-            latch_IDRF.push_back({"rs1", tokens[2]});
-            latch_IDRF.push_back({"rs1_value", std::to_string(rs1_value)});
-            latch_IDRF.push_back({"Offset", tokens[2]});
+            latch_IDRF_wf.push_back({"rd", rd});
+            latch_IDRF_wf.push_back({"rs1", tokens[2]});
+            latch_IDRF_wf.push_back({"rs1_value", std::to_string(rs1_value)});
+            latch_IDRF_wf.push_back({"Offset", tokens[2]});
             reg_state[returnIndex(rd)] = 2;
         }
     }
@@ -848,7 +858,7 @@ void MemoryWF(std::vector<std::pair<std::string, std::string>> latch_EXE_wf, cha
             }
         }
 
-        latch_MEM.push_back({"loaded_value", std::to_string(loaded_value)});
+        latch_MEM_wf.push_back({"loaded_value", std::to_string(loaded_value)});
     }
     if (std::find(ins_type5_wf.begin(), ins_type5_wf.end(), opcode) != ins_type5_wf.end())
     {
@@ -930,19 +940,19 @@ void Step_countWF(char *RAM)
             pip[y + z][c] = "W";
             z++;
             WriteBackWF(latch_MEM_wf);
-            latch_MEM.clear();
+            latch_MEM_wf.clear();
         }
-        if (latch_EXE.size() > 0)
+        if (latch_EXE_wf.size() > 0)
         {
 
             k = 2;
             pip[y + z][c] = "M";
             y++;
             MemoryWF(latch_EXE_wf, RAM);
-            latch_EXE.clear();
+            latch_EXE_wf.clear();
             std::cout << "M";
         }
-        if (latch_IDRF.size() > 0)
+        if (latch_IDRF_wf.size() > 0)
         {
             bool f = false;
             if (!stall_flag_wf && !stall_flag2_wf)
@@ -996,7 +1006,7 @@ void Step_countWF(char *RAM)
                 if (executed_branch_wf && mis_predict_wf)
                 {
                     PC = (findLabelIndex(search_latch("Label", latch_EXE_wf))) + 1;
-                    latch_IF.clear();
+                    latch_IF_wf.clear();
                     executed_branch_wf = false;
                     mis_predict_wf = false;
                 }
@@ -1004,10 +1014,10 @@ void Step_countWF(char *RAM)
                 latency_add = latency_map["ADD"] - 1;
                 latency_mul = latency_map["MUL"] - 1;
                 latency_sub = latency_map["SUB"] - 1;
-                latch_IDRF.clear();
+                latch_IDRF_wf.clear();
             }
         }
-        if (latch_IF.size() > 0 || ishazard_notified_wf)
+        if (latch_IF_wf.size() > 0 || ishazard_notified_wf)
         {
             if (eof_wf && !deof_wf)
             {
@@ -1019,7 +1029,7 @@ void Step_countWF(char *RAM)
                     DecodeWF();
 
                     std::cout << "ID";
-                    latch_IF.clear();
+                    latch_IF_wf.clear();
                     deof_wf = true;
                 }
                 else if ((stall_flag_wf || stall_flag2_wf) && latch_IDRF_wf.size() == 2)
