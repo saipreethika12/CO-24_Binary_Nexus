@@ -7,13 +7,20 @@
 #include <cstdint> 
 #include <ctime>
 #include <bits/stdc++.h>
+<<<<<<< HEAD
 #ifdef CORE_H
 #define CORE_H
+=======
+#ifndef PU_H
+#define PU_H
+//#define CORE_H
+>>>>>>> f751567a4abdd7e4fb287435522c0354e1b656c7
 // std::vector<std::pair<std::string, std::string>> latch_IF;
 // std::vector<std::pair<std::string, std::string>> latch_IDRF;
 // std::vector<std::pair<std::string, std::string>> latch_EXE;
 // std::vector<std::pair<std::string, std::string>> latch_MEM;
 // std::map<std::string, int> latency_map;
+<<<<<<< HEAD
 
 // // std::vector<std::pair<std::string, std::string>> latch_WB;
 // bool ishazard_notified = false;
@@ -61,6 +68,36 @@
 // bool predict_branch(){
 //     return false;
 // }
+=======
+
+// // std::vector<std::pair<std::string, std::string>> latch_WB;
+// bool ishazard_notified = false;
+// int stalls = 0;
+// bool eof = false;
+// int ins = 0;
+// int prevPC = 0;
+// int prevprevPC = 0;
+// bool mis_predict = false;
+// bool stall_flag = false;
+// bool stall_flag2 = false;
+// bool branch_flag = false;
+// bool stall_mul = false;
+// bool executed_branch = false;
+// int count = 1;
+// int deof = false;
+// int loop = 0;
+// bool keep_going = true;
+// int v = 50;
+
+// std::vector<std::vector<std::string>> pip(100, std::vector<std::string>(1000, " "));
+// std::vector<std::string> ins_type1 = {"add", "sub", "and", "or", "slt","mul"};
+// std::vector<std::string> ins_type2 = {"addi", "andi", "ori", "sll", "srl", "slli"};
+// std::vector<std::string> ins_type3 = {"bne", "beq", "bge", "bgt", "blt"};
+// std::vector<std::string> ins_type4 = {"lw", "sw", "la"};
+// std::vector<std::string> ins_type5 = {"j", "jal", "jalr"};
+// std::vector<std::string> ins_type6 = {"lui"};
+
+>>>>>>> f751567a4abdd7e4fb287435522c0354e1b656c7
 class Core
 {
 public:
@@ -642,4 +679,9 @@ public:
 
 // //     return 0;
 // // }
+<<<<<<< HEAD
  #endif
+=======
+// #endif
+#endif
+>>>>>>> f751567a4abdd7e4fb287435522c0354e1b656c7

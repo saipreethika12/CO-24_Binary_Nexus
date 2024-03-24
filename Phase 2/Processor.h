@@ -1,50 +1,54 @@
+#ifndef PROCESSOR_H
+#define PROCESSOR_H
+
 #include <iostream>
-#include<fstream>
+#include <fstream>
 #include "PIPE_WOF.h"
 #include "PIPE_WF.h"
-class Processor
-{
+
+class Processor {
 public:
     char RAM[4096];
     int clock = 0;
     bool visited[4096] = {0};
-    void run(int x)
-    {
-        std::cout << "Sorted Array by bubble sort" << std::endl;
+
+    void run(int x) {
         std::ifstream instructionsFile("text.txt");
-        if (!instructionsFile.is_open())
-        {
-            std::cerr << "Error opening file." << std::endl;
+        if (!instructionsFile.is_open()) {
+            std::cerr << "Error opening file 'text.txt'." << std::endl;
             return;
         }
 
-        Core core1(instructionsFile);
-        core1.readInstructionsFromFile("bubble_sort.txt", RAM, visited);
-        PIPE_WOF pwof;
-        PIPE_WF pwf;
-        
-        if(x==1){
-        pwf.Step_countWF(RAM);}
-        else{
-           pwof.Step_count(RAM);} 
-        
+        PIPE_WOF pwof; // Assuming PIPE_WOF extends Core
+        pwof.readInstructionsFromFile("text.txt", RAM, visited);
+
+        if (x == 1) {
+            pwof.Step_count(RAM);
+        } else {
+            PIPE_WF pwf;
+            pwf.Step_countWF(RAM);
+        }
 
         instructionsFile.close();
-        std::ifstream instructionsFilee("text1.txt");
-        if (!instructionsFilee.is_open())
-        {
-            std::cerr << "Error opening file." << std::endl;
-            return;
-        }
-        std::cout << "Sorted Array by selection sort" << std::endl;
-        Core core2(instructionsFilee);
-        core2.readInstructionsFromFile("selection.txt", RAM, visited);
-       if(x==1){
-        pwf.Step_countWF(RAM);}
-        else{
-           pwof .Step_count(RAM);} 
 
-        instructionsFilee.close();
-     }
+        // std::ifstream instructionsFilee("text1.txt");
+        // if (!instructionsFilee.is_open()) {
+        //     std::cerr << "Error opening file 'text1.txt'." << std::endl;
+        //     return;
+        // }
+
+        // PIPE_WOF pwof2; // Assuming PIPE_WOF extends Core
+        // pwof2.readInstructionsFromFile("selection.txt", RAM, visited);
+
+        // if (x == 1) {
+        //     pwof2.Step_count(RAM);
+        // } else {
+        //     PIPE_WF pwf;
+        //     pwf.Step_countWF(RAM);
+        // }
+
+        // instructionsFilee.close();
+    }
 };
 
+#endif // PROCESSOR_H
