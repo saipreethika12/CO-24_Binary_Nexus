@@ -9,7 +9,7 @@
 // // std::vector<std::pair<std::string, std::string>> latch_WB;
 // bool ishazard_notified = false;
 // bool predict_branch(){
-//     return false;
+//     return false;s
 // }
 // int stalls = 0;
 // bool eof = false;
@@ -140,6 +140,26 @@ public:
     }
     else
         return false;
+}
+void imbibe_stall()
+{
+    std::cout << "STAll"
+              << " ";
+}
+std::string search_latch(const std::string &opcode, const std::vector<std::pair<std::string, std::string>> &latch_IDRF)
+{
+    for (const auto &pair : latch_IDRF)
+    {
+        if (pair.first == opcode)
+        {
+            return pair.second; // Return the value if opcode matches
+        }
+    }
+    return ""; // Return empty string if opcode is not found
+}
+
+bool predict_branch(){
+    return false;
 }
 void FetchWF()
 {
