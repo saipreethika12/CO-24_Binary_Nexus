@@ -7,69 +7,42 @@
 #include <cstdint> 
 #include <ctime>
 #include <bits/stdc++.h>
+#ifndef PU_H
+#define PU_H
+//#define CORE_H
+// std::vector<std::pair<std::string, std::string>> latch_IF;
+// std::vector<std::pair<std::string, std::string>> latch_IDRF;
+// std::vector<std::pair<std::string, std::string>> latch_EXE;
+// std::vector<std::pair<std::string, std::string>> latch_MEM;
+// std::map<std::string, int> latency_map;
 
-#define CORE_H
-std::vector<std::pair<std::string, std::string>> latch_IF;
-std::vector<std::pair<std::string, std::string>> latch_IDRF;
-std::vector<std::pair<std::string, std::string>> latch_EXE;
-std::vector<std::pair<std::string, std::string>> latch_MEM;
-std::map<std::string, int> latency_map;
+// // std::vector<std::pair<std::string, std::string>> latch_WB;
+// bool ishazard_notified = false;
+// int stalls = 0;
+// bool eof = false;
+// int ins = 0;
+// int prevPC = 0;
+// int prevprevPC = 0;
+// bool mis_predict = false;
+// bool stall_flag = false;
+// bool stall_flag2 = false;
+// bool branch_flag = false;
+// bool stall_mul = false;
+// bool executed_branch = false;
+// int count = 1;
+// int deof = false;
+// int loop = 0;
+// bool keep_going = true;
+// int v = 50;
 
-// std::vector<std::pair<std::string, std::string>> latch_WB;
-bool ishazard_notified = false;
-int stalls = 0;
-bool eof = false;
-int ins = 0;
-int prevPC = 0;
-int prevprevPC = 0;
-bool mis_predict = false;
-bool stall_flag = false;
-bool stall_flag2 = false;
-bool branch_flag = false;
-bool stall_mul = false;
-bool executed_branch = false;
-int count = 1;
-int deof = false;
-int loop = 0;
-bool keep_going = true;
-int v = 50;
+// std::vector<std::vector<std::string>> pip(100, std::vector<std::string>(1000, " "));
+// std::vector<std::string> ins_type1 = {"add", "sub", "and", "or", "slt","mul"};
+// std::vector<std::string> ins_type2 = {"addi", "andi", "ori", "sll", "srl", "slli"};
+// std::vector<std::string> ins_type3 = {"bne", "beq", "bge", "bgt", "blt"};
+// std::vector<std::string> ins_type4 = {"lw", "sw", "la"};
+// std::vector<std::string> ins_type5 = {"j", "jal", "jalr"};
+// std::vector<std::string> ins_type6 = {"lui"};
 
-std::vector<std::vector<std::string>> pip(100, std::vector<std::string>(1000, " "));
-std::vector<std::string> ins_type1 = {"add", "sub", "and", "or", "slt","mul"};
-std::vector<std::string> ins_type2 = {"addi", "andi", "ori", "sll", "srl", "slli"};
-std::vector<std::string> ins_type3 = {"bne", "beq", "bge", "bgt", "blt"};
-std::vector<std::string> ins_type4 = {"lw", "sw", "la"};
-std::vector<std::string> ins_type5 = {"j", "jal", "jalr"};
-std::vector<std::string> ins_type6 = {"lui"};
-void imbibe_stall()
-{
-    std::cout << "STAll"
-              << " ";
-}
-std::string search_latch(const std::string &opcode, const std::vector<std::pair<std::string, std::string>> &latch_IDRF)
-{
-    for (const auto &pair : latch_IDRF)
-    {
-        if (pair.first == opcode)
-        {
-            return pair.second; // Return the value if opcode matches
-        }
-    }
-    return ""; // Return empty string if opcode is not found
-}
-bool isHazard(std::string rs, std::vector<std::pair<std::string, std::string>> v)
-{
-    if (latch_MEM.size() > 0)
-    {
-        std::cout<<"CAME HERE"<<" "<<(rs == search_latch("rd", v))<<std::endl;
-        return rs == search_latch("rd", v);
-    }
-    else
-        return false;
-}
-bool predict_branch(){
-    return false;
-}
 class Core
 {
 public:
@@ -652,3 +625,4 @@ public:
 // //     return 0;
 // // }
 // #endif
+#endif
