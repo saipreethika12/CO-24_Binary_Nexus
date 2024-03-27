@@ -11,7 +11,7 @@
 // // std::vector<std::pair<std::string, std::string>> latch_WB;
 // bool ishazard_notified = false;
 // bool predict_branch(){
-//     return false;s
+//     return false;
 // }
 // int stalls = 0;
 // bool eof = false;
@@ -113,8 +113,8 @@ private:
     int count_wf = 1;
     int deof_wf = false;
     int loop_wf = 0;
-    bool keep_going_wf = true;
-    int v = 50;
+   // bool keep_going_wf = true;
+    int v = 200;
 
     std::vector<std::vector<std::string>> pip;
     std::vector<std::string> ins_type1_wf;
@@ -950,6 +950,7 @@ public:
         int c = 1;
         int y = 0, z = 0;
         int k = 0;
+        bool keep_going_wf=true;
         while (keep_going_wf)
         {
             y = 0;
@@ -966,6 +967,7 @@ public:
                 z++;
                 WriteBackWF(latch_MEM_wf);
                 latch_MEM_wf.clear();
+                k=0;
             }
             if (latch_EXE_wf.size() > 0)
             {
@@ -1111,9 +1113,9 @@ public:
                 break;
             if (k == 0)
             {
-
+                  keep_going_wf = false;
                 break;
-                keep_going_wf = 0;
+               
             }
             else
             {
