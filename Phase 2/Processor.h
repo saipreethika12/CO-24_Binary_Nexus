@@ -14,12 +14,12 @@ public:
     bool visited[4096] = {0};
     PIPE_WOF pwof;
     PIPE_WF pwf;
-    void set_latencies(int addi, int add, int mul, int sub)
+    void set_latencies(int addi_lat, int add_lat, int mul_lat, int sub_lat)
     {
-        pwf.latency_map["ADDI"] = addi;
-        pwf.latency_map["ADD"] = add;
-        pwf.latency_map["MUL"] = mul;
-        pwf.latency_map["SUB"] = sub;
+        pwf.latency_map["ADDI"] = addi_lat;
+        pwf.latency_map["ADD"] = add_lat;
+        pwf.latency_map["MUL"] = mul_lat;
+        pwf.latency_map["SUB"] = sub_lat;
     }
     void run(int x)
     {

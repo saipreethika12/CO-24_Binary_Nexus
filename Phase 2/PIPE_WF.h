@@ -390,7 +390,6 @@ public:
             branch_flag_wf = true;
             executed_branch_wf = false;
             stalls_wf += 1;
-            // count-=2;
             std::string rs2 = tokens[2];
 
             std::string rs1 = tokens[1];
@@ -1135,7 +1134,7 @@ public:
         std::cout << "No of cycles" << std::endl;
         std::cout << loop_wf << std::endl;
         std::cout << "Instructions per cycle" << std::endl;
-        std::cout << stalls_wf / (float)ins_wf << std::endl;
+        std::cout << loop_wf / (float)ins_wf << std::endl;
         for (int i = 0; i < 30; i++)
         {
             for (int j = 0; j < 30; j++)
