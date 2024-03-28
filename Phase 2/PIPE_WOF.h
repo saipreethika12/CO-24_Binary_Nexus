@@ -10,7 +10,7 @@ private:
     std::vector<std::pair<std::string, std::string>> latch_IDRF;
     std::vector<std::pair<std::string, std::string>> latch_EXE;
     std::vector<std::pair<std::string, std::string>> latch_MEM;
-    std::map<std::string, int> latency_map;
+    
 
     bool ishazard_notified = false;
     int stalls = 0;
@@ -43,6 +43,7 @@ private:
 
     // Constructor
 public:
+std::map<std::string, int> latency_map;
     PIPE_WOF() : Core(file)
     {
         pip.resize(100, std::vector<std::string>(1000, " "));
