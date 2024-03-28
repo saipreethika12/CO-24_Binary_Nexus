@@ -75,9 +75,6 @@ public:
         return false;
     }
 
-bool predict_branch(){
-    return false;
-}
     void Fetch()
 
     {
