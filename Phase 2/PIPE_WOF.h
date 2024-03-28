@@ -1,7 +1,6 @@
 #ifndef PIPE_WOF_H
 #define PIPE_WOF_H
 #include <fstream>
-#include <string>
 #include "PU.h"
 
 class PIPE_WOF : public Core
@@ -11,7 +10,7 @@ private:
     std::vector<std::pair<std::string, std::string>> latch_IDRF;
     std::vector<std::pair<std::string, std::string>> latch_EXE;
     std::vector<std::pair<std::string, std::string>> latch_MEM;
-    std::map<std::string, int> latency_map;
+    
 
     bool ishazard_notified = false;
     int stalls = 0;
@@ -44,6 +43,7 @@ private:
 
     // Constructor
 public:
+std::map<std::string, int> latency_map;
     PIPE_WOF() : Core(file)
     {
         pip.resize(100, std::vector<std::string>(1000, " "));
@@ -707,7 +707,11 @@ public:
     // int c = 0;
     // int y = 0, z = 0;
     void Step_count(char *RAM)
-    {
+    {  
+         int latency_addi = latency_map["ADDI"] - 1;
+        int latency_add = latency_map["ADD"] - 1;
+        int latency_mul = latency_map["MUL"] - 1;
+        int latency_sub = latency_map["SUB"] - 1;
         while (keep_going)
         {
             // if(k<0)break;
@@ -747,7 +751,7 @@ public:
                 latch_EXE.clear();
             }
             if (latch_IDRF.size() > 0)
-            {
+            {     bool f=false;
 
                 // std::cout << search_latch("Opcode", latch_IDRF) << std::endl;
                 if (!stall_flag && !stall_flag2)
@@ -756,7 +760,58 @@ public:
                     std::cout << "E";
                     pip[y + z][c] = "E";
                     y++;
+                    std::string op = search_latch("Opcode", latch_IDRF);
+                    if (op == "addi")
+                    {
+                        if (latency_addi > 0)
+                        {
+                            f = true;
+                            // std::cout << "latin" << std::endl;
+                            latency_addi--;
+                            loop++;
+                            continue;
+                        }
+                    }
+                    else if (op == "add")
+                    {
+                        if (latency_add > 0)
+                        {
+                            f = true;
+                            latency_add--;
+                            loop++;
+                            continue;
+                        }
+                    }
+                    else if (op == "sub")
+                    {
+                        if (latency_sub > 0)
+                        {
+                            f = true;
+                            latency_sub--;
+                            loop++;
+                            continue;
+                        }
+                    }
+                    else if (op == "mul")
+                    {
+                        if (latency_mul > 0)
+                        {
+                            f = true;
+                            latency_mul--;
+                            loop++;
+                            continue;
+                        }
+                    }
+                    if (f)
+                    {
+                        continue;
+                    }
                     Execute(latch_IDRF);
+
+                      latency_addi = latency_map["ADDI"] - 1;
+                    latency_add = latency_map["ADD"] - 1;
+                    latency_mul = latency_map["MUL"] - 1;
+                    latency_sub = latency_map["SUB"] - 1;
                     latch_IDRF.clear();
                 }
             }
@@ -833,3 +888,4 @@ public:
     }
 };
 #endif
+
