@@ -20,6 +20,10 @@ public:
         pwf.latency_map["ADD"] = add;
         pwf.latency_map["MUL"] = mul;
         pwf.latency_map["SUB"] = sub;
+           pwof.latency_map["ADDI"] = addi;
+        pwof.latency_map["ADD"] = add;
+        pwof.latency_map["MUL"] = mul;
+        pwof.latency_map["SUB"] = sub;
     }
     void run(int x)
     {
