@@ -96,7 +96,7 @@ private:
     std::vector<std::pair<std::string, std::string>> latch_IDRF_wf;
     std::vector<std::pair<std::string, std::string>> latch_EXE_wf;
     std::vector<std::pair<std::string, std::string>> latch_MEM_wf;
-    std::map<std::string, int> latency_map;
+   
 
     bool ishazard_notified_wf = false;
     int stalls_wf = 0;
@@ -125,6 +125,7 @@ private:
     std::vector<std::string> ins_type6_wf;
 
 public:
+    std::map<std::string, int> latency_map;
     // Constructor
     PIPE_WF() : Core(file)
     {
