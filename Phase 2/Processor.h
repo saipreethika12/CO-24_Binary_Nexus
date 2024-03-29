@@ -16,25 +16,14 @@ public:
     PIPE_WF pwf;
     void set_latencies(int addi_lat, int add_lat, int mul_lat, int sub_lat)
     {
-<<<<<<< HEAD
         pwf.latency_map["ADDI"] = addi_lat;
         pwf.latency_map["ADD"] = add_lat;
         pwf.latency_map["MUL"] = mul_lat;
         pwf.latency_map["SUB"] = sub_lat;
-=======
-        pwf.latency_map["ADDI"] = addi;
-        pwf.latency_map["ADD"] = add;
-        pwf.latency_map["MUL"] = mul;
-        pwf.latency_map["SUB"] = sub;
-           pwof.latency_map["ADDI"] = addi;
-        pwof.latency_map["ADD"] = add;
-        pwof.latency_map["MUL"] = mul;
-        pwof.latency_map["SUB"] = sub;
->>>>>>> 3e0182e0f22b9eb68174a669a8401902be0571c0
     }
     void run(int x)
     {
-        std::ifstream instructionsFile("text.txt");
+        std::ifstream instructionsFile("input.txt");
         if (!instructionsFile.is_open())
         {
             std::cerr << "Error opening file 'text.txt'." << std::endl;
@@ -42,7 +31,7 @@ public:
         }
 
         // Assuming PIPE_WOF extends Core
-        pwof.readInstructionsFromFile("text.txt", RAM, visited);
+        pwof.readInstructionsFromFile("input.txt", RAM, visited);
 
         if (x == 1)
         {
@@ -51,7 +40,7 @@ public:
         else
         {
 
-            pwf.readInstructionsFromFile("text.txt", RAM, visited);
+            pwf.readInstructionsFromFile("input.txt", RAM, visited);
             pwf.Step_countWF(RAM);
         }
 
