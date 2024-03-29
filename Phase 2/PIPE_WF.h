@@ -996,6 +996,7 @@ public:
                         {
                             f = true;
                             // std::cout << "latin" << std::endl;
+                             loop_wf++;
                             latency_addi--;
                             loop_wf++;
                             continue;
@@ -1016,6 +1017,7 @@ public:
                         if (latency_sub > 0)
                         {
                             f = true;
+                            loop_wf++;
                             latency_sub--;
                             loop_wf++;
                             continue;
@@ -1026,6 +1028,7 @@ public:
                         if (latency_mul > 0)
                         {
                             f = true;
+                            loop_wf++;
                             latency_mul--;
                             loop_wf++;
                             continue;
