@@ -10,10 +10,34 @@ class Processor
 {
 public:
     char RAM[4096];
+    int sets;
+    int blocks;
+    int offset;
+    char ***cache; // cache is a 3D array of pointers to lines in the RAM
     int clock = 0;
     bool visited[4096] = {0};
     PIPE_WOF pwof;
     PIPE_WF pwf;
+    void init_cache(int s, int b, int o)
+    {
+        sets = s;
+        blocks = b;
+        offset = o;
+        cache = new char **[sets];
+        for (int i = 0; i < sets; i++)
+        {
+            cache[i] = new char *[blocks];
+            for (int j = 0; j < blocks; j++)
+            {
+                cache[i][j] = new char[offset];
+
+                for (int k = 0; k < offset; k++)
+                {
+                    cache[i][j][k] = '\0';
+                }
+            }
+        }
+    }
     void set_latencies(int addi_lat, int add_lat, int mul_lat, int sub_lat)
     {
         pwf.latency_map["ADDI"] = addi_lat;
