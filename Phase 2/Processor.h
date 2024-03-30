@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <cmath>
 #include "PIPE_WOF.h"
 #include "PIPE_WF.h"
 
@@ -44,6 +45,70 @@ public:
         pwf.latency_map["ADD"] = add_lat;
         pwf.latency_map["MUL"] = mul_lat;
         pwf.latency_map["SUB"] = sub_lat;
+        pwof.latency_map["ADDI"] = addi_lat;
+        pwof.latency_map["ADD"] = add_lat;
+        pwof.latency_map["MUL"] = mul_lat;
+        pwof.latency_map["SUB"] = sub_lat;
+    }
+    std::map<std::string, std::string> getInputParameters(std::ifstream &inputFile)
+    {
+        std::map<std::string, std::string> parameters;
+        std::string line;
+        std::string key, value;
+
+        while (std::getline(inputFile, line) && !line.empty() && line.front() != '#')
+        {
+            if (line.find(':') != std::string::npos)
+            {
+                std::istringstream iss(line);
+                std::getline(iss, key, ':');
+                std::cout << "Enter value for " << key << ": ";
+                std::getline(std::cin, value);
+                parameters[key] = value;
+            }
+        }
+
+        return parameters;
+    }
+    std::map<std::string, std::map<std::string, std::string>> parseInputFile(const std::string &filename)
+    {
+        std::map<std::string, std::map<std::string, std::string>> config;
+
+        std::ifstream inputFile(filename);
+        if (!inputFile.is_open())
+        {
+            std::cerr << "Error opening input file." << std::endl;
+            return config;
+        }
+
+        std::string line;
+        std::string section;
+        while (std::getline(inputFile, line))
+        {
+            if (!line.empty() && line.front() == '#')
+            {
+                section = line.substr(1);
+                if (section == "Cache_Configuration" || section == "Memory_access")
+                {
+                    config[section] = getInputParameters(inputFile);
+                }
+            }
+        }
+
+        inputFile.close();
+        return config;
+    }
+    void set_values(std::map<std::string, std::string> cache_section){
+        int block_size=stoi(cache_section["Block_size"]);
+        int cache_size=stoi(cache_section["Cache_size"]);
+        int associativity=stoi(cache_section["Associativity"]);
+        int n= log10(block_size) / log10(2);
+        this->offset= n;
+        int N= (cache_size*(int)pow(2,10))/block_size;
+        this->blocks=N;
+        this->sets=N/associativity;
+
+
     }
     void run(int x)
     {
@@ -53,8 +118,9 @@ public:
             std::cerr << "Error opening file 'text.txt'." << std::endl;
             return;
         }
-
-        // Assuming PIPE_WOF extends Core
+        std::string inputFilename = "input.txt";
+        std::map<std::string, std::map<std::string, std::string>> config = parseInputFile(inputFilename);
+        set_values(config["Cache_Configuration"]);
         pwof.readInstructionsFromFile("input.txt", RAM, visited);
 
         if (x == 1)
