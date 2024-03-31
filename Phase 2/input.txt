@@ -1,0 +1,7 @@
+#Cache_Configuration
+Cache_size:
+Block_size: 
+Associativity: 
+Cache_latency: 
+#Main_Memory_Configuration 
+Memory_access:
