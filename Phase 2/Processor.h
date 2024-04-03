@@ -53,9 +53,8 @@ public:
 
         return parameters;
     }
- std::map<std::string, std::string> parseInputFile(const std::string& filename) {
+   std::map<std::string, std::string> parseInputFile(const std::string& filename) {
     std::map<std::string, std::string>config;
-
     std::ifstream inputFile(filename);
     if (!inputFile.is_open()) {
         std::cerr << "Error opening input file." << std::endl;
@@ -77,11 +76,15 @@ public:
     return config;
 }
     void set_cache(std::string filename){
-         std::map<std::string,std::string> config = parseInputFile(filename);
+         std::map<std::string, std::string> config = parseInputFile(filename);
          // Set Cache Configuration
-       unsigned int cache_size = std::stoi(config["Cache_size"]);
-         Cache_simulator cache = new Cache_simulator(cache_size,);
-        
+         unsigned int cache_size = std::stoi(config["Cache_size"]);
+         unsigned  block_size= std::stoi(config["Block_size"]);
+         unsigned  associativity = std::stoi(config["Associativity"]);
+
+         Cache_simulator cache(cache_size,block_size,associativity);
+         this->cacheSimulator= cache;
+       
     }
     void run(int x)
     {
@@ -92,8 +95,8 @@ public:
             return;
         }
         std::string inputFilename = "input.txt";
-        std::map<std::string, std::map<std::string, std::string>> config = parseInputFile(inputFilename);
-        set_values(config["Cache_Configuration"]);
+        std::map<std::string, std::string> config = parseInputFile(inputFilename);
+        //set_values(config["Cache_Configuration"]);
         pwof.readInstructionsFromFile("input.txt", RAM, visited);
 
         if (x == 1)
@@ -108,24 +111,6 @@ public:
         }
 
         instructionsFile.close();
-
-        // std::ifstream instructionsFilee("text1.txt");
-        // if (!instructionsFilee.is_open()) {
-        //     std::cerr << "Error opening file 'text1.txt'." << std::endl;
-        //     return;
-        // }
-
-        // PIPE_WOF pwof2; // Assuming PIPE_WOF extends Core
-        // pwof2.readInstructionsFromFile("selection.txt", RAM, visited);
-
-        // if (x == 1) {
-        //     pwof2.Step_count(RAM);
-        // } else {
-        //     PIPE_WF pwf;
-        //     pwf.Step_countWF(RAM);
-        // }
-
-        // instructionsFilee.close();
     }
 };
 
