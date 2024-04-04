@@ -4,6 +4,8 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <list>
+#include <unordered_map>
 #include <algorithm>
 
 struct CacheBlock
@@ -18,7 +20,11 @@ class Set
 private:
   std::vector<CacheBlock> blocks;
   int numBlocks;
-  //int  associativity;
+
+  std::list<uint64_t> Priority_list;
+  // store references of key in cache
+  std::unordered_map<uint64_t, std::list<uint64_t>::iterator> ump;
+  // int  associativity;
 
 public:
   Set(unsigned int numBlocksPerSet)
@@ -38,37 +44,56 @@ public:
       {
         return true; // Hit
       }
-      
     }
     return false; // Miss
   }
 
-  void block_fetch(uint64_t tag)
+  void block_fetch_viaLRU(uint64_t tag)
   {
-    // // Replace the least recently used block
-    // auto block = std::find_if(blocks.begin(), blocks.end(), [](const CacheBlock &b)
-    //  { return !b.valid; });
-    // if (block != blocks.end())
-    // {
-    //   block->tag = tag;
-    //   block->valid = true;
-    // }
-    // else
-    // {
 
-    //   blocks[0].tag = tag;
-    //   blocks[0].valid = true;
-    // }
-    //id=f size till now is numblocksperset then rp
-    int size = blocks.size();
-    if(size < numBlocks-1){
-    blocks[size+1].tag = tag;
-    blocks[size+1].valid = true;
+    // id=f size till now is numblocksperset then rp
+    if (ump.find(tag) == ump.end())
+    {
+      int size = blocks.size();
+      if (size < numBlocks - 1)
+      {
+        blocks[size + 1].tag = tag;
+        blocks[size + 1].valid = true;
+        uint64_t last = Priority_list.back();
+        Priority_list.pop_back();
+        ump.erase(last);
+      }
     }
-    else{
-      //LRU
+    else
+    {
+      // LRU
+      Priority_list.erase(ump[tag]);
     }
-
+    Priority_list.push_back(tag);
+    ump[tag] = Priority_list.begin();
+  }
+  void block_fetch_viaRandom(uint64_t tag){
+     srand((unsigned)time(NULL));
+     int index = rand() % blocks.size();
+    if (ump.find(tag) == ump.end())
+    {
+      int size = blocks.size();
+      if (size < numBlocks - 1)
+      {
+        blocks[size + 1].tag = tag;
+        blocks[size + 1].valid = true;
+       
+      }
+    }
+    else
+    {
+      // LRU
+      Priority_list.erase(ump[tag]);
+    }
+    Priority_list.push_back(tag);
+    ump[tag] = Priority_list.begin();
+  
+ 
   }
 };
 
@@ -94,7 +119,7 @@ public:
   Cache_simulator(unsigned int _cacheSize, unsigned int _blockSize, unsigned int associativity)
       : cacheSize(_cacheSize), blockSize(_blockSize), associativity(associativity)
   {
-  
+
     numSets = cacheSize / (blockSize * associativity);
     sets_cache.resize(numSets, Set(associativity));
   }
@@ -110,7 +135,7 @@ public:
     }
     else
     {
-      sets_cache[index].block_fetch(tag);
+      sets_cache[index].block_fetch_viaLRU(tag);
       return false; // Miss
     }
   }
