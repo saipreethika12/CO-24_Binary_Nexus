@@ -17,12 +17,15 @@ private:
     int offset;
     int clock = 0;
     bool visited[4096] = {0};
-    Cache_simulator cacheSimulator;
+   Cache_simulator cacheSimulator;
     PIPE_WOF pwof;
     PIPE_WF pwf;
 
 public:
-Processor();
+   Processor():cacheSimulator(0,0,0,0,0){
+ 
+   }
+    
     void set_latencies(int addi_lat, int add_lat, int mul_lat, int sub_lat)
     {
         pwf.latency_map["ADDI"] = addi_lat;
@@ -80,10 +83,12 @@ Processor();
          std::map<std::string, std::string> config = parseInputFile(filename);
          // Set Cache Configuration
          unsigned int cache_size = std::stoi(config["Cache_size"]);
-         unsigned  block_size= std::stoi(config["Block_size"]);
-         unsigned  associativity = std::stoi(config["Associativity"]);
-
-         Cache_simulator cache(cache_size,block_size,associativity);
+         unsigned int block_size= std::stoi(config["Block_size"]);
+         unsigned int associativity = std::stoi(config["Associativity"]);
+         unsigned int cache_latency =std::stoi(config["Cache_latency"]);
+         unsigned int memory_latency = std::stoi(config["Memory_access"]);
+         //Cache_simulator cache(cache_size,block_size,associativity,cache_latency,memory_latency);
+         Cache_simulator cache(256,4,16,2,100);
          this->cacheSimulator= cache;
        
     }
@@ -95,14 +100,15 @@ Processor();
             std::cerr << "Error opening file 'text.txt'." << std::endl;
             return;
         }
-        std::string inputFilename = "input.txt";
+        std::string inputFilename = "cache_config.txt";
         std::map<std::string, std::string> config = parseInputFile(inputFilename);
         //set_values(config["Cache_Configuration"]);
         pwof.readInstructionsFromFile("input.txt", RAM, visited);
+        std::cout<<"read file"<<std::endl;
 
         if (x == 1)
         {
-            pwof.Step_count(RAM);
+            pwof.Step_count(RAM,cacheSimulator);
         }
         else
         {

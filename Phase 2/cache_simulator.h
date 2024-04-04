@@ -106,6 +106,8 @@ private:
   unsigned int blockSize;
   unsigned int numSets;
   unsigned int associativity;
+  unsigned int cache_latency;
+  unsigned int memory_latency;
 
   std::pair<uint64_t, uint64_t> splitAddress(uint64_t address)
   {
@@ -117,14 +119,20 @@ private:
   }
 
 public:
-  Cache_simulator(unsigned int _cacheSize, unsigned int _blockSize, unsigned int associativity)
-      : cacheSize(_cacheSize), blockSize(_blockSize), associativity(associativity)
+  Cache_simulator();
+  Cache_simulator(unsigned int _cacheSize, unsigned int _blockSize, unsigned int associativity,unsigned int cache_latency,unsigned int memory_latency)
+      : cacheSize(_cacheSize), blockSize(_blockSize), associativity(associativity),cache_latency(cache_latency),memory_latency(memory_latency)
   {
 
     numSets = cacheSize / (blockSize * associativity);
     sets_cache.resize(numSets, Set(associativity));
   }
-
+  int get_mem_latency(){
+    return memory_latency;
+  }
+  int get_cache_latency(){
+    return  cache_latency;
+  }
   bool access(uint64_t address)
   {
     std::pair<uint64_t, uint64_t> address_parts = splitAddress(address);

@@ -19,7 +19,7 @@ int main()
     //           << std::endl;
     // std::cin >> mul;
     processor.set_latencies(1,1,1,1);
-    processor.run(0);
+    processor.run(1);
 
     return 0;
 }

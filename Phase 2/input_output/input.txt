@@ -1,0 +1,7 @@
+.data
+arr: .word 40 20 30 95 5 4
+arr_len: .word 6
+.text
+  la x19 arr
+    lw x5 0(x19)
+    lw x6 4(x19) 

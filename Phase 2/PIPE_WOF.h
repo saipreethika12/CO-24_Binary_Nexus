@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string>
 #include "PU.h"
+#include "cache_simulator.h"
 
 class PIPE_WOF : public Core
 {
@@ -33,6 +34,7 @@ private:
     // int v = 30;
     int c = 0;
     int y = 0, z = 0;
+    bool hit = false;
 
     std::vector<std::vector<std::string>> pip;
     std::vector<std::string> ins_type1;
@@ -554,7 +556,7 @@ public:
             latch_EXE.push_back({"result", std::to_string(result)});
         }
     }
-    void Memory(std::vector<std::pair<std::string, std::string>> latch_EXE, char *RAM)
+    void Memory(std::vector<std::pair<std::string, std::string>> latch_EXE, char *RAM,Cache_simulator sim_cache)
     {
         std::string opcode;
         latch_MEM = latch_EXE;
@@ -593,6 +595,8 @@ public:
             if (opcode == "lw")
             {
                 std::cout << "ff lw" << std::endl;
+                std::cout<<(uint64_t)result<<std::endl;
+                  hit=sim_cache.access(result);
                 for (int i = 0; i < 4; i++)
                 {
 
@@ -613,6 +617,7 @@ public:
             }
             if (opcode == "sw")
             {
+                
                 std::cout << "ff sw" << std::endl;
                 int load_value;
                 for (const auto &pair : latch_EXE)
@@ -622,7 +627,7 @@ public:
                         load_value = stoi(pair.second);
                     }
                 }
-
+                hit = sim_cache.access(result);
                 for (int i = 0; i < 4; i++)
                 {
                     int t = 0;
@@ -716,12 +721,13 @@ public:
     // int v = 30;
     // int c = 0;
     // int y = 0, z = 0;
-    void Step_count(char *RAM)
+    void Step_count(char *RAM,Cache_simulator sim_cache)
     {   int latency_addi = latency_map["ADDI"] - 1;
         int latency_add = latency_map["ADD"] - 1;
         int latency_mul = latency_map["MUL"] - 1;
         int latency_sub = latency_map["SUB"] - 1;
-
+        int mem_access_latency = sim_cache.get_mem_latency();
+        int cache_latency = sim_cache.get_cache_latency();
         while (keep_going)
         {
             // if(k<0)break;
@@ -750,7 +756,21 @@ public:
                 std::cout << "M";
                 pip[y + z][c] = "M";
                 y++;
-                Memory(latch_EXE, RAM);
+                
+                Memory(latch_EXE, RAM,sim_cache);
+               
+                if(!hit){
+                    for(int i=0;i<mem_access_latency;i++){
+                    loop++;
+                    continue;
+                    }
+                }
+                else{
+                    for(int i=0;i<cache_latency;i++){
+                    loop++;
+                    continue;
+                    }
+                }
                 if (executed_branch && mis_predict)
                 {
                     std::cout << "fluhsing" << std::endl;
