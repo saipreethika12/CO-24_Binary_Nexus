@@ -10,7 +10,7 @@
 
 class Processor
 {
-public:
+private:
     char RAM[4096];
     int sets;
     int blocks;
@@ -21,7 +21,8 @@ public:
     PIPE_WOF pwof;
     PIPE_WF pwf;
 
-
+public:
+Processor();
     void set_latencies(int addi_lat, int add_lat, int mul_lat, int sub_lat)
     {
         pwf.latency_map["ADDI"] = addi_lat;

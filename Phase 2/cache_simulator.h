@@ -50,15 +50,15 @@ public:
 
   void block_fetch_viaLRU(uint64_t tag)
   {
-
+     int size = blocks.size();
     // id=f size till now is numblocksperset then rp
-    if (ump.find(tag) == ump.end())
+    if (ump.find(size) == ump.end())
     {
-      int size = blocks.size();
-      if (size < numBlocks - 1)
+      
+      if (size < numBlocks)
       {
-        blocks[size + 1].tag = tag;
-        blocks[size + 1].valid = true;
+        blocks[size].tag = tag;
+        blocks[size].valid = true;
         uint64_t last = Priority_list.back();
         Priority_list.pop_back();
         ump.erase(last);
@@ -67,34 +67,35 @@ public:
     else
     {
       // LRU
-      Priority_list.erase(ump[tag]);
+      blocks[size].valid=false;
+      Priority_list.erase(ump[size]);
     }
-    Priority_list.push_back(tag);
-    ump[tag] = Priority_list.begin();
+    Priority_list.push_back(size);
+    ump[size] = Priority_list.begin();
   }
+
   void block_fetch_viaRandom(uint64_t tag){
      srand((unsigned)time(NULL));
-     int index = rand() % blocks.size();
-    if (ump.find(tag) == ump.end())
-    {
       int size = blocks.size();
-      if (size < numBlocks - 1)
+     int index = rand() % numBlocks;
+   
+     
+      if (size < numBlocks )
       {
-        blocks[size + 1].tag = tag;
-        blocks[size + 1].valid = true;
+        blocks[size].tag = tag;
+        blocks[size].valid = true;
        
       }
-    }
+    
     else
     {
       // LRU
-      Priority_list.erase(ump[tag]);
+      blocks[index].valid=false;
+      
     }
-    Priority_list.push_back(tag);
-    ump[tag] = Priority_list.begin();
-  
- 
-  }
+   
+     }
+
 };
 
 class Cache_simulator
