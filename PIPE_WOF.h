@@ -556,7 +556,7 @@ public:
             latch_EXE.push_back({"result", std::to_string(result)});
         }
     }
-    void Memory(std::vector<std::pair<std::string, std::string>> latch_EXE, char *RAM,Cache_simulator sim_cache)
+    void Memory(std::vector<std::pair<std::string, std::string>> latch_EXE, char *RAM,Cache_simulator* sim_cache)
     {
         std::string opcode;
         latch_MEM = latch_EXE;
@@ -596,7 +596,7 @@ public:
             {
                 std::cout << "ff lw" << std::endl;
                 std::cout<<(uint64_t)result<<std::endl;
-                  hit=sim_cache.access(result);
+                  hit=sim_cache->access(result);
                 for (int i = 0; i < 4; i++)
                 {
 
@@ -627,7 +627,7 @@ public:
                         load_value = stoi(pair.second);
                     }
                 }
-                hit = sim_cache.access(result);
+                hit = sim_cache->access(result);
                 for (int i = 0; i < 4; i++)
                 {
                     int t = 0;
@@ -718,16 +718,16 @@ public:
 
     // int loop = 0;
     // bool keep_going = true;
-    // int v = 30;
+    // int v = 30
     // int c = 0;
     // int y = 0, z = 0;
-    void Step_count(char *RAM,Cache_simulator sim_cache)
+    void Step_count(char *RAM, Cache_simulator* sim_cache)
     {   int latency_addi = latency_map["ADDI"] - 1;
         int latency_add = latency_map["ADD"] - 1;
         int latency_mul = latency_map["MUL"] - 1;
         int latency_sub = latency_map["SUB"] - 1;
-        int mem_access_latency = sim_cache.get_mem_latency();
-        int cache_latency = sim_cache.get_cache_latency();
+        int mem_access_latency = sim_cache->get_mem_latency();
+        int cache_latency =sim_cache->get_cache_latency();
         while (keep_going)
         {
             // if(k<0)break;
@@ -758,7 +758,7 @@ public:
                 y++;
                 
                 Memory(latch_EXE, RAM,sim_cache);
-               
+                
                 if(!hit){
                     for(int i=0;i<mem_access_latency;i++){
                     loop++;
