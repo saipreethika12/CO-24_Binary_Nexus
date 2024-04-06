@@ -1,124 +1,180 @@
-#ifndef PROCESSOR_H
-#define PROCESSOR_H
+#ifndef CACHE_SIMULATOR_H
+#define CACHE_SIMULATOR_H
 
 #include <iostream>
-#include <fstream>
+#include <vector>
 #include <cmath>
-#include "PIPE_WOF.h"
-#include "PIPE_WF.h"
-#include "cache_simulator.h"
+#include <list>
+#include <unordered_map>
+#include <algorithm>
 
-class Processor
+struct CacheBlock
 {
-private:
-    char RAM[4096];
-    int sets;
-    int blocks;
-    int offset;
-    int clock = 0;
-    bool visited[4096] = {0};
-   Cache_simulator cacheSimulator;
-    PIPE_WOF pwof;
-    PIPE_WF pwf;
-
-public:
-   Processor():cacheSimulator(256,4,16,2,100){
- 
-   }
-    
-    void set_latencies(int addi_lat, int add_lat, int mul_lat, int sub_lat)
-    {
-        pwf.latency_map["ADDI"] = addi_lat;
-        pwf.latency_map["ADD"] = add_lat;
-        pwf.latency_map["MUL"] = mul_lat;
-        pwf.latency_map["SUB"] = sub_lat;
-        pwof.latency_map["ADDI"] = addi_lat;
-        pwof.latency_map["ADD"] = add_lat;
-        pwof.latency_map["MUL"] = mul_lat;
-        pwof.latency_map["SUB"] = sub_lat;
-    }
-    std::map<std::string, std::string> getInputParameters(std::ifstream &inputFile)
-    {
-        std::map<std::string, std::string> parameters;
-        std::string line;
-        std::string key, value;
-
-        while (std::getline(inputFile, line) && !line.empty() && line.front() != '#')
-        {
-            if (line.find(':') != std::string::npos)
-            {
-                std::istringstream iss(line);
-                std::getline(iss, key, ':');
-                std::cout << "Enter value for " << key << ": ";
-                std::getline(std::cin, value);
-                parameters[key] = value;
-            }
-        }
-
-        return parameters;
-    }
-   std::map<std::string, std::string> parseInputFile(const std::string& filename) {
-    std::map<std::string, std::string>config;
-    std::ifstream inputFile(filename);
-    if (!inputFile.is_open()) {
-        std::cerr << "Error opening input file." << std::endl;
-        return config;
-    }
-
-    std::string line;
-    std::string section;
-    while (std::getline(inputFile, line)) {
-        if (!line.empty() && line.front() == '#') {
-            section = line.substr(1);
-            if (section == "Cache_Configuration") {
-                config = getInputParameters(inputFile);
-            }
-        }
-    }
-
-    inputFile.close();
-    return config;
-}
-    void set_cache(std::string filename){
-         std::map<std::string, std::string> config = parseInputFile(filename);
-         // Set Cache Configuration
-         unsigned int cache_size = std::stoi(config["Cache_size"]);
-         unsigned int block_size= std::stoi(config["Block_size"]);
-         unsigned int associativity = std::stoi(config["Associativity"]);
-         unsigned int cache_latency =std::stoi(config["Cache_latency"]);
-         unsigned int memory_latency = std::stoi(config["Memory_access"]);
-         //Cache_simulator cache(cache_size,block_size,associativity,cache_latency,memory_latency);
-         Cache_simulator cache(256,4,16,2,100);
-         this->cacheSimulator= cache;
-       
-    }
-    void run(int x)
-    {
-        std::ifstream instructionsFile("input.txt");
-        if (!instructionsFile.is_open())
-        {
-            std::cerr << "Error opening file 'input.txt'." << std::endl;
-            return;
-        }
-        std::string inputFilename = "cache_config.txt";
-        std::map<std::string, std::string> config = parseInputFile(inputFilename);
-        //set_values(config["Cache_Configuration"]);
-        pwof.readInstructionsFromFile("input.txt", RAM, visited);
-        std::cout<<"read file"<<std::endl;
-
-        if (x == 1)
-        {
-            pwof.Step_count(RAM,&cacheSimulator);
-        }
-        else
-        {
-
-            pwf.readInstructionsFromFile("input.txt", RAM, visited);
-            pwf.Step_countWF(RAM);
-        }
-
-        instructionsFile.close();
-    }
+  int tag;
+  // int offset;
+  bool valid;
+  bool dirty;
 };
 
-#endif // PROCESSOR_H
+class Set
+{
+private:
+  std::vector<CacheBlock> blocks;
+  int numBlocks;
+
+  std::list<uint64_t> Priority_list;
+  // store references of key in cache
+  std::unordered_map<uint64_t, std::list<uint64_t>::iterator> ump;
+  // int  associativity;
+
+public:
+  Set(int numBlocksPerSet)
+  {
+    blocks.resize(numBlocksPerSet);
+    for (auto &block : blocks)
+    {
+      block.valid = false;
+    }
+    this->numBlocks = numBlocksPerSet;
+  }
+  void set_numBlocks(int numBlocks)
+  {
+    this->numBlocks = numBlocks;
+  }
+
+  bool search(int tag)
+  {
+    for (auto &block : blocks)
+    {   std::cout<<"blockin"<<block.tag<<std::endl;
+      if (block.tag == tag && block.valid == true)
+      {
+        return true; // Hit
+      }
+    }
+     block_fetch_viaRandom( tag);
+    return false; // Miss
+  }
+
+  // void block_fetch_viaLRU(uint64_t tag)
+  // {
+  //    int size = blocks.size();
+  //   // id=f size till now is numblocksperset then rp
+  //   if (ump.find(size) == ump.end())
+  //   {
+
+  //     if (size < numBlocks)
+  //     {
+  //       blocks[size].tag = tag;
+  //       blocks[size].valid = true;
+  //       uint64_t last = Priority_list.back();
+  //       Priority_list.pop_back();
+  //       ump.erase(last);
+  //     }
+  //   }
+  //   else
+  //   {
+  //     // LRU
+  //     blocks[size].valid=false;
+  //     Priority_list.erase(ump[size]);
+  //   }
+  //   Priority_list.push_back(size);
+  //   ump[size] = Priority_list.begin();
+  // }
+
+  void block_fetch_viaRandom(int tag)
+  {
+    // srand((unsigned)time(NULL));
+    int size = blocks.size();
+     std::cout <<"size"<<size<< std::endl;
+    std::cout << numBlocks << std::endl;
+    int index = rand() % numBlocks;
+     std::cout <<"indexrr"<<index<< std::endl;
+
+    // if (size < numBlocks)
+    // {
+    //   blocks[size].tag = tag;
+    //   blocks[size].valid = true;
+    // }
+
+    // else
+    // {
+
+     // blocks[index].valid = false;
+      blocks[index].tag=tag;
+      blocks[index].valid=true;
+      
+   // }
+  }
+};
+
+class Cache_simulator
+{
+private:
+  std::vector<Set> sets_cache;
+  int cacheSize;
+  int blockSize;
+  int numSets;
+  int associativity;
+  int cache_latency;
+  int memory_latency;
+
+  std::pair<int, int> splitAddress(uint64_t address)
+  {
+    int num_bits_offset = std::log2(blockSize);
+    std::cout << num_bits_offset << std::endl;
+    address >>= num_bits_offset;
+    int num_bits = std::log2(numSets);
+    int index = address & ((1 << num_bits - 1));
+
+    int tag = address >> static_cast<int>(std::log2(numSets));
+    return std::make_pair(tag, index);
+  }
+
+public:
+  Cache_simulator();
+  Cache_simulator(int _cacheSize, int _blockSize, int associativity, int cache_latency, int memory_latency)
+      : cacheSize(_cacheSize), blockSize(_blockSize), associativity(associativity), cache_latency(cache_latency), memory_latency(memory_latency)
+  {
+
+    numSets = cacheSize / (blockSize * associativity);
+    sets_cache.resize(numSets, Set(numSets));
+    for (auto set : sets_cache)
+    {
+      set.set_numBlocks(associativity);
+    }
+  }
+  int get_mem_latency()
+  {
+    return memory_latency;
+  }
+  int get_cache_latency()
+  {
+    return cache_latency;
+  }
+  bool access(int address)
+  {
+    std::pair<int, int> address_parts = splitAddress(address);
+    int tag = address_parts.first;
+    int index = address_parts.second;
+    if (sets_cache[index].search(tag))
+    {  std::cout<<"im in"<<std::endl;
+      return true; // Hit
+    }
+    else
+    {
+      std::cout << "add" << address << std::endl;
+      std::cout << "tag"
+                << " " << tag << std::endl;
+      std::cout << "index"
+                << " " << index << std::endl;
+      std::cout << "ass"
+                << " " << associativity << std::endl;
+                //set_cachse[index].
+      sets_cache[index].block_fetch_viaRandom(tag);
+
+      return false; // Miss
+    }
+  }
+};
+
+#endif
