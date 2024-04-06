@@ -2,7 +2,9 @@
 #include "Processor.h"
 int main()
 {
+      std::cout<<"ls"<<std::endl;
     Processor processor;
+  
     int choice;
     // std::cout << "Enter 1 for pipeline with forwarding and 2 for pipeline without forwarding" << std::endl;
     // int addi,mul,add,sub;
@@ -19,6 +21,7 @@ int main()
     //           << std::endl;
     // std::cin >> mul;
     processor.set_latencies(1,1,1,1);
+    
     processor.run(1);
 
     return 0;

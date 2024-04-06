@@ -48,34 +48,34 @@ public:
     return false; // Miss
   }
 
-  void block_fetch_viaLRU(uint64_t tag)
-  {
-     int size = blocks.size();
-    // id=f size till now is numblocksperset then rp
-    if (ump.find(size) == ump.end())
-    {
+  // void block_fetch_viaLRU(uint64_t tag)
+  // {
+  //    int size = blocks.size();
+  //   // id=f size till now is numblocksperset then rp
+  //   if (ump.find(size) == ump.end())
+  //   {
       
-      if (size < numBlocks)
-      {
-        blocks[size].tag = tag;
-        blocks[size].valid = true;
-        uint64_t last = Priority_list.back();
-        Priority_list.pop_back();
-        ump.erase(last);
-      }
-    }
-    else
-    {
-      // LRU
-      blocks[size].valid=false;
-      Priority_list.erase(ump[size]);
-    }
-    Priority_list.push_back(size);
-    ump[size] = Priority_list.begin();
-  }
+  //     if (size < numBlocks)
+  //     {
+  //       blocks[size].tag = tag;
+  //       blocks[size].valid = true;
+  //       uint64_t last = Priority_list.back();
+  //       Priority_list.pop_back();
+  //       ump.erase(last);
+  //     }
+  //   }
+  //   else
+  //   {
+  //     // LRU
+  //     blocks[size].valid=false;
+  //     Priority_list.erase(ump[size]);
+  //   }
+  //   Priority_list.push_back(size);
+  //   ump[size] = Priority_list.begin();
+  // }
 
   void block_fetch_viaRandom(uint64_t tag){
-     srand((unsigned)time(NULL));
+     //srand((unsigned)time(NULL));
       int size = blocks.size();
      int index = rand() % numBlocks;
    
@@ -144,7 +144,8 @@ public:
     }
     else
     {
-      sets_cache[index].block_fetch_viaLRU(tag);
+      std::cout<<"taag"<<tag<<std::endl;
+      sets_cache[index].block_fetch_viaRandom(tag);
       return false; // Miss
     }
   }

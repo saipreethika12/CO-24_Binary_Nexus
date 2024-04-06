@@ -896,12 +896,12 @@ public:
             else
             {
                 loop++;
-                std::cout << loop << std::endl;
+                std::cout <<" " <<"cycles"<<loop << std::endl;
             }
             std::cout << "\nONE cycle finish\n";
             v--;
-            if (v == 0)
-                break;
+            // if (v == 0)
+            //     break;
         }
         std::cout << "No of stalls" << std::endl;
         std::cout << stalls << std::endl;
