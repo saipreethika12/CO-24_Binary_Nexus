@@ -22,7 +22,7 @@ private:
     PIPE_WF pwf;
 
 public:
-   Processor():cacheSimulator(1,1,1,1,1){
+   Processor():cacheSimulator(256,4,16,2,100){
  
    }
     
@@ -97,7 +97,7 @@ public:
         std::ifstream instructionsFile("input.txt");
         if (!instructionsFile.is_open())
         {
-            std::cerr << "Error opening file 'text.txt'." << std::endl;
+            std::cerr << "Error opening file 'input.txt'." << std::endl;
             return;
         }
         std::string inputFilename = "cache_config.txt";
@@ -108,7 +108,7 @@ public:
 
         if (x == 1)
         {
-            pwof.Step_count(RAM,cacheSimulator);
+            pwof.Step_count(RAM,&cacheSimulator);
         }
         else
         {
