@@ -1,6 +1,6 @@
 #Cache_Configuration
-Cache_size: 
-Block_size: 
-Associativity: 
-Cache_latency:  
-Memory_latency:
+Cache_size:256
+Block_size:4
+Associativity:16
+Cache_latency:2  
+Memory_latency:100

@@ -83,7 +83,7 @@ public:
         unsigned int block_size = std::stoi(config["Block_size"]);
         unsigned int associativity = std::stoi(config["Associativity"]);
         unsigned int cache_latency = std::stoi(config["Cache_latency"]);
-        unsigned int memory_latency = std::stoi(config["Memory_access"]);
+        unsigned int memory_latency = std::stoi(config["Memory_latency"]);
           Cache_simulator cache(cache_size,block_size,associativity,cache_latency,memory_latency);
        // Cache_simulator cache(, 4, 16, 2, 100);
         this->cacheSimulator = cache;

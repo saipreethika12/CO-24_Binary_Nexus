@@ -1,5 +1,6 @@
 #ifndef PIPE_WOF_H
 #define PIPE_WOF_H
+
 #include <fstream>
 #include <string>
 #include "PU.h"
