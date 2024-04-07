@@ -13,7 +13,6 @@ private:
     std::vector<std::pair<std::string, std::string>> latch_IDRF;
     std::vector<std::pair<std::string, std::string>> latch_EXE;
     std::vector<std::pair<std::string, std::string>> latch_MEM;
-   
 
     bool ishazard_notified = false;
     int stalls = 0;
@@ -80,7 +79,7 @@ public:
         return false;
     }
 
-    void Fetch(Cache_simulator* sim_cache)
+    void Fetch(Cache_simulator *sim_cache)
 
     {
         if (PC < instructions.size())
@@ -559,7 +558,7 @@ public:
             latch_EXE.push_back({"result", std::to_string(result)});
         }
     }
-    void Memory(std::vector<std::pair<std::string, std::string>> latch_EXE, char *RAM,Cache_simulator* sim_cache)
+    void Memory(std::vector<std::pair<std::string, std::string>> latch_EXE, char *RAM, Cache_simulator *sim_cache)
     {
         std::string opcode;
         latch_MEM = latch_EXE;
@@ -598,8 +597,8 @@ public:
             if (opcode == "lw")
             {
                 std::cout << "ff lw" << std::endl;
-                std::cout<<(uint64_t)result<<std::endl;
-                  hit=sim_cache->access(result);
+                std::cout << (uint64_t)result << std::endl;
+                hit = sim_cache->access(result);
                 for (int i = 0; i < 4; i++)
                 {
 
@@ -620,7 +619,7 @@ public:
             }
             if (opcode == "sw")
             {
-                
+
                 std::cout << "ff sw" << std::endl;
                 int load_value;
                 for (const auto &pair : latch_EXE)
@@ -725,13 +724,14 @@ public:
     // int v = 30
     // int c = 0;
     // int y = 0, z = 0;
-    void Step_count(char *RAM, Cache_simulator* sim_cache)
-    {   int latency_addi = latency_map["ADDI"] - 1;
+    void Step_count(char *RAM, Cache_simulator *sim_cache)
+    {
+        int latency_addi = latency_map["ADDI"] - 1;
         int latency_add = latency_map["ADD"] - 1;
         int latency_mul = latency_map["MUL"] - 1;
         int latency_sub = latency_map["SUB"] - 1;
-        int mem_access_latency = sim_cache->get_mem_latency()-1;
-        int cache_latency =sim_cache->get_cache_latency()-1;
+        int mem_access_latency = sim_cache->get_mem_latency() - 1;
+        int cache_latency = sim_cache->get_cache_latency() - 1;
         while (keep_going)
         {
             // if(k<0)break;
@@ -760,19 +760,45 @@ public:
                 std::cout << "M";
                 pip[y + z][c] = "M";
                 y++;
-                
-                Memory(latch_EXE, RAM,sim_cache);
-                
-                if(!hit){
-                    for(int i=0;i<mem_access_latency;i++){
-                    loop++;
-                    continue;
+
+                Memory(latch_EXE, RAM, sim_cache);
+                std::string opcode = search_latch("Opcode", latch_EXE);
+                if (opcode == "lw" || opcode == "la")
+                {
+                    if (!hit)
+                    {
+                        for (int i = 0; i < mem_access_latency; i++)
+                        {
+                            loop++;
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < cache_latency; i++)
+                        {
+                            loop++;
+                            continue;
+                        }
                     }
                 }
-                else{
-                    for(int i=0;i<cache_latency;i++){
-                    loop++;
-                    continue;
+                else if (opcode == "sw")
+                {
+                    if (!hit)
+                    {
+                        for (int i = 0; i < mem_access_latency; i++)
+                        {
+                            loop++;
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < cache_latency; i++)
+                        {
+                            loop++;
+                            continue;
+                        }
                     }
                 }
                 if (executed_branch && mis_predict)
@@ -791,7 +817,8 @@ public:
 
                 // std::cout << search_latch("Opcode", latch_IDRF) << std::endl;
                 if (!stall_flag && !stall_flag2)
-                {    bool f = false;
+                {
+                    bool f = false;
                     k = 3;
                     std::cout << "E";
                     std::string op = search_latch("Opcode", latch_IDRF);
@@ -885,14 +912,18 @@ public:
                 pip[y + z][0] = std::to_string(PC);
                 y++;
                 Fetch(sim_cache);
-                if(hit_fetch){
-                    for(int i=0;i<cache_latency;i++){
+                if (hit_fetch)
+                {
+                    for (int i = 0; i < cache_latency; i++)
+                    {
                         loop++;
                         continue;
                     }
                 }
-                else{
-                    for(int i=0;i<mem_access_latency;i++){
+                else
+                {
+                    for (int i = 0; i < mem_access_latency; i++)
+                    {
                         loop++;
                         continue;
                     }
@@ -912,7 +943,8 @@ public:
             else
             {
                 loop++;
-                std::cout <<" " <<"cycles"<<loop << std::endl;
+                std::cout << " "
+                          << "cycles" << loop << std::endl;
             }
             std::cout << "\nONE cycle finish\n";
             v--;
