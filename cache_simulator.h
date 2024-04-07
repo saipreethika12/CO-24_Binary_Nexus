@@ -10,7 +10,8 @@
 
 struct CacheBlock
 {
-  uint64_t tag;
+  int tag;
+  // int offset;
   bool valid;
   bool dirty;
 };
@@ -27,24 +28,30 @@ private:
   // int  associativity;
 
 public:
-  Set(unsigned int numBlocksPerSet)
+  Set(int numBlocksPerSet)
   {
     blocks.resize(numBlocksPerSet);
     for (auto &block : blocks)
     {
       block.valid = false;
     }
+    this->numBlocks = numBlocksPerSet;
+  }
+  void set_numBlocks(int numBlocks)
+  {
+    this->numBlocks = numBlocks;
   }
 
-  bool search(uint64_t tag)
+  bool search(int tag)
   {
     for (auto &block : blocks)
-    {
+    {   std::cout<<"blockin"<<block.tag<<std::endl;
       if (block.tag == tag && block.valid == true)
       {
         return true; // Hit
       }
     }
+     block_fetch_viaRandom( tag);
     return false; // Miss
   }
 
@@ -54,7 +61,7 @@ public:
   //   // id=f size till now is numblocksperset then rp
   //   if (ump.find(size) == ump.end())
   //   {
-      
+
   //     if (size < numBlocks)
   //     {
   //       blocks[size].tag = tag;
@@ -74,78 +81,97 @@ public:
   //   ump[size] = Priority_list.begin();
   // }
 
-  void block_fetch_viaRandom(uint64_t tag){
-     //srand((unsigned)time(NULL));
-      int size = blocks.size();
-     int index = rand() % numBlocks;
-   
-     
-      if (size < numBlocks )
-      {
-        blocks[size].tag = tag;
-        blocks[size].valid = true;
-       
-      }
-    
-    else
-    {
-      // LRU
-      blocks[index].valid=false;
-      
-    }
-   
-     }
+  void block_fetch_viaRandom(int tag)
+  {
+    // srand((unsigned)time(NULL));
+    int size = blocks.size();
+     std::cout <<"size"<<size<< std::endl;
+    std::cout << numBlocks << std::endl;
+    int index = rand() % numBlocks;
+     std::cout <<"indexrr"<<index<< std::endl;
 
+    // if (size < numBlocks)
+    // {
+    //   blocks[size].tag = tag;
+    //   blocks[size].valid = true;
+    // }
+
+    // else
+    // {
+
+     // blocks[index].valid = false;
+      blocks[index].tag=tag;
+      blocks[index].valid=true;
+      
+   // }
+  }
 };
 
 class Cache_simulator
 {
 private:
   std::vector<Set> sets_cache;
-  unsigned int cacheSize;
-  unsigned int blockSize;
-  unsigned int numSets;
-  unsigned int associativity;
-  unsigned int cache_latency;
-  unsigned int memory_latency;
+  int cacheSize;
+  int blockSize;
+  int numSets;
+  int associativity;
+  int cache_latency;
+  int memory_latency;
 
-  std::pair<uint64_t, uint64_t> splitAddress(uint64_t address)
+  std::pair<int, int> splitAddress(uint64_t address)
   {
     int num_bits_offset = std::log2(blockSize);
+    std::cout << num_bits_offset << std::endl;
     address >>= num_bits_offset;
-    uint64_t index = address & ((1 << numSets) - 1);
-    uint64_t tag = address >> static_cast<uint64_t>(std::log2(numSets));
+    int num_bits = std::log2(numSets);
+    int index = address & ((1 << num_bits - 1));
+
+    int tag = address >> static_cast<int>(std::log2(numSets));
     return std::make_pair(tag, index);
   }
 
 public:
   Cache_simulator();
-  Cache_simulator(unsigned int _cacheSize, unsigned int _blockSize, unsigned int associativity,unsigned int cache_latency,unsigned int memory_latency)
-      : cacheSize(_cacheSize), blockSize(_blockSize), associativity(associativity),cache_latency(cache_latency),memory_latency(memory_latency)
+  Cache_simulator(int _cacheSize, int _blockSize, int associativity, int cache_latency, int memory_latency)
+      : cacheSize(_cacheSize), blockSize(_blockSize), associativity(associativity), cache_latency(cache_latency), memory_latency(memory_latency)
   {
 
     numSets = cacheSize / (blockSize * associativity);
-    sets_cache.resize(numSets, Set(associativity));
+    sets_cache.resize(numSets, Set(numSets));
+    for (auto set : sets_cache)
+    {
+      set.set_numBlocks(associativity);
+    }
   }
-  int get_mem_latency(){
+  int get_mem_latency()
+  {
     return memory_latency;
   }
-  int get_cache_latency(){
-    return  cache_latency;
-  }
-  bool access(uint64_t address)
+  int get_cache_latency()
   {
-    std::pair<uint64_t, uint64_t> address_parts = splitAddress(address);
-    uint64_t tag = address_parts.first;
-    uint64_t index = address_parts.second;
+    return cache_latency;
+  }
+  bool access(int address)
+  {
+    std::pair<int, int> address_parts = splitAddress(address);
+    int tag = address_parts.first;
+    int index = address_parts.second;
     if (sets_cache[index].search(tag))
-    {
+    {  std::cout<<"im in"<<std::endl;
       return true; // Hit
     }
     else
     {
-      std::cout<<"taag"<<tag<<std::endl;
+      std::cout << "add" << address << std::endl;
+      std::cout << "tag"
+                << " " << tag << std::endl;
+      std::cout << "index"
+                << " " << index << std::endl;
+      std::cout << "ass"
+                << " " << associativity << std::endl;
+                //set_cachse[index].
       sets_cache[index].block_fetch_viaRandom(tag);
+
       return false; // Miss
     }
   }
