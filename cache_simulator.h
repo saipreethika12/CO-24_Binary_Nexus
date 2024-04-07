@@ -55,31 +55,31 @@ public:
     return false; // Miss
   }
 
-  // void block_fetch_viaLRU(uint64_t tag)
-  // {
-  //    int size = blocks.size();
-  //   // id=f size till now is numblocksperset then rp
-  //   if (ump.find(size) == ump.end())
-  //   {
-
-  //     if (size < numBlocks)
-  //     {
-  //       blocks[size].tag = tag;
-  //       blocks[size].valid = true;
-  //       uint64_t last = Priority_list.back();
-  //       Priority_list.pop_back();
-  //       ump.erase(last);
-  //     }
-  //   }
-  //   else
-  //   {
-  //     // LRU
-  //     blocks[size].valid=false;
-  //     Priority_list.erase(ump[size]);
-  //   }
-  //   Priority_list.push_back(size);
-  //   ump[size] = Priority_list.begin();
-  // }
+  void block_fetch_viaLRU(uint64_t tag)
+  {
+     int size = blocks.size();
+    // id=f size till now is numblocksperset then rp
+    if (ump.find(size) == ump.end())
+    {
+///correct
+      if (size == numBlocks)
+      {
+        blocks[size].tag = tag;
+        blocks[size].valid = true;
+        uint64_t last = Priority_list.back();
+        Priority_list.pop_back();
+        ump.erase(last);
+      }
+    }
+    else
+    {
+      // LRU
+      blocks[size].valid=false;
+      Priority_list.erase(ump[size]);
+    }
+    Priority_list.push_back(size);
+    ump[size] = Priority_list.begin();
+  }
 
   void block_fetch_viaRandom(int tag)
   {

@@ -36,6 +36,7 @@ private:
     int c = 0;
     int y = 0, z = 0;
     bool hit = false;
+    bool hit_fetch = false;
 
     std::vector<std::vector<std::string>> pip;
     std::vector<std::string> ins_type1;
@@ -79,11 +80,12 @@ public:
         return false;
     }
 
-    void Fetch()
+    void Fetch(Cache_simulator* sim_cache)
 
     {
         if (PC < instructions.size())
         {
+            hit_fetch = sim_cache->access(ins_map[PC]);
             std::string fetched_instruction = instructions[PC].first;
             if (fetched_instruction.back() == ':')
             {
@@ -657,6 +659,7 @@ public:
                 {
 
                     loaded_value = labelToAddress[lbl];
+                    hit = sim_cache->access(loaded_value);
                 }
             }
             latch_MEM.push_back({"loaded_value", std::to_string(loaded_value)});
@@ -727,8 +730,8 @@ public:
         int latency_add = latency_map["ADD"] - 1;
         int latency_mul = latency_map["MUL"] - 1;
         int latency_sub = latency_map["SUB"] - 1;
-        int mem_access_latency = sim_cache->get_mem_latency();
-        int cache_latency =sim_cache->get_cache_latency();
+        int mem_access_latency = sim_cache->get_mem_latency()-1;
+        int cache_latency =sim_cache->get_cache_latency()-1;
         while (keep_going)
         {
             // if(k<0)break;
@@ -881,7 +884,19 @@ public:
                 pip[y + z][c] = "F";
                 pip[y + z][0] = std::to_string(PC);
                 y++;
-                Fetch();
+                Fetch(sim_cache);
+                if(hit_fetch){
+                    for(int i=0;i<cache_latency;i++){
+                        loop++;
+                        continue;
+                    }
+                }
+                else{
+                    for(int i=0;i<mem_access_latency;i++){
+                        loop++;
+                        continue;
+                    }
+                }
                 std::cout << "F";
             }
             else

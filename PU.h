@@ -53,8 +53,8 @@ public:
     int PC;
     std::vector<std::pair<std::string, int>> instructions;
     std::ifstream &file;
-   
-
+   int start_of_ins;
+   std::map<int,int> ins_map;
 
 public:
   
@@ -140,6 +140,7 @@ public:
         {
             reg[i] = 0;
         }
+        start_of_ins =3000;
     }
     // void Fetch();
     // void FetchWF();
@@ -160,6 +161,7 @@ public:
         std::string line;
         bool isDataSection = false;
         bool istextsec = false;
+        int pointer_of_ins = start_of_ins;
 
         while (getline(file, line))
         {
@@ -176,7 +178,21 @@ public:
             if (istextsec)
             {
                 instructions.push_back(make_pair(line, index));
-                index++;
+                            ins_map[index]=pointer_of_ins;
+                           int val =index ;
+                            for (int i = 0; i < 4; i++)
+                            {
+                                int t = 0;
+                                for (int j = 0; j < 8; j++)
+                                {
+                                    if ((val >> (8 * i + j) & 1 == 1))
+                                        t += pow(2, j);
+                                }
+                                RAM[pointer_of_ins] = t;
+                                vis[pointer_of_ins] = 1;
+                                pointer_of_ins++;
+                            }
+                              index++;
                 continue;
             }
             if (isDataSection && !istextsec)
