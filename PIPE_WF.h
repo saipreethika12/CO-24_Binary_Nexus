@@ -120,7 +120,6 @@ private:
     float accesses = 0;
     bool hit_fetch = false;
     bool miss_fetch = false;
-    bool ecall=false;
 
     std::vector<std::vector<std::string>> pip;
     std::vector<std::string> ins_type1_wf;
@@ -137,7 +136,7 @@ public:
     {
         pip.resize(100, std::vector<std::string>(1000, " "));
         ins_type1_wf = {"add", "sub", "and", "or", "slt", "mul"};
-        ins_type2_wf = {"addi", "andi", "ori", "sll", "srl", "slli","li"};
+        ins_type2_wf = {"addi", "andi", "ori", "sll", "srl", "slli"};
         ins_type3_wf = {"bne", "beq", "bge", "bgt", "blt"};
         ins_type4_wf = {"lw", "sw", "la"};
         ins_type5_wf = {"j", "jal", "jalr"};
@@ -178,13 +177,7 @@ public:
     {
 
         if (PC < instructions.size())
-        {   std::string fetched_instruction = instructions[PC].first;
-            if(fetched_instruction=="ecall"){
-                ecall=true;
-                PC=PC+1;
-            }
-            if(PC<instructions.size()){
-                fetched_instruction = instructions[PC].first;
+        {
             accesses++;
             hit_fetch = sim_cache->access(ins_map[PC]);
             if (hit_fetch == 1)
@@ -207,10 +200,7 @@ public:
             prevPC_wf = PC;
             PC += 1;
             ins_wf++;
-        }else{
-             eof_wf = true;
-            std::cout << "Reached eof" << std::endl;
-        }}
+        }
         else
         {
             eof_wf = true;
@@ -364,7 +354,7 @@ public:
             // reg_state[returnIndex(rd)] = 'd';
         }
         if (std::find(ins_type2_wf.begin(), ins_type2_wf.end(), opcode) != ins_type2_wf.end())
-        {   if(opcode !="li"){
+        {
             int rs1_value;
             std::string rs1 = tokens[2];
             int rs1num = returnIndex(rs1);
@@ -407,10 +397,6 @@ public:
                 latch_IDRF_wf.push_back({"rs1_value", std::to_string(rs1_value)});
                 latch_IDRF_wf.push_back({"immediate", tokens[3]});
                 reg_state[returnIndex(rd)] = 2;
-            }}else{
-                latch_IDRF_wf.push_back({"Opcode", opcode});
-               latch_IDRF_wf.push_back({"rd", rd});
-               latch_IDRF_wf.push_back({"immediate", tokens[2]});
             }
         }
         if (std::find(ins_type3_wf.begin(), ins_type3_wf.end(), opcode) != ins_type3_wf.end())
@@ -474,7 +460,7 @@ public:
             if (!stall_flag_wf && !stall_flag2_wf)
             {
                 int result = control_executions(opcode, rs1_value, rs2_value);
-                std::cout << "EXECUTED BRANCH" << result << std::endl;
+                std::cout << "EXECUTED BRANCH" << result  << std::endl;
                 std::cout << result << std::endl;
                 std::string label = tokens[3];
                 if (result != predict_branch())
@@ -953,23 +939,6 @@ public:
             std::cout << "e" << std::endl;
             reg[returnIndex(rd)] = result;
             reg_state[returnIndex(rd)] = 5;
-                if(opcode == "li" && ecall ){
-                int imm = std::stoi(search_latch("immediate",latch_MEM_wf));
-                std::cout<<"imme"<<imm<<std::endl;
-                if(imm == 1){
-                    std::cout << "Console"<<std::endl;
-                    std::cout<< reg[10] <<std::endl;
-                }
-                // if(imm == 4){
-                //   std::cout << labelToAddress[]
-                // }
-                ecall = false;
-            }
-            else if(opcode == "li" && !ecall){
-                  int imm = std::stoi(search_latch("immediate",latch_MEM_wf));
-                    reg[returnIndex(rd)] = imm;
-            }
-
         }
         if (std::find(ins_type3_wf.begin(), ins_type3_wf.end(), opcode) != ins_type3_wf.end())
         {
@@ -1150,10 +1119,12 @@ public:
                     ExecuteWF(latch_IDRF_wf);
                     if (executed_branch_wf && mis_predict_wf)
                     {
+
                         PC = (findLabelIndex(search_latch("Label", latch_EXE_wf))) + 1;
                         latch_IF_wf.clear();
                         executed_branch_wf = false;
                         mis_predict_wf = false;
+                        if(eof_wf)eof_wf = false;
                     }
                     latency_addi = latency_map["ADDI"] - 1;
                     latency_add = latency_map["ADD"] - 1;
@@ -1258,13 +1229,12 @@ public:
                 }
                 std::cout << "F";
             }
-            else
+            else if(eof_wf && executed_branch_wf &&  !mis_predict_wf)
             {
-                std::cout << "came here but a stall;)" << std::endl;
+             break;
             }
             std::cout << k << std::endl;
-            // if (v == 0)
-            //     break;
+          
             if (k == 0)
             {
                 keep_going_wf = false;
@@ -1276,8 +1246,7 @@ public:
                 std::cout << loop_wf << std::endl;
             }
             std::cout << "\nONE cycle finish\n";
-            v--;
-            if(v==0 )break;
+          
         }
         std::cout << instructions.size() << std::endl;
         // std::cout << stalls_wf << std::endl;

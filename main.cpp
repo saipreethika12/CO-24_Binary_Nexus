@@ -22,7 +22,7 @@ int main()
     // std::cin >> mul;
     processor.set_latencies(3,1,1,1);
     
-    processor.run(0);
+    processor.run(1);
 
     return 0;
 }
