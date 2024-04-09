@@ -40,6 +40,7 @@ private:
     float hits = 0;
     float accesses = 0;
     bool miss = false;
+    bool ecall = false;
 
     std::vector<std::vector<std::string>> pip;
     std::vector<std::string> ins_type1;
@@ -56,7 +57,7 @@ public:
     {
         pip.resize(100, std::vector<std::string>(1000, " "));
         ins_type1 = {"add", "sub", "and", "or", "slt", "mul"};
-        ins_type2 = {"addi", "andi", "ori", "sll", "srl", "slli"};
+        ins_type2 = {"addi", "andi", "ori", "sll", "srl", "slli","li"};
         ins_type3 = {"bne", "beq", "bge", "bgt", "blt"};
         ins_type4 = {"lw", "sw", "la"};
         ins_type5 = {"j", "jal", "jalr"};
@@ -88,6 +89,15 @@ public:
     {
         if (PC < instructions.size())
         {
+          
+             std::string fetched_instruction = instructions[PC].first;
+               if(fetched_instruction == "ecall"){
+                std::cout<<"made ec t"<<std::endl;
+                ecall = true;
+                PC =PC+1;
+               }
+               if(PC<instructions.size()){
+              fetched_instruction = instructions[PC].first;
             accesses++;
             std::cout << "here" << std::endl;
             hit_fetch = sim_cache->access(ins_map[PC]);
@@ -96,7 +106,7 @@ public:
                 hits++;
             else{
                 miss_fetch = true;}
-            std::string fetched_instruction = instructions[PC].first;
+           
             if (fetched_instruction.back() == ':')
             {
                 PC = PC + 1;
@@ -108,7 +118,11 @@ public:
 
             PC += 1;
             ins++;
-            std::cout << " bloody i" << ins << std::endl;
+            std::cout << " bloody i" << ins << std::endl;}
+            else{
+               eof = true;
+            std::cout << "Reached eof" << std::endl; 
+            }
         }
         else
         {
@@ -196,6 +210,7 @@ public:
         }
         if (std::find(ins_type2.begin(), ins_type2.end(), opcode) != ins_type2.end())
         {
+            if(opcode != "li"){
             int rs1_value;
             std::string rs1 = tokens[2];
             int rs1num = returnIndex(rs1);
@@ -221,6 +236,12 @@ public:
                 latch_IDRF.push_back({"rs1_value", std::to_string(rs1_value)});
                 latch_IDRF.push_back({"immediate", tokens[3]});
                 reg_state[returnIndex(rd)] = 2;
+            }
+            }
+            else{
+               latch_IDRF.push_back({"Opcode", opcode});
+               latch_IDRF.push_back({"rd", rd});
+               latch_IDRF.push_back({"immediate", tokens[2]});
             }
         }
         if (std::find(ins_type3.begin(), ins_type3.end(), opcode) != ins_type3.end())
@@ -708,10 +729,26 @@ public:
         if (std::find(ins_type1.begin(), ins_type1.end(), opcode) != ins_type1.end() || std::find(ins_type2.begin(), ins_type2.end(), opcode) != ins_type2.end())
         {
             int result = stoi(search_latch("result", latch_MEM));
-
+            
             std::cout << "e" << std::endl;
             reg[returnIndex(rd)] = result;
             reg_state[returnIndex(rd)] = 5;
+            if(opcode == "li" && ecall ){
+                int imm = std::stoi(search_latch("immediate",latch_MEM));
+                std::cout<<"imme"<<imm<<std::endl;
+                if(imm == 1){
+                    std::cout << "Console"<<std::endl;
+                    std::cout<< reg[10] <<std::endl;
+                }
+                // if(imm == 4){
+                //   std::cout << labelToAddress[]
+                // }
+                ecall = false;
+            }
+            else if(opcode == "li" && !ecall){
+                  int imm = std::stoi(search_latch("immediate",latch_MEM));
+                    reg[returnIndex(rd)] = imm;
+            }
         }
         if (std::find(ins_type3.begin(), ins_type3.end(), opcode) != ins_type3.end())
         {
@@ -809,6 +846,7 @@ public:
                         {
                             std::cout << " i ran " << opcode << mem_access_latency << std::endl;
                             mem_access_latency--;
+                            stalls++;
                             loop++;
                             cont = true;
                         }
@@ -819,6 +857,7 @@ public:
                         {
                             cache_latency--;
                             loop++;
+                            stalls++;
                             cont = true;
                         }
                     }
@@ -906,6 +945,7 @@ public:
                         if (latency_add > 0)
                         {
                             f = true;
+                            stalls++;
                             latency_add--;
                             loop++;
                             continue;
@@ -916,6 +956,7 @@ public:
                         if (latency_sub > 0)
                         {
                             f = true;
+                            stalls++;
                             latency_sub--;
                             loop++;
                             continue;
@@ -926,6 +967,7 @@ public:
                         if (latency_mul > 0)
                         {
                             f = true;
+                            stalls++;
                             latency_mul--;
                             loop++;
                             continue;
@@ -988,6 +1030,7 @@ public:
                     if (mem_access_latency_f > 0)
                     {
                         // std::cout << " i ran " << opcode << mem_access_latency << std::endl;
+                        stalls++;
                         mem_access_latency_f--;
                         loop++;
                         cont = true;
@@ -997,6 +1040,7 @@ public:
                 {
                     if (cache_latency_f > 0)
                     {
+                        stalls++;
                         cache_latency_f--;
                         loop++;
                         cont = true;
