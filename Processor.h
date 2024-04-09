@@ -112,7 +112,7 @@ public:
         {
 
             pwf.readInstructionsFromFile("input.txt", RAM, visited);
-            pwf.Step_countWF(RAM);
+            pwf.Step_countWF(RAM,&cacheSimulator);
         }
 
         instructionsFile.close();

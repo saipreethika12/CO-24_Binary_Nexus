@@ -189,7 +189,7 @@ public:
       std::cout << "ass"
                 << " " << associativity << std::endl;
       // set_cachse[index].
-      sets_cache[index].block_fetch_viaRandom(tag);
+      sets_cache[index].block_fetch_viaLRU(tag);
 
       return false; // Miss
     }

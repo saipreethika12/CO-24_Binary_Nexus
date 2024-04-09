@@ -115,7 +115,11 @@ private:
     // bool keep_going_wf = true;
     int v = 200;
     bool hit = false;
+    bool miss = false;
+    float hits = 0;
+    float accesses = 0;
     bool hit_fetch = false;
+    bool miss_fetch = false;
 
     std::vector<std::vector<std::string>> pip;
     std::vector<std::string> ins_type1_wf;
@@ -174,6 +178,14 @@ public:
 
         if (PC < instructions.size())
         {
+            accesses++;
+            hit_fetch = sim_cache->access(ins_map[PC]);
+            if (hit_fetch == 1)
+                hits++;
+            else
+            {
+                miss_fetch = true;
+            }
             hit_fetch = sim_cache->access(ins_map[PC]);
             std::string fetched_instruction = instructions[PC].first;
             if (fetched_instruction.back() == ':')
@@ -821,6 +833,13 @@ public:
             if (opcode == "lw")
             {
                 hit = sim_cache->access(result);
+                if (!hit)
+                {
+                    miss = true;
+                }
+                if (hit)
+                    hits++;
+
                 for (int i = 0; i < 4; i++)
                 {
 
@@ -855,6 +874,13 @@ public:
                     }
                 }
                 hit = sim_cache->access(result);
+                if (!hit)
+                {
+                    miss = true;
+                }
+                if (hit)
+                    hits++;
+
                 for (int i = 0; i < 4; i++)
                 {
                     int t = 0;
@@ -884,6 +910,10 @@ public:
                     loaded_value = labelToAddress[lbl];
                     reg[returnIndex(rd)] = labelToAddress[lbl];
                     hit = sim_cache->access(loaded_value);
+                    if (hit)
+                        hits++;
+                    if (!hit)
+                        miss = true;
                 }
             }
 
@@ -953,6 +983,8 @@ public:
         int latency_sub = latency_map["SUB"] - 1;
         int mem_access_latency = sim_cache->get_mem_latency() - 1;
         int cache_latency = sim_cache->get_cache_latency() - 1;
+        int mem_access_latency_f = sim_cache->get_mem_latency() - 1;
+        int cache_latency_f = sim_cache->get_cache_latency() - 1;
         int c = 1;
         int y = 0, z = 0;
         int k = 0;
@@ -961,6 +993,7 @@ public:
         {
             y = 0;
             c++;
+            bool cont = false;
             if (latch_MEM_wf.size() > 0)
             {
                 k = 1;
@@ -969,62 +1002,64 @@ public:
                 {
                     std::cout << "First: " << pair.first << ", Second: " << pair.second << std::endl;
                 }
-                pip[y + z][c] = "W";
+              //  pip[y + z][c] = "W";
                 z++;
                 WriteBackWF(latch_MEM_wf);
                 latch_MEM_wf.clear();
                 k = 0;
             }
-            if (latch_EXE_wf.size() > 0)
+            if (latch_EXE_wf.size() > 0 && (!hit) && !miss)
             {
 
                 k = 2;
-                pip[y + z][c] = "M";
+               // pip[y + z][c] = "M";
                 y++;
-                MemoryWF(latch_EXE_wf, RAM, sim_cache);
+                if (!hit && !miss)
+                {
+                    MemoryWF(latch_EXE_wf, RAM, sim_cache);
+                }
                 std::string opcode = search_latch("Opcode", latch_EXE_wf);
-                if (opcode == "lw" || opcode == "la")
+                if (opcode == "lw" || opcode == "la" || opcode == "sw")
                 {
-                    if (!hit)
+                    if (miss)
                     {
-                        for (int i = 0; i < mem_access_latency; i++)
+                        if (mem_access_latency > 0)
                         {
+                            std::cout << " i ran " << opcode << mem_access_latency << std::endl;
+                            mem_access_latency--;
                             loop_wf++;
-                            continue;
+                            cont = true;
                         }
                     }
-                    else
+                    else if (hit)
                     {
-                        for (int i = 0; i < cache_latency; i++)
+                        if (cache_latency > 0)
                         {
+                            cache_latency--;
                             loop_wf++;
-                            continue;
+                            cont = true;
                         }
                     }
                 }
-                else if (opcode == "sw")
+                if (cont == true)
                 {
-                    if (!hit)
-                    {
-                        for (int i = 0; i < mem_access_latency; i++)
-                        {
-                            loop_wf++;
-                            continue;
-                        }
-                    }
-                    else
-                    {
-                        for (int i = 0; i < cache_latency; i++)
-                        {
-                            loop_wf++;
-                            continue;
-                        }
-                    }
+                    continue;
                 }
+                if (mem_access_latency == 0)
+                {
+                    mem_access_latency = sim_cache->get_mem_latency() - 1;
+                    miss = false;
+                }
+                if (cache_latency == 0)
+                {
+                    cache_latency = sim_cache->get_cache_latency() - 1;
+                    hit = false;
+                }
+
                 latch_EXE_wf.clear();
                 std::cout << "M";
             }
-            if (latch_IDRF_wf.size() > 0)
+            if (latch_IDRF_wf.size() > 0 )
             {
                 bool f = false;
                 if (!stall_flag_wf && !stall_flag2_wf)
@@ -1033,7 +1068,7 @@ public:
                     std::cout << "E";
                     std::string op = search_latch("Opcode", latch_IDRF_wf);
 
-                    pip[y + z][c] = "E";
+                   // pip[y + z][c] = "E";
                     y++;
                     // std::cout << "the lat" << latency_addi << std::endl;
                     if (op == "addi")
@@ -1096,76 +1131,99 @@ public:
                     latch_IDRF_wf.clear();
                 }
             }
-            if (latch_IF_wf.size() > 0 || ishazard_notified_wf)
+            if (!miss_fetch && !hit_fetch)
             {
-                if (eof_wf && !deof_wf)
+
+                if (latch_IF_wf.size() > 0 || ishazard_notified_wf)
                 {
-                    if (latch_IDRF_wf.size() == 0)
+                    if (eof_wf && !deof_wf)
                     {
-                        k = 4;
-                        pip[y + z][c] = "D";
-                        y++;
-                        DecodeWF();
+                        if (latch_IDRF_wf.size() == 0)
+                        {
+                            k = 4;
+                          //  pip[y + z][c] = "D";
+                            y++;
+                            DecodeWF();
 
-                        std::cout << "ID";
-                        latch_IF_wf.clear();
-                        deof_wf = true;
+                            std::cout << "ID";
+                            latch_IF_wf.clear();
+                            deof_wf = true;
+                        }
+                        else if ((stall_flag_wf || stall_flag2_wf) && latch_IDRF_wf.size() == 2)
+                        {
+                            k = 4;
+                           // pip[y + z][c] = "D";
+                            y++;
+                            DecodeWF();
+                            deof_wf = true;
+                        }
                     }
-                    else if ((stall_flag_wf || stall_flag2_wf) && latch_IDRF_wf.size() == 2)
+                    else
                     {
-                        k = 4;
-                        pip[y + z][c] = "D";
-                        y++;
-                        DecodeWF();
-                        deof_wf = true;
-                    }
-                }
-                else
-                {
-                    if (latch_IDRF_wf.size() == 0)
-                    {
-                        k = 4;
-                        pip[y + z][c] = "D";
-                        y++;
-                        DecodeWF();
+                        if (latch_IDRF_wf.size() == 0)
+                        {
+                            k = 4;
+                           // pip[y + z][c] = "D";
+                            y++;
+                            DecodeWF();
 
-                        std::cout << "ID";
-                        latch_IF_wf.clear();
-                    }
-                    else if ((stall_flag_wf || stall_flag2_wf) && latch_IDRF_wf.size() == 2)
-                    {
-                        k = 4;
-                        pip[y + z][c] = "D";
-                        y++;
-                        DecodeWF();
+                            std::cout << "ID";
+                            latch_IF_wf.clear();
+                        }
+                        else if ((stall_flag_wf || stall_flag2_wf) && latch_IDRF_wf.size() == 2)
+                        {
+                            k = 4;
+                           // pip[y + z][c] = "D";
+                            y++;
+                            DecodeWF();
 
-                        std::cout << "ID";
+                            std::cout << "ID";
+                        }
                     }
                 }
             }
-            if (latch_IF_wf.size() == 0 && !eof_wf)
+            if (latch_IF_wf.size() == 0 && !eof_wf ||(latch_IF_wf.size()==2 &&(miss_fetch || hit_fetch)) )
             {
                 k = 5;
-                pip[y + z][c] = "F";
-                pip[y + z][0] = std::to_string(PC);
+            //    pip[y + z][c] = "F";
+              //  pip[y + z][0] = std::to_string(PC);
                 y++;
-
-                FetchWF(sim_cache);
-                if (hit_fetch)
+                if (!miss_fetch && !hit_fetch)
                 {
-                    for (int i = 0; i < cache_latency; i++)
+                    FetchWF(sim_cache);
+                }
+                 if (miss_fetch)
+                {
+                    if (mem_access_latency_f > 0)
                     {
+                        // std::cout << " i ran " << opcode << mem_access_latency << std::endl;
+                        mem_access_latency_f--;
                         loop_wf++;
-                        continue;
+                        cont = true;
                     }
                 }
-                else
+                else if (hit_fetch)
                 {
-                    for (int i = 0; i < mem_access_latency; i++)
+                    if (cache_latency_f > 0)
                     {
+                        cache_latency_f--;
                         loop_wf++;
-                        continue;
+                        cont = true;
                     }
+                }
+                if (cont == true)
+                {
+                    continue;
+                }
+                if (mem_access_latency_f == 0)
+                {
+                    mem_access_latency_f = sim_cache->get_mem_latency() - 1;
+                    miss_fetch = false;
+                }
+                if (cache_latency_f == 0)
+                {
+                    cache_latency_f = sim_cache->get_cache_latency() - 1;
+                    hit_fetch = false;
                 }
                 std::cout << "F";
             }
@@ -1188,6 +1246,7 @@ public:
             }
             std::cout << "\nONE cycle finish\n";
             v--;
+            if(v==0 )break;
         }
         std::cout << instructions.size() << std::endl;
         // std::cout << stalls_wf << std::endl;
@@ -1199,17 +1258,18 @@ public:
         std::cout << loop_wf << std::endl;
         std::cout << "Instructions per cycle" << std::endl;
         std::cout << loop_wf / (float)ins_wf << std::endl;
-        for (int i = 0; i < 30; i++)
+        std::cout << "Hit Rate" << std::endl;
+        std::cout << hits / accesses << std::endl;
+        // for (int i = 0; i < 30; i++)
+        // {
+        //     for (int j = 0; j < 30; j++)
+        //     {
+        //         std::cout << pip[i][j] << " ";
+        //     }
+        //     std::cout << std::endl;
+        // }
+        for (int i = 0; i < 32; i++)
         {
-            for (int j = 0; j < 30; j++)
-            {
-                std::cout << pip[i][j] << " ";
-            }
-            std::cout << std::endl;
-        
-        }
-        for(int i=0;i<32;i++){
-            
         }
     }
 

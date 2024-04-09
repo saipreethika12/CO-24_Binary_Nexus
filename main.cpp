@@ -20,9 +20,9 @@ int main()
     // std::cout << "Enter the latency for MUL:\n"
     //           << std::endl;
     // std::cin >> mul;
-    processor.set_latencies(1,1,1,1);
+    processor.set_latencies(3,1,1,1);
     
-    processor.run(1);
+    processor.run(0);
 
     return 0;
 }
