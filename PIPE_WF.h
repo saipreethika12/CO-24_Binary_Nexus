@@ -114,6 +114,8 @@ private:
     int loop_wf = 0;
     // bool keep_going_wf = true;
     int v = 200;
+    bool hit = false;
+    bool hit_fetch = false;
 
     std::vector<std::vector<std::string>> pip;
     std::vector<std::string> ins_type1_wf;
@@ -167,11 +169,12 @@ public:
         else
             return false;
     }
-    void FetchWF()
+    void FetchWF(Cache_simulator *sim_cache)
     {
 
         if (PC < instructions.size())
         {
+            hit_fetch = sim_cache->access(ins_map[PC]);
             std::string fetched_instruction = instructions[PC].first;
             if (fetched_instruction.back() == ':')
             {
@@ -389,6 +392,7 @@ public:
             branch_flag_wf = true;
             executed_branch_wf = false;
             stalls_wf += 1;
+            // count-=2;
             std::string rs2 = tokens[2];
 
             std::string rs1 = tokens[1];
@@ -449,7 +453,7 @@ public:
                 std::string label = tokens[3];
                 if (result != predict_branch())
                 {
-                    mis_predict_wf = true;
+                    mis_predict_wf == true;
                     stalls_wf += 1;
                     // PC = findLabelIndex(label);
                     // std::cout<<"label ind"<<findLabelIndex(label);
@@ -773,7 +777,7 @@ public:
             latch_EXE_wf.push_back({"result", std::to_string(result)});
         }
     }
-    void MemoryWF(std::vector<std::pair<std::string, std::string>> latch_EXE_wf, char *RAM)
+    void MemoryWF(std::vector<std::pair<std::string, std::string>> latch_EXE_wf, char *RAM, Cache_simulator *sim_cache)
     {
         std::cout << "MEM opcode" << std::endl;
         std::string rd;
@@ -816,7 +820,7 @@ public:
 
             if (opcode == "lw")
             {
-
+                hit = sim_cache->access(result);
                 for (int i = 0; i < 4; i++)
                 {
 
@@ -850,7 +854,7 @@ public:
                         load_value = stoi(pair.second);
                     }
                 }
-
+                hit = sim_cache->access(result);
                 for (int i = 0; i < 4; i++)
                 {
                     int t = 0;
@@ -879,6 +883,7 @@ public:
                 {
                     loaded_value = labelToAddress[lbl];
                     reg[returnIndex(rd)] = labelToAddress[lbl];
+                    hit = sim_cache->access(loaded_value);
                 }
             }
 
@@ -940,12 +945,14 @@ public:
         }
     }
 
-    void Step_countWF(char *RAM)
+    void Step_countWF(char *RAM, Cache_simulator *sim_cache)
     {
         int latency_addi = latency_map["ADDI"] - 1;
         int latency_add = latency_map["ADD"] - 1;
         int latency_mul = latency_map["MUL"] - 1;
         int latency_sub = latency_map["SUB"] - 1;
+        int mem_access_latency = sim_cache->get_mem_latency() - 1;
+        int cache_latency = sim_cache->get_cache_latency() - 1;
         int c = 1;
         int y = 0, z = 0;
         int k = 0;
@@ -966,7 +973,7 @@ public:
                 z++;
                 WriteBackWF(latch_MEM_wf);
                 latch_MEM_wf.clear();
-                //  k=0;
+                k = 0;
             }
             if (latch_EXE_wf.size() > 0)
             {
@@ -974,7 +981,46 @@ public:
                 k = 2;
                 pip[y + z][c] = "M";
                 y++;
-                MemoryWF(latch_EXE_wf, RAM);
+                MemoryWF(latch_EXE_wf, RAM, sim_cache);
+                std::string opcode = search_latch("Opcode", latch_EXE_wf);
+                if (opcode == "lw" || opcode == "la")
+                {
+                    if (!hit)
+                    {
+                        for (int i = 0; i < mem_access_latency; i++)
+                        {
+                            loop_wf++;
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < cache_latency; i++)
+                        {
+                            loop_wf++;
+                            continue;
+                        }
+                    }
+                }
+                else if (opcode == "sw")
+                {
+                    if (!hit)
+                    {
+                        for (int i = 0; i < mem_access_latency; i++)
+                        {
+                            loop_wf++;
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < cache_latency; i++)
+                        {
+                            loop_wf++;
+                            continue;
+                        }
+                    }
+                }
                 latch_EXE_wf.clear();
                 std::cout << "M";
             }
@@ -996,7 +1042,6 @@ public:
                         {
                             f = true;
                             // std::cout << "latin" << std::endl;
-                             loop_wf++;
                             latency_addi--;
                             loop_wf++;
                             continue;
@@ -1017,7 +1062,6 @@ public:
                         if (latency_sub > 0)
                         {
                             f = true;
-                            loop_wf++;
                             latency_sub--;
                             loop_wf++;
                             continue;
@@ -1028,7 +1072,6 @@ public:
                         if (latency_mul > 0)
                         {
                             f = true;
-                            loop_wf++;
                             latency_mul--;
                             loop_wf++;
                             continue;
@@ -1041,7 +1084,7 @@ public:
                     ExecuteWF(latch_IDRF_wf);
                     if (executed_branch_wf && mis_predict_wf)
                     {
-                        PC = (findLabelIndex(search_latch("Label", latch_EXE_wf)));
+                        PC = (findLabelIndex(search_latch("Label", latch_EXE_wf))) + 1;
                         latch_IF_wf.clear();
                         executed_branch_wf = false;
                         mis_predict_wf = false;
@@ -1107,7 +1150,23 @@ public:
                 pip[y + z][0] = std::to_string(PC);
                 y++;
 
-                FetchWF();
+                FetchWF(sim_cache);
+                if (hit_fetch)
+                {
+                    for (int i = 0; i < cache_latency; i++)
+                    {
+                        loop_wf++;
+                        continue;
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < mem_access_latency; i++)
+                    {
+                        loop_wf++;
+                        continue;
+                    }
+                }
                 std::cout << "F";
             }
             else
@@ -1115,12 +1174,11 @@ public:
                 std::cout << "came here but a stall;)" << std::endl;
             }
             std::cout << k << std::endl;
-            if (v == 0)
-                break;
+            // if (v == 0)
+            //     break;
             if (k == 0)
             {
                 keep_going_wf = false;
-
                 break;
             }
             else
@@ -1130,7 +1188,6 @@ public:
             }
             std::cout << "\nONE cycle finish\n";
             v--;
-            k = 0;
         }
         std::cout << instructions.size() << std::endl;
         // std::cout << stalls_wf << std::endl;
@@ -1141,7 +1198,7 @@ public:
         std::cout << "No of cycles" << std::endl;
         std::cout << loop_wf << std::endl;
         std::cout << "Instructions per cycle" << std::endl;
-        std::cout << (float)ins_wf / loop_wf << std::endl;
+        std::cout << loop_wf / (float)ins_wf << std::endl;
         for (int i = 0; i < 30; i++)
         {
             for (int j = 0; j < 30; j++)
@@ -1155,5 +1212,35 @@ public:
             
         }
     }
+
+    // int main()
+    // {
+    //     char RAM[4096];
+    //     int clock = 0;
+    //     bool visited[4096] = {0};
+    //     int x;
+    //     std::cout << "Enter the latency for ADD:\n" << std::endl;
+    //     std::cin >> x;
+    //     latency_map["ADD"] = x;
+    //     std::cout << "Enter the latency for SUB:\n" << std::endl;
+    //     std::cin >> x;
+    //     latency_map["SUB"] = x;
+    //     std::cout << "Enter the latency for ADDI:\n" << std::endl;
+    //     std::cin >> x;
+    //     latency_map["ADDI"]=x;
+    //     std::ifstream instructionsFile("text.txt");
+    //     if (!instructionsFile.is_open())
+    //     {
+    //         std::cerr << "Error opening file." << std::endl;
+    //     }
+    //     Core core1(instructionsFile);
+    //     core1.readInstructionsFromFile("text.txt", RAM, visited);
+    //     core1.Step_countWF(RAM);
+    //     //    for(int i=0;i<4096;i++){
+    //     //     std::cout<<RAM[i]<<std::endl;
+    //     //    }
+    //     instructionsFile.close();
+    //     return 0;
+    // }
 };
 #endif
