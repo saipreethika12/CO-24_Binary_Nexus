@@ -1149,6 +1149,10 @@ public:
                 std::cout << pip[i][j] << " ";
             }
             std::cout << std::endl;
+        
+        }
+        for(int i=0;i<32;i++){
+            
         }
     }
 };

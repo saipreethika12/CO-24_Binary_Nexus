@@ -1,4 +1,4 @@
-.data 
+.data
 arr: .word 40,20,30,10
 arr_len: .word 4
 .text

@@ -36,6 +36,10 @@ private:
     int y = 0, z = 0;
     bool hit = false;
     bool hit_fetch = false;
+    bool miss_fetch = false;
+    float hits = 0;
+    float accesses = 0;
+    bool miss = false;
 
     std::vector<std::vector<std::string>> pip;
     std::vector<std::string> ins_type1;
@@ -84,7 +88,12 @@ public:
     {
         if (PC < instructions.size())
         {
+            accesses++;
+            std::cout<<"here"<<std::endl;
             hit_fetch = sim_cache->access(ins_map[PC]);
+            if (hit_fetch)
+                hits++;
+                else miss_fetch = true;
             std::string fetched_instruction = instructions[PC].first;
             if (fetched_instruction.back() == ':')
             {
@@ -188,17 +197,16 @@ public:
             int rs1_value;
             std::string rs1 = tokens[2];
             int rs1num = returnIndex(rs1);
+            std::cout<<"reg val"<<rs1<<std::endl;
+            std::cout << "rs st" << reg_state[rs1num] << std::endl;
             if (reg_state[rs1num] == 0 || reg_state[rs1num] == 5)
             {
                 std::cout << "reg state with after resolving ;!" << reg_state[rs1num] << std::endl;
                 rs1_value = reg[rs1num];
                 stall_flag = false;
-                stall_mul = false;
             }
             else
             {
-                if (stall_flag)
-                    stall_mul = true;
                 stall_flag = true;
                 stalls += 1;
                 count--;
@@ -291,7 +299,7 @@ public:
             int rd_value;
             if (opcode == "lw" && !(openParen == std::string::npos))
             {
-                std::cout << reg_state[rs1num] << std::endl;
+                std::cout << "base reg state" << reg_state[rs1num] << std::endl;
                 if (reg_state[rs1num] == 0 || reg_state[rs1num] == 5)
                 {
                     baseRegister_value = reg[rs1num];
@@ -323,6 +331,7 @@ public:
             else if (opcode == "sw")
             {
                 std::cout << "DECODED sw" << std::endl;
+                std::cout << "base reg state" << reg_state[rs1num] << std::endl;
                 std::cout << reg_state[rdnum] << rdnum << std::endl;
                 std::cout << reg_state[rs1num] << rs1num << std::endl;
                 if (reg_state[rdnum] == 0 || reg_state[rdnum] == 5)
@@ -596,9 +605,15 @@ public:
 
             if (opcode == "lw")
             {
+                accesses++;
                 std::cout << "ff lw" << std::endl;
                 std::cout << (uint64_t)result << std::endl;
                 hit = sim_cache->access(result);
+                if(!hit){
+                    miss = true;
+                }
+                if (hit)
+                    hits++;
                 for (int i = 0; i < 4; i++)
                 {
 
@@ -619,7 +634,7 @@ public:
             }
             if (opcode == "sw")
             {
-
+                accesses++;
                 std::cout << "ff sw" << std::endl;
                 int load_value;
                 for (const auto &pair : latch_EXE)
@@ -629,7 +644,13 @@ public:
                         load_value = stoi(pair.second);
                     }
                 }
+                std::cout << "res fr sw" << result << std::endl;
                 hit = sim_cache->access(result);
+                if(!hit){
+                    miss = true;
+                }
+                if (hit)
+                    hits++;
                 for (int i = 0; i < 4; i++)
                 {
                     int t = 0;
@@ -656,9 +677,12 @@ public:
                 }
                 if (labelToAddress.find(lbl) != labelToAddress.end())
                 {
-
+                    accesses++;
                     loaded_value = labelToAddress[lbl];
                     hit = sim_cache->access(loaded_value);
+                    if (hit)
+                        hits++;
+                        if(!hit)miss = true;
                 }
             }
             latch_MEM.push_back({"loaded_value", std::to_string(loaded_value)});
@@ -675,7 +699,7 @@ public:
         std::string opcode = search_latch("Opcode", latch_MEM);
 
         std::string rd = search_latch("rd", latch_MEM);
-        // std::cout<<opcode<<std::endl;
+        std::cout << "rd fr la" << rd << std::endl;
         if (std::find(ins_type1.begin(), ins_type1.end(), opcode) != ins_type1.end() || std::find(ins_type2.begin(), ins_type2.end(), opcode) != ins_type2.end())
         {
             int result = stoi(search_latch("result", latch_MEM));
@@ -704,9 +728,11 @@ public:
                 //  std::cout << "Val of ind" << loaded_value << std::endl;
                 reg[returnIndex(rd)] = stoi(loaded_value);
                 reg_state[returnIndex(rd)] = 5;
-
+                std::cout << "wb as 5 " << std::endl;
+                std::cout << reg_state[returnIndex(rd)] << std::endl;
                 std::cout << rd << std::endl;
             }
+
             reg_state[returnIndex(rd)] = 5;
         }
         if (std::find(ins_type4.begin(), ins_type4.end(), opcode) != ins_type4.end())
@@ -738,12 +764,13 @@ public:
             c++;
             y = 0;
             int k = 0;
+             bool cont =false;
             //  count += 1;
-            if (latch_MEM.size() > 0)
+            if (latch_MEM.size() > 0 &&(!hit) && !miss)
             {
                 k = 1;
                 std::cout << "WB";
-                pip[y + z][c] = "W";
+              //  pip[y + z][c] = "W";
                 z++;
                 for (const auto &pair : latch_MEM)
                 {
@@ -755,60 +782,87 @@ public:
             }
             if (latch_EXE.size() > 0)
             {
-
+              
                 k = 2;
                 std::cout << "M";
-                pip[y + z][c] = "M";
+               // pip[y + z][c] = "M";
                 y++;
 
+                if(!hit && !miss){
                 Memory(latch_EXE, RAM, sim_cache);
+                }
                 std::string opcode = search_latch("Opcode", latch_EXE);
-                if (opcode == "lw" || opcode == "la")
+                if (opcode == "lw" || opcode == "la" || opcode == "sw")
                 {
-                    if (!hit)
+                    if (miss)
                     {
-                        for (int i = 0; i < mem_access_latency; i++)
+                        if (mem_access_latency > 0)
                         {
+                            std::cout<<" i ran "<<opcode<<mem_access_latency<<std::endl;
+                            mem_access_latency--;
                             loop++;
-                            continue;
+                            cont =true;
+                           
                         }
                     }
-                    else
+                    else if(hit)
                     {
-                        for (int i = 0; i < cache_latency; i++)
+                        if (cache_latency > 0)
                         {
+                            cache_latency--;
                             loop++;
-                            continue;
+                           cont = true;
                         }
                     }
                 }
-                else if (opcode == "sw")
-                {
-                    if (!hit)
-                    {
-                        for (int i = 0; i < mem_access_latency; i++)
-                        {
-                            loop++;
-                            continue;
-                        }
-                    }
-                    else
-                    {
-                        for (int i = 0; i < cache_latency; i++)
-                        {
-                            loop++;
-                            continue;
-                        }
-                    }
-                }
+                  if(cont==true){continue;}
+                // else if (opcode == "sw")
+                // {
+                //     if (!hit)
+                //     {
+                //         for (int i = 0; i < mem_access_latency; i++)
+                //         {   f=true;
+                //             loop++;
+                //             continue;
+                //         }
+                //     }
+                //     else
+                //     {
+                //         for (int i = 0; i < cache_latency; i++)
+                //         {   f=true;
+                //             loop++;
+                //             continue;
+                //         }
+                //     }
+                // }
+                // if(f){
+                //     continue;
+                // }
+
                 if (executed_branch && mis_predict)
                 {
                     std::cout << "fluhsing" << std::endl;
                     PC = (findLabelIndex(search_latch("Label", latch_MEM)));
                     latch_IF.clear();
+                    std::string rd = search_latch("rd",latch_IDRF);
+                    std::cout<<"rd dec"<<rd<<std::endl;
+                    std::cout<<reg_state[returnIndex(rd)]<<std::endl;
+                    reg_state[returnIndex(rd)] = 0;
+                    std::cout<<reg_state[returnIndex(rd)]<<std::endl;
                     latch_IDRF.clear();
                     executed_branch = false;
                     mis_predict = false;
+                }
+              
+                if (mem_access_latency == 0)
+                {
+                    mem_access_latency = sim_cache->get_mem_latency() - 1;
+                    miss = false;
+                }
+                if (cache_latency == 0)
+                {
+                    cache_latency = sim_cache->get_cache_latency() - 1;
+                    hit = false;
                 }
                 latch_EXE.clear();
             }
@@ -823,7 +877,7 @@ public:
                     std::cout << "E";
                     std::string op = search_latch("Opcode", latch_IDRF);
 
-                    pip[y + z][c] = "E";
+                   // pip[y + z][c] = "E";
                     y++;
                     if (op == "addi")
                     {
@@ -878,12 +932,12 @@ public:
                     latch_IDRF.clear();
                 }
             }
-            if (latch_IF.size() > 0 || stall_flag)
+            if (latch_IF.size() > 0 || stall_flag )
             {
                 if (latch_IDRF.size() == 0)
                 {
                     k = 4;
-                    pip[y + z][c] = "D";
+                   // pip[y + z][c] = "D";
                     y++;
                     Decode();
 
@@ -893,7 +947,9 @@ public:
                 else if ((stall_flag || stall_flag2) && latch_IDRF.size() == 2)
                 {
                     k = 4;
-                    pip[y + z][c] = "D";
+                   //
+                   
+                   // pip[y + z][c] = "D";
                     y++;
                     Decode();
 
@@ -908,9 +964,10 @@ public:
             if (latch_IF.size() == 0 && !eof)
             {
                 k = 5;
-                pip[y + z][c] = "F";
-                pip[y + z][0] = std::to_string(PC);
-                y++;
+                // pip[y + z][c] = "F";
+                // pip[y + z][0] = std::to_string(PC);
+               // y++;
+                 std::cout << "came her" << std::endl;
                 Fetch(sim_cache);
                 if (hit_fetch)
                 {
@@ -957,13 +1014,18 @@ public:
         std::cout << loop << std::endl;
         std::cout << "Instructions per cycle" << std::endl;
         std::cout << (float)ins / loop << std::endl;
-        for (int i = 0; i < 30; i++)
-        {
-            for (int j = 0; j < 30; j++)
-            {
-                std::cout << pip[i][j] << " ";
-            }
-            std::cout << std::endl;
+        std::cout << "Hit Rate" << std::endl;
+        std::cout << hits / accesses << std::endl;
+        // for (int i = 0; i <30; i++)
+        // {
+        //     for (int j = 0; j < 30; j++)
+        //     {
+        //         std::cout << pip[i][j] << " ";
+        //     }
+        //     std::cout << std::endl;
+        // }
+        for(int i=0;i<32;i++){
+            std::cout<< i<<" "<<reg_state[i]<<std::endl;
         }
     }
 };

@@ -20,6 +20,7 @@ private:
     Cache_simulator cacheSimulator;
     PIPE_WOF pwof;
     PIPE_WF pwf;
+   
 
 public:
     Processor() : cacheSimulator(1, 1, 1, 1, 1)

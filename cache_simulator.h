@@ -45,24 +45,36 @@ public:
   bool search(int tag)
   {
     for (auto &block : blocks)
-    {   std::cout<<"blockin"<<block.tag<<std::endl;
+    {
+      std::cout << "blockin" << block.tag << std::endl;
       if (block.tag == tag && block.valid == true)
       {
         return true; // Hit
       }
     }
-     block_fetch_viaRandom( tag);
+    block_fetch_viaRandom(tag);
     return false; // Miss
   }
 
   void block_fetch_viaLRU(uint64_t tag)
   {
-     int size = blocks.size();
+    int size = 0;
+    for (auto &block : blocks)
+    {
+      if (block.tag != 0 && block.valid == true)
+      {
+        size++;
+      }
+    }
+    std::cout << "size" << size << std::endl;
+    std::cout << numBlocks << std::endl;
+    int index = rand() % numBlocks;
+    std::cout << "indexrr" << index << std::endl;
     // id=f size till now is numblocksperset then rp
     if (ump.find(size) == ump.end())
     {
-///correct
-      if (size == numBlocks)
+      /// correct
+      if (size < numBlocks)
       {
         blocks[size].tag = tag;
         blocks[size].valid = true;
@@ -74,7 +86,7 @@ public:
     else
     {
       // LRU
-      blocks[size].valid=false;
+      blocks[size].valid = false;
       Priority_list.erase(ump[size]);
     }
     Priority_list.push_back(size);
@@ -84,26 +96,32 @@ public:
   void block_fetch_viaRandom(int tag)
   {
     // srand((unsigned)time(NULL));
-    int size = blocks.size();
-     std::cout <<"size"<<size<< std::endl;
+    int size = 0;
+    for (auto &block : blocks)
+    {
+      if (block.tag != 0 && block.valid == true)
+      {
+        size++;
+      }
+    }
+    std::cout << "size" << size << std::endl;
     std::cout << numBlocks << std::endl;
     int index = rand() % numBlocks;
-     std::cout <<"indexrr"<<index<< std::endl;
+    std::cout << "indexrr" << index << std::endl;
 
-    // if (size < numBlocks)
-    // {
-    //   blocks[size].tag = tag;
-    //   blocks[size].valid = true;
-    // }
+    if (size < numBlocks)
+    {
+      blocks[size].tag = tag;
+      blocks[size].valid = true;
+    }
 
-    // else
-    // {
+    else
+    {
 
-     // blocks[index].valid = false;
-      blocks[index].tag=tag;
-      blocks[index].valid=true;
-      
-   // }
+      // blocks[index].valid = false;
+      blocks[index].tag = tag;
+      blocks[index].valid = true;
+    }
   }
 };
 
@@ -157,7 +175,8 @@ public:
     int tag = address_parts.first;
     int index = address_parts.second;
     if (sets_cache[index].search(tag))
-    {  std::cout<<"im in"<<std::endl;
+    {
+      std::cout << "im in" << std::endl;
       return true; // Hit
     }
     else
@@ -169,7 +188,7 @@ public:
                 << " " << index << std::endl;
       std::cout << "ass"
                 << " " << associativity << std::endl;
-                //set_cachse[index].
+      // set_cachse[index].
       sets_cache[index].block_fetch_viaRandom(tag);
 
       return false; // Miss
