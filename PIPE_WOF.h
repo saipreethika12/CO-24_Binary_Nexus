@@ -763,10 +763,15 @@ public:
                 {
                     std::cout << "First: " << pair.first << ", Second: " << pair.second << std::endl;
                 }
+              //  std::cout<<"wbc"<<std::endl;
+                   
 
                 WriteBack(latch_MEM);
+                 std::cout<<"wbc1"<<std::endl;
                 latch_MEM.clear();
             }
+            std::cout<<k<<std::endl;
+            //std::cout<<"wbc"<<std::endl;
             if (latch_EXE.size() > 0)
             {
 
@@ -925,9 +930,7 @@ public:
                 }
                 
             }
-            }
-          
-            
+            }  
             if ((latch_IF.size() == 0 && !eof) || (latch_IF.size()==2 &&(miss_fetch || hit_fetch)))
             {
                 k = 5;
@@ -972,14 +975,15 @@ public:
             }
             else if(eof && executed_branch && !mis_predict)
             {
-             continue;
+             break;
                
             }
-
+            std::cout<<k<<std::endl;
             if (k == 0)
-            {
-                break;
+            { 
                 keep_going = 0;
+                break;
+               
             }
             else
             {
