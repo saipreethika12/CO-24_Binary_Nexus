@@ -66,14 +66,10 @@ public:
         size++;
       }
     }
-    std::cout << "size" << size << std::endl;
-    std::cout << numBlocks << std::endl;
     int index = rand() % numBlocks;
-    std::cout << "indexrr" << index << std::endl;
-    // id=f size till now is numblocksperset then rp
     if (ump.find(size) == ump.end())
     {
-      /// correct
+     
       if (size < numBlocks)
       {
         blocks[size].tag = tag;
@@ -85,7 +81,6 @@ public:
     }
     else
     {
-      // LRU
       blocks[size].valid = false;
       Priority_list.erase(ump[size]);
     }
@@ -95,7 +90,6 @@ public:
 
   void block_fetch_viaRandom(int tag)
   {
-    // srand((unsigned)time(NULL));
     int size = 0;
     for (auto &block : blocks)
     {
@@ -118,7 +112,6 @@ public:
     else
     {
 
-      // blocks[index].valid = false;
       blocks[index].tag = tag;
       blocks[index].valid = true;
     }
@@ -135,6 +128,7 @@ private:
   int associativity;
   int cache_latency;
   int memory_latency;
+  int cache_policy_num;
 
   std::pair<int, int> splitAddress(uint64_t address)
   {
@@ -150,8 +144,8 @@ private:
 
 public:
   Cache_simulator();
-  Cache_simulator(int _cacheSize, int _blockSize, int associativity, int cache_latency, int memory_latency)
-      : cacheSize(_cacheSize), blockSize(_blockSize), associativity(associativity), cache_latency(cache_latency), memory_latency(memory_latency)
+  Cache_simulator(int _cacheSize, int _blockSize, int associativity, int cache_latency, int memory_latency,int policy_num)
+      : cacheSize(_cacheSize), blockSize(_blockSize), associativity(associativity), cache_latency(cache_latency), memory_latency(memory_latency),cache_policy_num(policy_num)
   {
 
     numSets = cacheSize / (blockSize * associativity);
@@ -176,8 +170,8 @@ public:
     int index = address_parts.second;
     if (sets_cache[index].search(tag))
     {
-      std::cout << "im in" << std::endl;
-      return true; // Hit
+      
+      return true;
     }
     else
     {
@@ -188,10 +182,13 @@ public:
                 << " " << index << std::endl;
       std::cout << "ass"
                 << " " << associativity << std::endl;
-      // set_cachse[index].
+      if(cache_policy_num==1){
       sets_cache[index].block_fetch_viaLRU(tag);
+      }else{
+        sets_cache[index].block_fetch_viaRandom(tag);
+      }
 
-      return false; // Miss
+      return false; 
     }
   }
 };
