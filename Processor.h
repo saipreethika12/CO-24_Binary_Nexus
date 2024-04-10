@@ -22,7 +22,7 @@ private:
     PIPE_WF pwf;
 
 public:
-    Processor() : cacheSimulator(1, 1, 1, 1, 1)
+    Processor() : cacheSimulator(1, 1, 1, 1, 1,1)
     {
     }
 
