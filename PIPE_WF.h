@@ -889,6 +889,7 @@ public:
                         {
                             mem_access_latency--;
                             loop_wf++;
+                             stalls_wf++;
                             cont = true;
                         }
                     }
@@ -897,6 +898,7 @@ public:
                         if (cache_latency > 0)
                         {
                             cache_latency--;
+                            stalls_wf++;
                             loop_wf++;
                             cont = true;
                         }
@@ -974,7 +976,7 @@ public:
                         }
                     }
                     if (f)
-                    {
+                    {     stalls_wf++;
                         continue;
                     }
                     ExecuteWF(latch_IDRF_wf);
@@ -1060,6 +1062,7 @@ public:
                         
                         mem_access_latency_f--;
                         loop_wf++;
+                        stalls_wf++;
                         cont = true;
                     }
                 }
@@ -1069,6 +1072,7 @@ public:
                     {
                         cache_latency_f--;
                         loop_wf++;
+                        stalls_wf++;
                         cont = true;
                     }
                 }
