@@ -194,8 +194,6 @@ public:
             int rs1_value;
             std::string rs1 = tokens[2];
             int rs1num = returnIndex(rs1);
-            std::cout << "reg val" << rs1 << std::endl;
-            std::cout << "rs st" << reg_state[rs1num] << std::endl;
             if (reg_state[rs1num] == 0 || reg_state[rs1num] == 5)
             {
            
@@ -295,7 +293,7 @@ public:
             int rd_value;
             if (opcode == "lw" && !(openParen == std::string::npos))
             {
-                std::cout << "base reg state" << reg_state[rs1num] << std::endl;
+              
                 if (reg_state[rs1num] == 0 || reg_state[rs1num] == 5)
                 {
                     baseRegister_value = reg[rs1num];
@@ -326,10 +324,6 @@ public:
 
             else if (opcode == "sw")
             {
-                std::cout << "DECODED sw" << std::endl;
-                std::cout << "base reg state" << reg_state[rs1num] << std::endl;
-                std::cout << reg_state[rdnum] << rdnum << std::endl;
-                std::cout << reg_state[rs1num] << rs1num << std::endl;
                 if (reg_state[rdnum] == 0 || reg_state[rdnum] == 5)
                 {
                     rd_value = reg[rdnum];
@@ -490,7 +484,6 @@ public:
             std::cout << op1 << " " << op2 << std::endl;
             result = control_executions(opcode, op1, op2);
             std::cout << "EXECUTED BRANCH" << result << std::endl;
-            std::cout << result << std::endl;
             std::string label = search_latch("Label", latch_IDRF);
             std::cout << "branch pred" << predict_branch() << std::endl;
             if (result != predict_branch())
@@ -596,8 +589,6 @@ public:
             if (opcode == "lw")
             {
                 accesses++;
-              
-                std::cout << (uint64_t)result << std::endl;
                 hit = sim_cache->access(result);
                 if (!hit)
                 {
@@ -662,7 +653,6 @@ public:
                 {
                     if (pair.first == "Label")
                     {
-                        std::cout << "found the label" << std::endl;
                         lbl = pair.second;
                     }
                 }
@@ -719,8 +709,7 @@ public:
                 std::string loaded_value = search_latch("loaded_value", latch_MEM);
                 reg[returnIndex(rd)] = stoi(loaded_value);
                 reg_state[returnIndex(rd)] = 5;
-                std::cout << reg_state[returnIndex(rd)] << std::endl;
-                std::cout << rd << std::endl;
+             
             }
 
             reg_state[returnIndex(rd)] = 5;
@@ -763,15 +752,13 @@ public:
                 {
                     std::cout << "First: " << pair.first << ", Second: " << pair.second << std::endl;
                 }
-              //  std::cout<<"wbc"<<std::endl;
+          
                    
 
                 WriteBack(latch_MEM);
-                 std::cout<<"wbc1"<<std::endl;
+             
                 latch_MEM.clear();
             }
-            std::cout<<k<<std::endl;
-            //std::cout<<"wbc"<<std::endl;
             if (latch_EXE.size() > 0)
             {
 
@@ -820,10 +807,9 @@ public:
                     PC = (findLabelIndex(search_latch("Label", latch_MEM)));
                     latch_IF.clear();
                     std::string rd = search_latch("rd", latch_IDRF);
-                    std::cout << "rd dec" << rd << std::endl;
-                    std::cout << reg_state[returnIndex(rd)] << std::endl;
+                  
                     reg_state[returnIndex(rd)] = 0;
-                    std::cout << reg_state[returnIndex(rd)] << std::endl;
+                
                     latch_IDRF.clear();
                     executed_branch = false;
                     mis_predict = false;
@@ -982,7 +968,7 @@ public:
              break;
                
             }
-            std::cout<<k<<std::endl;
+          
             if (k == 0)
             { 
                 keep_going = 0;
