@@ -78,8 +78,7 @@ public:
     {
         if (latch_MEM_wf.size() > 0)
         {
-            std::cout << "CAME HERE"
-                      << " " << (rs == search_latch("rd", v)) << std::endl;
+           
             return rs == search_latch("rd", v);
         }
         else
@@ -354,7 +353,7 @@ public:
         }
         if (std::find(ins_type4_wf.begin(), ins_type4_wf.end(), opcode) != ins_type4_wf.end())
         {
-            std::cout << "decoding type4" << std::endl;
+            
             std::string offset;
             int baseRegister_value;
             int rs1num;
@@ -411,8 +410,7 @@ public:
             else if (opcode == "sw")
             {
 
-                std::cout << reg_state[rdnum] << rdnum << std::endl;
-                std::cout << reg_state[rs1num] << rs1num << std::endl;
+               
                 if (prev_opcode != "lw")
                 {
                     if (isHazard(rd, latch_MEM_wf))
@@ -1096,7 +1094,7 @@ public:
             {
              break;
             }
-            std::cout << k << std::endl;
+          
           
             if (k == 0)
             {
