@@ -791,9 +791,10 @@ public:
                     {
                         if (mem_access_latency > 0)
                         {
-                            std::cout << " i ran " << opcode << mem_access_latency << std::endl;
+                            
                             mem_access_latency--;
                             loop++;
+                            stalls++;
                             cont = true;
                         }
                     }
@@ -803,6 +804,7 @@ public:
                         {
                             cache_latency--;
                             loop++;
+                            stalls++;
                             cont = true;
                         }
                     }
@@ -892,7 +894,7 @@ public:
                         }
                     }
                     if (f)
-                    {
+                    {   stalls++;
                         continue;
                     }
                     Execute(latch_IDRF);
@@ -944,6 +946,7 @@ public:
                         
                         mem_access_latency_f--;
                         loop++;
+                        stalls++;
                         cont = true;
                     }
                 }
@@ -953,6 +956,7 @@ public:
                     {
                         cache_latency_f--;
                         loop++;
+                        stalls++;
                         cont = true;
                     }
                 }
