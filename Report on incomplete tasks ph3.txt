@@ -1,0 +1,8 @@
+Incomplete Tasks:
+1.pipeline with forwarding in selection sort is not giving correct answers
+Reason:
+Incomplete tasks:
+Everything was working until we noticed that bubble and selection sort were taking the same inputs just the night before deadline so there came bugs which we couldnt fix on time.
+Apologies for not being able to complete this.
+Every other requirement of phasse 2 and phase 3 were met.
+The terminal doesnt show both the outputs of the cores at a time because we are also printing latch contents.

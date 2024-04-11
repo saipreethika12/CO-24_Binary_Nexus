@@ -22,7 +22,7 @@ private:
     PIPE_WF pwf;
 
 public:
-    Processor() : cacheSimulator(1, 1, 1, 1, 1,1)
+    Processor() : cacheSimulator(1, 1, 1, 1, 1, 1)
     {
     }
 
@@ -76,7 +76,7 @@ public:
                 }
             }
         }
-         std::cout<<"conf"<<std::endl;
+        std::cout << "conf" << std::endl;
         inputFile.close();
         return config;
     }
@@ -85,53 +85,50 @@ public:
     {
         std::map<std::string, std::string> config = parseInputFile(filename, "Cache_Configuration");
         // Set Cache Configuration
-        for(auto i:config){
-           std:: cout<<i.first<<i.second<<std::endl;
-        }
         unsigned int cache_size = std::stoi(config["Cache_size"]);
-            std::cout<<"fi"<<std::endl;
+
         unsigned int block_size = std::stoi(config["Block_size"]);
-            std::cout<<"fi"<<std::endl;
+
         unsigned int associativity = std::stoi(config["Associativity"]);
-            std::cout<<"fi"<<std::endl;
+
         unsigned int cache_latency = std::stoi(config["Cache_latency"]);
-            std::cout<<"fi"<<std::endl;
+
         unsigned int memory_latency = std::stoi(config["Memory_latency"]);
-        std::cout<<"fi"<<std::endl;
-        int policy_num=std::stoi(config["Policy"]);
-            std::cout<<"fi"<<std::endl;
-        Cache_simulator cache(cache_size, block_size, associativity, cache_latency, memory_latency,policy_num);
+
+        int policy_num = std::stoi(config["Policy"]);
+
+        Cache_simulator cache(cache_size, block_size, associativity, cache_latency, memory_latency, policy_num);
         // Cache_simulator cache(, 4, 16, 2, 100);
         this->cacheSimulator = cache;
     }
     void run(int x)
     {
         std::string inputFilename = "cache_config.txt";
-        std::cout<<"m"<<std::endl;
         set_cache(inputFilename);
 
-        // std::ifstream instructionsFile1("bubble_sort.txt");
-        // if (!instructionsFile1.is_open())
-        // {
-        //     std::cerr << "Error opening file " << std::endl;
-        //     return;
-        // }
-        // pwof.readInstructionsFromFile("bubble_sort.txt", RAM, visited);
-        // if (x == 2)
-        // {
-        //     pwof.Step_count(RAM, &cacheSimulator);
-        // }
-        // else if(x==1)
-        // {
+        std::ifstream instructionsFile1("bubble_sort.txt");
+        if (!instructionsFile1.is_open())
+        {
+            std::cerr << "Error opening file " << std::endl;
+            return;
+        }
+        pwof.readInstructionsFromFile("bubble_sort.txt", RAM, visited);
+        if (x == 2)
+        {
+            pwof.Step_count(RAM, &cacheSimulator);
+        }
+        else if (x == 1)
+        {
 
-        //     pwf.readInstructionsFromFile("bubble_sort.txt", RAM, visited);
-        //     pwf.Step_countWF(RAM, &cacheSimulator);
-        // }
-        // else {
-        //     std::cout<<"Invalid ip"<<std::endl;
-        // }
+            pwf.readInstructionsFromFile("bubble_sort.txt", RAM, visited);
+            pwf.Step_countWF(RAM, &cacheSimulator);
+        }
+        else
+        {
+            std::cout << "Invalid ip" << std::endl;
+        }
 
-        // instructionsFile1.close();
+        instructionsFile1.close();
 
         std::ifstream instructionsFile2("selection.txt");
         if (!instructionsFile2.is_open())
@@ -150,8 +147,9 @@ public:
             pwf.readInstructionsFromFile("selection.txt", RAM, visited);
             pwf.Step_countWF(RAM, &cacheSimulator);
         }
-        else {
-             std::cout<<"Invalid ip"<<std::endl;
+        else
+        {
+            std::cout << "Invalid ip" << std::endl;
         }
 
         instructionsFile2.close();

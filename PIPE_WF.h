@@ -1110,8 +1110,8 @@ public:
             std::cout << "\nONE cycle finish\n";
           
         }
-        std::cout << instructions.size() << std::endl;
         std::cout << "WIth Forwarding" << std::endl;
+        std::cout<<"==============OUTPUT===================="<<std::endl;
         std::cout << "No of stalls" << std::endl;
         std::cout << stalls_wf << std::endl;
         std::cout << "No of cycles" << std::endl;

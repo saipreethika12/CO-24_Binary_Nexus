@@ -752,9 +752,6 @@ public:
                 {
                     std::cout << "First: " << pair.first << ", Second: " << pair.second << std::endl;
                 }
-          
-                   
-
                 WriteBack(latch_MEM);
              
                 latch_MEM.clear();
@@ -766,7 +763,6 @@ public:
                 std::cout << "M";
                 // pip[y + z][c] = "M";
                 y++;
-
                 if (!hit && !miss)
                 {
                     Memory(latch_EXE, RAM, sim_cache);
@@ -836,7 +832,6 @@ public:
                     k = 3;
                     std::cout << "E";
                     std::string op = search_latch("Opcode", latch_IDRF);
-
                     // pip[y + z][c] = "E";
                     y++;
                     if (op == "addi")
@@ -965,8 +960,7 @@ public:
             }
             else if(eof && executed_branch && !mis_predict)
             {
-             break;
-               
+             break;   
             }
           
             if (k == 0)
@@ -985,6 +979,7 @@ public:
         
             
         }
+        std::cout<<"==============OUTPUT===================="<<std::endl;
         std::cout << "No of stalls" << std::endl;
         std::cout << stalls << std::endl;
         std::cout << "No of cycles" << std::endl;
