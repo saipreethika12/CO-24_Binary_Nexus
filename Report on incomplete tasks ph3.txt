@@ -1,0 +1,5 @@
+Incomplete tasks:
+1.pipeline with forwarding fro sekections srt is giving wrong output.
+Everything was working untill we noticed that bubble and selection sort were taking the same inputs just the night before the deadline so it has bugs which werent all resolved.
+Terminal doesn't show output for both the cores because we are also printing latch contents (space constraint)
+Every other requirement is met for phase 2 and phase 3.
