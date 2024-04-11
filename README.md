@@ -1,5 +1,7 @@
 # CO-24_Binary_Nexus
-
+Date:9-4-24<br>
+Members:Ikshitha,Preethika<br>
+Decisions:Debugging
 Date:8-4-24<br>
 Members:Ikshitha,Preethika<br>
 Decisions:Debugging
