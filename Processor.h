@@ -20,10 +20,9 @@ private:
     Cache_simulator cacheSimulator;
     PIPE_WOF pwof;
     PIPE_WF pwf;
-   
 
 public:
-    Processor() : cacheSimulator(1, 1, 1, 1, 1)
+    Processor() : cacheSimulator(1, 1, 1, 1, 1,1)
     {
     }
 
@@ -38,84 +37,124 @@ public:
         pwof.latency_map["MUL"] = mul_lat;
         pwof.latency_map["SUB"] = sub_lat;
     }
-    std::map<std::string, std::string> parseInputFile(const std::string& filename, const std::string& sectionName) {
-    std::map<std::string, std::string> config;
-    std::ifstream inputFile(filename);
-    if (!inputFile.is_open()) {
-        std::cerr << "Error opening input file." << std::endl;
+    std::map<std::string, std::string> parseInputFile(const std::string &filename, const std::string &sectionName)
+    {
+        std::map<std::string, std::string> config;
+        std::ifstream inputFile(filename);
+        if (!inputFile.is_open())
+        {
+            std::cerr << "Error opening input file." << std::endl;
+            return config;
+        }
+
+        std::string line;
+        std::string section;
+        bool sectionFound = false;
+        while (std::getline(inputFile, line))
+        {
+            if (!line.empty() && line.front() == '#')
+            {
+                section = line.substr(1);
+                if (section == sectionName)
+                {
+                    sectionFound = true;
+                    continue;
+                }
+            }
+            if (sectionFound)
+            {
+                if (line.find(':') != std::string::npos)
+                {
+                    std::istringstream iss(line);
+                    std::string key, value;
+                    std::getline(iss, key, ':');
+                    std::getline(iss, value);
+                    // Trim leading and trailing whitespace from the value
+                    value.erase(0, value.find_first_not_of(" \t"));
+                    value.erase(value.find_last_not_of(" \t") + 1);
+                    config[key] = value;
+                }
+            }
+        }
+         std::cout<<"conf"<<std::endl;
+        inputFile.close();
         return config;
     }
 
-    std::string line;
-    std::string section;
-    bool sectionFound = false;
-    while (std::getline(inputFile, line)) {
-        if (!line.empty() && line.front() == '#') {
-            section = line.substr(1);
-            if (section == sectionName) {
-                sectionFound = true;
-                continue;
-            }
-        }
-        if (sectionFound) {
-            if (line.find(':') != std::string::npos) {
-                std::istringstream iss(line);
-                std::string key, value;
-                std::getline(iss, key, ':');
-                std::getline(iss, value);
-                // Trim leading and trailing whitespace from the value
-                value.erase(0, value.find_first_not_of(" \t"));
-                value.erase(value.find_last_not_of(" \t") + 1);
-                config[key] = value;
-            }
-        }
-    }
-
-    inputFile.close();
-    return config;
-}
-
-
     void set_cache(std::string filename)
     {
-        std::map<std::string, std::string> config = parseInputFile(filename,"Cache_Configuration");
+        std::map<std::string, std::string> config = parseInputFile(filename, "Cache_Configuration");
         // Set Cache Configuration
+        for(auto i:config){
+           std:: cout<<i.first<<i.second<<std::endl;
+        }
         unsigned int cache_size = std::stoi(config["Cache_size"]);
+            std::cout<<"fi"<<std::endl;
         unsigned int block_size = std::stoi(config["Block_size"]);
+            std::cout<<"fi"<<std::endl;
         unsigned int associativity = std::stoi(config["Associativity"]);
+            std::cout<<"fi"<<std::endl;
         unsigned int cache_latency = std::stoi(config["Cache_latency"]);
+            std::cout<<"fi"<<std::endl;
         unsigned int memory_latency = std::stoi(config["Memory_latency"]);
-          Cache_simulator cache(cache_size,block_size,associativity,cache_latency,memory_latency);
-       // Cache_simulator cache(, 4, 16, 2, 100);
+        std::cout<<"fi"<<std::endl;
+        int policy_num=std::stoi(config["Policy"]);
+            std::cout<<"fi"<<std::endl;
+        Cache_simulator cache(cache_size, block_size, associativity, cache_latency, memory_latency,policy_num);
+        // Cache_simulator cache(, 4, 16, 2, 100);
         this->cacheSimulator = cache;
     }
     void run(int x)
     {
-        std::ifstream instructionsFile("input.txt");
-        if (!instructionsFile.is_open())
+        std::string inputFilename = "cache_config.txt";
+        std::cout<<"m"<<std::endl;
+        set_cache(inputFilename);
+
+        // std::ifstream instructionsFile1("bubble_sort.txt");
+        // if (!instructionsFile1.is_open())
+        // {
+        //     std::cerr << "Error opening file " << std::endl;
+        //     return;
+        // }
+        // pwof.readInstructionsFromFile("bubble_sort.txt", RAM, visited);
+        // if (x == 2)
+        // {
+        //     pwof.Step_count(RAM, &cacheSimulator);
+        // }
+        // else if(x==1)
+        // {
+
+        //     pwf.readInstructionsFromFile("bubble_sort.txt", RAM, visited);
+        //     pwf.Step_countWF(RAM, &cacheSimulator);
+        // }
+        // else {
+        //     std::cout<<"Invalid ip"<<std::endl;
+        // }
+
+        // instructionsFile1.close();
+
+        std::ifstream instructionsFile2("selection.txt");
+        if (!instructionsFile2.is_open())
         {
-            std::cerr << "Error opening file 'input.txt'." << std::endl;
+            std::cerr << "Error opening file " << std::endl;
             return;
         }
-        std::string inputFilename = "cache_config.txt";
-        // std::map<std::string, std::string> config = parseInputFile(inputFilename);
-        set_cache(inputFilename);
-        // set_values(config["Cache_Configuration"]);
-        pwof.readInstructionsFromFile("input.txt", RAM, visited);
-        std::cout << "read file" << std::endl;
-
-        if (x == 1)
+        pwof.readInstructionsFromFile("selection.txt", RAM, visited);
+        if (x == 2)
         {
             pwof.Step_count(RAM, &cacheSimulator);
         }
-        else
-        {
+        else if (x == 1)
 
-            pwf.readInstructionsFromFile("input.txt", RAM, visited);
-            pwf.Step_countWF(RAM,&cacheSimulator);
+        {
+            pwf.readInstructionsFromFile("selection.txt", RAM, visited);
+            pwf.Step_countWF(RAM, &cacheSimulator);
+        }
+        else {
+             std::cout<<"Invalid ip"<<std::endl;
         }
 
-        instructionsFile.close();
+        instructionsFile2.close();
     }
 };
 

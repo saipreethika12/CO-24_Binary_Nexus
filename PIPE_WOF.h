@@ -30,8 +30,6 @@ private:
     int deof = false;
     int loop = 0;
     bool keep_going = true;
-    int v = 50;
-    // int v = 30;
     int c = 0;
     int y = 0, z = 0;
     bool hit = false;
@@ -49,7 +47,6 @@ private:
     std::vector<std::string> ins_type5;
     std::vector<std::string> ins_type6;
 
-    // Constructor
 public:
     std::map<std::string, int> latency_map;
     PIPE_WOF() : Core(file)
@@ -89,9 +86,8 @@ public:
         if (PC < instructions.size())
         {
             accesses++;
-            std::cout << "here" << std::endl;
             hit_fetch = sim_cache->access(ins_map[PC]);
-            std::cout<< "hf"<<hit_fetch<<std::endl;
+       
             if (hit_fetch == 1)
                 hits++;
             else{
@@ -108,7 +104,6 @@ public:
 
             PC += 1;
             ins++;
-            std::cout << " bloody i" << ins << std::endl;
         }
         else
         {
@@ -199,11 +194,9 @@ public:
             int rs1_value;
             std::string rs1 = tokens[2];
             int rs1num = returnIndex(rs1);
-            std::cout << "reg val" << rs1 << std::endl;
-            std::cout << "rs st" << reg_state[rs1num] << std::endl;
             if (reg_state[rs1num] == 0 || reg_state[rs1num] == 5)
             {
-                std::cout << "reg state with after resolving ;!" << reg_state[rs1num] << std::endl;
+           
                 rs1_value = reg[rs1num];
                 stall_flag = false;
             }
@@ -235,10 +228,9 @@ public:
             int rs2_value;
             rs1num = returnIndex(rs1);
             rs2num = returnIndex(rs2);
-            std::cout << "WHILE DEC BRANCH REG STATE" << reg_state[rs1num] << std::endl;
             if (reg_state[rs1num] == 0 || reg_state[rs1num] == 5)
             {
-                std::cout << "CAME FROM NOWHERE" << std::endl;
+               
                 rs1_value = reg[rs1num];
                 stall_flag = false;
             }
@@ -252,7 +244,7 @@ public:
             }
             if (reg_state[rs2num] == 0 || reg_state[rs2num] == 5)
             {
-                std::cout << "CAME FROM NOWHERE" << std::endl;
+              
                 rs2_value = reg[rs2num];
                 stall_flag2 = false;
             }
@@ -274,7 +266,7 @@ public:
         }
         if (std::find(ins_type4.begin(), ins_type4.end(), opcode) != ins_type4.end())
         {
-            std::cout << "decoding type4" << std::endl;
+           
             std::string offset;
             int baseRegister_value;
             int rs1num;
@@ -301,7 +293,7 @@ public:
             int rd_value;
             if (opcode == "lw" && !(openParen == std::string::npos))
             {
-                std::cout << "base reg state" << reg_state[rs1num] << std::endl;
+              
                 if (reg_state[rs1num] == 0 || reg_state[rs1num] == 5)
                 {
                     baseRegister_value = reg[rs1num];
@@ -332,10 +324,6 @@ public:
 
             else if (opcode == "sw")
             {
-                std::cout << "DECODED sw" << std::endl;
-                std::cout << "base reg state" << reg_state[rs1num] << std::endl;
-                std::cout << reg_state[rdnum] << rdnum << std::endl;
-                std::cout << reg_state[rs1num] << rs1num << std::endl;
                 if (reg_state[rdnum] == 0 || reg_state[rdnum] == 5)
                 {
                     rd_value = reg[rdnum];
@@ -450,7 +438,6 @@ public:
         {
             if (pair.first == "rs1_value")
             {
-                //  std::cout<<"not this"<<std::endl;
                 op1 = stoi(pair.second);
             }
         }
@@ -460,13 +447,13 @@ public:
             {
 
                 op2 = stoi(pair.second);
-                // std::cout<<"not this"<<std::endl;
+             
             }
             else if (pair.first == "rs2_value")
             {
 
                 op2 = stoi(pair.second);
-                // std::cout<<"not this"<<std::endl;
+              
             }
         }
 
@@ -485,7 +472,7 @@ public:
 
                 result = executeArithmeticInstruction(op1, op2, opcode);
             }
-            // std::cout << "made e" << std::endl;
+            
             reg_state[returnIndex(rd)] = 3;
         }
         if (std::find(ins_type3.begin(), ins_type3.end(), opcode) != ins_type3.end())
@@ -497,28 +484,22 @@ public:
             std::cout << op1 << " " << op2 << std::endl;
             result = control_executions(opcode, op1, op2);
             std::cout << "EXECUTED BRANCH" << result << std::endl;
-            std::cout << result << std::endl;
             std::string label = search_latch("Label", latch_IDRF);
             std::cout << "branch pred" << predict_branch() << std::endl;
             if (result != predict_branch())
             {
-                std::cout << "mispredicted" << std::endl;
+               
                 mis_predict = true;
                 stalls += 2;
-                // PC = findLabelIndex(label);
-                // std::cout<<"label ind"<<findLabelIndex(label);
+              
             }
-            // if (result == 1)
-            // {
-            //     PC = findLabelIndex(label);
-            //     std::cout << "label ind" << findLabelIndex(label);
-            // }
+           
 
             branch_flag = false;
         }
         if (std::find(ins_type4.begin(), ins_type4.end(), opcode) != ins_type4.end())
         {
-            std::cout << "in" << std::endl;
+           
             int baseReg = 0;
             int offset;
 
@@ -608,8 +589,6 @@ public:
             if (opcode == "lw")
             {
                 accesses++;
-                std::cout << "ff lw" << std::endl;
-                std::cout << (uint64_t)result << std::endl;
                 hit = sim_cache->access(result);
                 if (!hit)
                 {
@@ -638,7 +617,6 @@ public:
             if (opcode == "sw")
             {
                 accesses++;
-                std::cout << "ff sw" << std::endl;
                 int load_value;
                 for (const auto &pair : latch_EXE)
                 {
@@ -647,7 +625,7 @@ public:
                         load_value = stoi(pair.second);
                     }
                 }
-                std::cout << "res fr sw" << result << std::endl;
+            
                 hit = sim_cache->access(result);
                 if (!hit)
                 {
@@ -669,13 +647,12 @@ public:
             }
             if (opcode == "la")
             {
-                std::cout << "ff la" << std::endl;
+               
                 std::string lbl;
                 for (const auto &pair : latch_EXE)
                 {
                     if (pair.first == "Label")
                     {
-                        std::cout << "found the label" << std::endl;
                         lbl = pair.second;
                     }
                 }
@@ -704,12 +681,12 @@ public:
         std::string opcode = search_latch("Opcode", latch_MEM);
 
         std::string rd = search_latch("rd", latch_MEM);
-        std::cout << "rd fr la" << rd << std::endl;
+       
         if (std::find(ins_type1.begin(), ins_type1.end(), opcode) != ins_type1.end() || std::find(ins_type2.begin(), ins_type2.end(), opcode) != ins_type2.end())
         {
             int result = stoi(search_latch("result", latch_MEM));
 
-            std::cout << "e" << std::endl;
+           
             reg[returnIndex(rd)] = result;
             reg_state[returnIndex(rd)] = 5;
         }
@@ -730,12 +707,9 @@ public:
             if (opcode == "la")
             {
                 std::string loaded_value = search_latch("loaded_value", latch_MEM);
-                //  std::cout << "Val of ind" << loaded_value << std::endl;
                 reg[returnIndex(rd)] = stoi(loaded_value);
                 reg_state[returnIndex(rd)] = 5;
-                std::cout << "wb as 5 " << std::endl;
-                std::cout << reg_state[returnIndex(rd)] << std::endl;
-                std::cout << rd << std::endl;
+             
             }
 
             reg_state[returnIndex(rd)] = 5;
@@ -745,16 +719,10 @@ public:
             if (opcode == "jalr")
             {
                 reg[returnIndex(rd)] = PC + 1;
-                // look into this
+             
             }
         }
     }
-
-    // int loop = 0;
-    // bool keep_going = true;
-    // int v = 30
-    // int c = 0;
-    // int y = 0, z = 0;
     void Step_count(char *RAM, Cache_simulator *sim_cache)
     {
         int latency_addi = latency_map["ADDI"] - 1;
@@ -768,12 +736,12 @@ public:
 
         while (keep_going)
         {
-            // if(k<0)break;
+           
             c++;
             y = 0;
             int k = 0;
             bool cont = false;
-            //  count += 1;
+         
             if (latch_MEM.size() > 0 && (!hit) && !miss)
             {
                 k = 1;
@@ -784,8 +752,11 @@ public:
                 {
                     std::cout << "First: " << pair.first << ", Second: " << pair.second << std::endl;
                 }
+          
+                   
 
                 WriteBack(latch_MEM);
+             
                 latch_MEM.clear();
             }
             if (latch_EXE.size() > 0)
@@ -807,9 +778,10 @@ public:
                     {
                         if (mem_access_latency > 0)
                         {
-                            std::cout << " i ran " << opcode << mem_access_latency << std::endl;
+                            
                             mem_access_latency--;
                             loop++;
+                            stalls++;
                             cont = true;
                         }
                     }
@@ -819,6 +791,7 @@ public:
                         {
                             cache_latency--;
                             loop++;
+                            stalls++;
                             cont = true;
                         }
                     }
@@ -827,39 +800,16 @@ public:
                 {
                     continue;
                 }
-                // else if (opcode == "sw")
-                // {
-                //     if (!hit)
-                //     {
-                //         for (int i = 0; i < mem_access_latency; i++)
-                //         {   f=true;
-                //             loop++;
-                //             continue;
-                //         }
-                //     }
-                //     else
-                //     {
-                //         for (int i = 0; i < cache_latency; i++)
-                //         {   f=true;
-                //             loop++;
-                //             continue;
-                //         }
-                //     }
-                // }
-                // if(f){
-                //     continue;
-                // }
 
                 if (executed_branch && mis_predict)
                 {
-                    std::cout << "fluhsing" << std::endl;
+                    
                     PC = (findLabelIndex(search_latch("Label", latch_MEM)));
                     latch_IF.clear();
                     std::string rd = search_latch("rd", latch_IDRF);
-                    std::cout << "rd dec" << rd << std::endl;
-                    std::cout << reg_state[returnIndex(rd)] << std::endl;
+                  
                     reg_state[returnIndex(rd)] = 0;
-                    std::cout << reg_state[returnIndex(rd)] << std::endl;
+                
                     latch_IDRF.clear();
                     executed_branch = false;
                     mis_predict = false;
@@ -880,7 +830,6 @@ public:
             if (latch_IDRF.size() > 0)
             {
 
-                // std::cout << search_latch("Opcode", latch_IDRF) << std::endl;
                 if (!stall_flag && !stall_flag2)
                 {
                     bool f = false;
@@ -894,8 +843,7 @@ public:
                     {
                         if (latency_addi > 0)
                         {
-                            f = true;
-                            // std::cout << "latin" << std::endl;
+                       
                             latency_addi--;
                             loop++;
                             continue;
@@ -932,7 +880,7 @@ public:
                         }
                     }
                     if (f)
-                    {
+                    {   stalls++;
                         continue;
                     }
                     Execute(latch_IDRF);
@@ -949,7 +897,7 @@ public:
                 if (latch_IDRF.size() == 0)
                 {
                     k = 4;
-                    // pip[y + z][c] = "D";s
+                    // pip[y + z][c] = "D";
                     y++;
                     Decode();
 
@@ -968,18 +916,12 @@ public:
                     std::cout << "ID";
                     //  latch_IF.clear();
                 }
-                //  std::cout << "came here but a stall;)" << std::endl;
+                
             }
-            }
-            // std::cout << "F";
-            
+            }  
             if ((latch_IF.size() == 0 && !eof) || (latch_IF.size()==2 &&(miss_fetch || hit_fetch)))
             {
                 k = 5;
-                // pip[y + z][c] = "F";
-                // pip[y + z][0] = std::to_string(PC);
-                // y++;
-                std::cout << "came her" << std::endl;
                 if(!miss_fetch && !hit_fetch){
                 Fetch(sim_cache);
                 }
@@ -987,9 +929,10 @@ public:
                 {
                     if (mem_access_latency_f > 0)
                     {
-                        // std::cout << " i ran " << opcode << mem_access_latency << std::endl;
+                        
                         mem_access_latency_f--;
                         loop++;
+                        stalls++;
                         cont = true;
                     }
                 }
@@ -999,6 +942,7 @@ public:
                     {
                         cache_latency_f--;
                         loop++;
+                        stalls++;
                         cont = true;
                     }
                 }
@@ -1021,14 +965,15 @@ public:
             }
             else if(eof && executed_branch && !mis_predict)
             {
-                break;
-                // std::cout<<"came here but a stall;)"<<std::endl;
+             break;
+               
             }
-
+          
             if (k == 0)
-            {
-                break;
+            { 
                 keep_going = 0;
+                break;
+               
             }
             else
             {
@@ -1037,9 +982,8 @@ public:
                           << "cycles" << loop << std::endl;
             }
             std::cout << "\nONE cycle finish\n";
-            v--;
-            // if (v == 0)
-            //     break;
+        
+            
         }
         std::cout << "No of stalls" << std::endl;
         std::cout << stalls << std::endl;
@@ -1057,10 +1001,6 @@ public:
         //     }
         //     std::cout << std::endl;
         // }
-        for (int i = 0; i < 32; i++)
-        {
-            std::cout << i << " " << reg_state[i] << std::endl;
-        }
     }
 };
 #endif

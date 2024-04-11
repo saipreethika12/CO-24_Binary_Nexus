@@ -2,5 +2,6 @@
 Cache_size:256
 Block_size:8
 Associativity:16
-Cache_latency:2  
+Cache_latency:2
 Memory_latency:100
+Policy:1

@@ -41,4 +41,3 @@ addi x19 x19 4
 addi x2 x2 1
 j loop1
 end:
-addi x13 x0 1
