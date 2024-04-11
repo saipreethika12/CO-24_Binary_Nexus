@@ -157,10 +157,11 @@ public:
         }
         std::string prev_opcode;
         std::string prev_rd;
-        if (!tokens.empty())
+        if (!pt.empty())
         {
             prev_opcode = pt[0];
-            prev_rd = pt[1];
+            if(pt.size()>1){
+            prev_rd = pt[1];}
         }
 
         if (std::find(ins_type1_wf.begin(), ins_type1_wf.end(), opcode) != ins_type1_wf.end())
@@ -1109,7 +1110,7 @@ public:
             std::cout << "\nONE cycle finish\n";
           
         }
-        std::cout<< "======================OUTPUT========================="<<std::endl;
+        std::cout<<"===============OUTPUT==================="<<std::endl;
         std::cout << instructions.size() << std::endl;
         std::cout << "WIth Forwarding" << std::endl;
         std::cout << "No of stalls" << std::endl;
@@ -1117,7 +1118,7 @@ public:
         std::cout << "No of cycles" << std::endl;
         std::cout << loop_wf << std::endl;
         std::cout << "Instructions per cycle" << std::endl;
-        std::cout << loop_wf / (float)ins_wf << std::endl;
+        std::cout <<  (float)ins_wf/loop_wf  << std::endl;
         std::cout << "Hit Rate" << std::endl;
         std::cout << hits / accesses << std::endl;
         // for (int i = 0; i < 30; i++)
