@@ -1019,9 +1019,9 @@ public:
 
                 std::cout << "F";
             }
-            else
+            else if(eof && executed_branch && !mis_predict)
             {
-
+                break;
                 // std::cout<<"came here but a stall;)"<<std::endl;
             }
 

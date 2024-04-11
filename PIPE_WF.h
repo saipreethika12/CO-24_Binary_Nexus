@@ -113,13 +113,14 @@ private:
     int deof_wf = false;
     int loop_wf = 0;
     // bool keep_going_wf = true;
-    int v = 200;
+    int v = 100;
     bool hit = false;
     bool miss = false;
     float hits = 0;
     float accesses = 0;
     bool hit_fetch = false;
     bool miss_fetch = false;
+    bool j = false;
 
     std::vector<std::vector<std::string>> pip;
     std::vector<std::string> ins_type1_wf;
@@ -190,6 +191,7 @@ public:
             std::string fetched_instruction = instructions[PC].first;
             if (fetched_instruction.back() == ':')
             {
+               std::cout << fetched_instruction << std::endl; 
                 PC = PC + 1;
                 fetched_instruction = instructions[PC].first;
             }
@@ -200,6 +202,7 @@ public:
             prevPC_wf = PC;
             PC += 1;
             ins_wf++;
+            std::cout<<fetched_instruction<<std::endl;
         }
         else
         {
@@ -212,8 +215,10 @@ public:
     {
         if (!stall_flag_wf && !stall_flag2_wf)
         {
+            std::cout << "in decode" << std::endl;
             latch_IDRF_wf = latch_IF_wf;
         }
+        std::cout << "f ins"<<search_latch("fetched_instruction", latch_IDRF_wf)<<std::endl;
         std::istringstream iss(search_latch("fetched_instruction", latch_IDRF_wf));
         std::vector<std::string> tokens;
         std::string token;
@@ -234,22 +239,31 @@ public:
         {
             rd = tokens[1];
         }
-
+      
         int rs1num;
         int rs2num;
         std::string prev_instruction = instructions[prevprevPC_wf].first;
+        if (prev_instruction.back()==':')prevprevPC_wf--;
+        prev_instruction = instructions[prevprevPC_wf].first;
+        std::cout<< prev_instruction<<std::endl;
         std::istringstream iss_prev(prev_instruction);
         std::vector<std::string> pt;
+      
         while (iss_prev >> token)
         {
             pt.push_back(token);
         }
+       
         std::string prev_opcode;
         std::string prev_rd;
-        if (!tokens.empty())
+        
+        if (!pt.empty() )
         {
+          
             prev_opcode = pt[0];
+            if(pt.size() >1){
             prev_rd = pt[1];
+            }
             std::cout << "PREV OPCODE" << prev_opcode << std::endl;
         }
 
@@ -262,42 +276,7 @@ public:
             int rs2_value;
             rs1num = returnIndex(rs1);
             rs2num = returnIndex(rs2);
-            // if (prev_opcode != "lw")
-            // {
-            //     if (isHazard(rs1, latch_MEM))
-            //     {
-            //         rs1_value = stoi(search_latch("result", latch_MEM));
-            //     }
-            //     else if (isHazard(rs2, latch_MEM))
-            //     {
-            //         rs2_value = stoi(search_latch("result", latch_MEM));
-            //     }
-            //     else
-            //     {
-            //         rs1_value = reg[rs1num];
-            //         rs2_value = reg[rs2num];
-            //     }
-            // }
-            // else
-            // {
-            //     if (isHazard(rs1, latch_MEM))
-            //     {
-            //         stall_flag = true;
-            //         stalls += 1;
-            //     }
-            //     else if (isHazard(rs2, latch_MEM))
-            //     {
-            //         stall_flag2 = true;
-            //         stalls += 1;
-            //     }
-            //     else
-            //     {
-            //         stall_flag = false;
-            //         stall_flag2 = false;
-            //         rs1_value = reg[rs1num];
-            //         rs2_value = reg[rs2num];
-            //     }
-            // }
+         
             if (prev_opcode != "lw" && !ishazard_notified_wf)
             {
                 std::cout << "prev is not  lw" << std::endl;
@@ -360,7 +339,6 @@ public:
             int rs1num = returnIndex(rs1);
             if (prev_opcode != "lw" && !ishazard_notified_wf)
             {
-                std::cout << "prev is lw" << std::endl;
                 if (isHazard(rs1, latch_EXE_wf))
                 {
                     rs1_value = stoi(search_latch("result", latch_EXE_wf));
@@ -401,6 +379,7 @@ public:
         }
         if (std::find(ins_type3_wf.begin(), ins_type3_wf.end(), opcode) != ins_type3_wf.end())
         {
+          
             branch_flag_wf = true;
             executed_branch_wf = false;
             stalls_wf += 1;
@@ -415,7 +394,6 @@ public:
             std::cout << "WHILE DEC BRANCH REG STATE" << reg_state[rs1num] << std::endl;
             if (prev_opcode != "lw" && !ishazard_notified_wf)
             {
-                std::cout << "prev is not  lw" << std::endl;
                 if (isHazard(rs1, latch_EXE_wf))
                 {
                     rs1_value = stoi(search_latch("result", latch_EXE_wf));
@@ -460,8 +438,8 @@ public:
             if (!stall_flag_wf && !stall_flag2_wf)
             {
                 int result = control_executions(opcode, rs1_value, rs2_value);
-                std::cout << "EXECUTED BRANCH" << result << std::endl;
-                std::cout << result << std::endl;
+                // std::cout << "EXECUTED BRANCH" << result << std::endl;
+                // std::cout << result << std::endl;
                 std::string label = tokens[3];
                 if (result != predict_branch())
                 {
@@ -482,7 +460,7 @@ public:
         }
         if (std::find(ins_type4_wf.begin(), ins_type4_wf.end(), opcode) != ins_type4_wf.end())
         {
-            std::cout << "decoding type4" << std::endl;
+          //  std::cout << "decoding type4" << std::endl;
             std::string offset;
             int baseRegister_value;
             int rs1num;
@@ -538,7 +516,7 @@ public:
             }
             else if (opcode == "sw")
             {
-                std::cout << "DECODED sw" << std::endl;
+               // std::cout << "DECODED sw" << std::endl;
                 std::cout << reg_state[rdnum] << rdnum << std::endl;
                 std::cout << reg_state[rs1num] << rs1num << std::endl;
                 if (prev_opcode != "lw")
@@ -605,13 +583,13 @@ public:
             latch_IDRF_wf.push_back({"Opcode", opcode});
             if (opcode == "j" || opcode == "jal")
             {
-                PC = findLabelIndex(rd);
+               // PC = findLabelIndex(rd);
 
                 latch_IDRF_wf.push_back({"Label", rd});
             }
             if (opcode == "jalr")
             {
-                // look into this...if time permits
+               
                 int rs1Num = returnIndex(tokens[2]);
                 int rs1_value = reg[rs1Num];
 
@@ -711,13 +689,13 @@ public:
             }
             std::cout << op1 << " " << op2 << std::endl;
             result = control_executions(opcode, op1, op2);
-            std::cout << "EXECUTED BRANCH" << result << std::endl;
-            std::cout << result << std::endl;
+            // std::cout << "EXECUTED BRANCH" << result << std::endl;
+            // std::cout << result << std::endl;
             std::string label = search_latch("Label", latch_IDRF_wf);
             if (result == 1)
             {
                 PC = findLabelIndex(label);
-                std::cout << "label ind" << findLabelIndex(label);
+               // std::cout << "label ind" << findLabelIndex(label);
             }
             branch_flag_wf = false;
             executed_branch_wf = true;
@@ -732,7 +710,7 @@ public:
             {
                 if (pair.first == "baseReg_value")
                 {
-                    std::cout << "First: " << std::endl;
+                   // std::cout << "First: " << std::endl;
                     baseReg = stoi(pair.second);
                 }
             }
@@ -757,7 +735,7 @@ public:
             }
             if (opcode == "la")
             {
-                std::cout << "ff la" << std::endl;
+               // std::cout << "ff la" << std::endl;
                 std::string lbl;
                 for (const auto &pair : latch_EXE_wf)
                 {
@@ -769,7 +747,7 @@ public:
                 }
                 if (labelToAddress.find(lbl) != labelToAddress.end())
                 {
-                    // loaded_value=labelToAddress[lbl];
+                    //loaded_value=labelToAddress[lbl];
                     reg[returnIndex(rd)] = labelToAddress[lbl];
                 }
             }
@@ -777,7 +755,12 @@ public:
             reg_state[returnIndex(rd)] = 3;
         }
         if (std::find(ins_type5_wf.begin(), ins_type5_wf.end(), opcode) != ins_type5_wf.end())
+
         {
+            if(opcode == "j"){
+                  std::string label = search_latch("Label", latch_IDRF_wf);
+                PC = findLabelIndex(label);
+            }
             if (opcode == "jalr")
             {
                 reg[returnIndex(rd)] = PC + 1;
@@ -791,7 +774,7 @@ public:
     }
     void MemoryWF(std::vector<std::pair<std::string, std::string>> latch_EXE_wf, char *RAM, Cache_simulator *sim_cache)
     {
-        std::cout << "MEM opcode" << std::endl;
+        //std::cout << "MEM opcode" << std::endl;
         std::string rd;
         rd = search_latch("rd", latch_EXE_wf);
         std::string opcode;
@@ -854,10 +837,10 @@ public:
                         }
                         if (c >> j & 1 == 1)
                             loaded_value += pow(2, 8 * i + j);
-                        std::cout << "ff lw" << std::endl;
+                       // std::cout << "ff lw" << std::endl;
                     }
                 }
-                std::cout << "succesful" << std::endl;
+               // std::cout << "succesful" << std::endl;
                 reg_state[returnIndex(rd)] = 4;
                 //  reg[returnIndex(rd)] = loaded_value;
             }
@@ -869,7 +852,7 @@ public:
                 {
                     if (pair.first == "rd_value")
                     {
-                        std::cout << "I m the problem" << std::endl;
+                        //std::cout << "I m the problem" << std::endl;
                         load_value = stoi(pair.second);
                     }
                 }
@@ -895,13 +878,13 @@ public:
             }
             if (opcode == "la")
             {
-                std::cout << "ff la" << std::endl;
+               // std::cout << "ff la" << std::endl;
                 std::string lbl;
                 for (const auto &pair : latch_EXE_wf)
                 {
                     if (pair.first == "Label")
                     {
-                        std::cout << "found the label" << std::endl;
+                        //std::cout << "found the label" << std::endl;
                         lbl = pair.second;
                     }
                 }
@@ -922,6 +905,7 @@ public:
         if (std::find(ins_type5_wf.begin(), ins_type5_wf.end(), opcode) != ins_type5_wf.end())
         {
             executed_branch_wf = true;
+            j = true;
         }
     }
 
@@ -1006,7 +990,7 @@ public:
                 z++;
                 WriteBackWF(latch_MEM_wf);
                 latch_MEM_wf.clear();
-                k = 0;
+               
             }
             if (latch_EXE_wf.size() > 0 && (!hit) && !miss)
             {
@@ -1025,7 +1009,7 @@ public:
                     {
                         if (mem_access_latency > 0)
                         {
-                            std::cout << " i ran " << opcode << mem_access_latency << std::endl;
+                           // std::cout << " i ran " << opcode << mem_access_latency << std::endl;
                             mem_access_latency--;
                             loop_wf++;
                             cont = true;
@@ -1057,7 +1041,7 @@ public:
                 }
 
                 latch_EXE_wf.clear();
-                std::cout << "M";
+                std::cout << "Memo";
             }
             if (latch_IDRF_wf.size() > 0 )
             {
@@ -1065,7 +1049,7 @@ public:
                 if (!stall_flag_wf && !stall_flag2_wf)
                 {
                     k = 3;
-                    std::cout << "E";
+                   
                     std::string op = search_latch("Opcode", latch_IDRF_wf);
 
                    // pip[y + z][c] = "E";
@@ -1078,6 +1062,7 @@ public:
                             f = true;
                             // std::cout << "latin" << std::endl;
                             latency_addi--;
+                             stalls_wf++;
                             loop_wf++;
                             continue;
                         }
@@ -1087,6 +1072,7 @@ public:
                         if (latency_add > 0)
                         {
                             f = true;
+                             stalls_wf++;
                             latency_add--;
                             loop_wf++;
                             continue;
@@ -1097,6 +1083,7 @@ public:
                         if (latency_sub > 0)
                         {
                             f = true;
+                             stalls_wf++;
                             latency_sub--;
                             loop_wf++;
                             continue;
@@ -1107,6 +1094,7 @@ public:
                         if (latency_mul > 0)
                         {
                             f = true;
+                            stalls_wf++;
                             latency_mul--;
                             loop_wf++;
                             continue;
@@ -1129,13 +1117,16 @@ public:
                     latency_mul = latency_map["MUL"] - 1;
                     latency_sub = latency_map["SUB"] - 1;
                     latch_IDRF_wf.clear();
+                     std::cout << "E";
                 }
             }
             if (!miss_fetch && !hit_fetch)
             {
-
+               std::cout<<"en"<<std::endl;
+               std::cout<<ishazard_notified_wf<<std::endl;
                 if (latch_IF_wf.size() > 0 || ishazard_notified_wf)
                 {
+                     std::cout << "en";
                     if (eof_wf && !deof_wf)
                     {
                         if (latch_IDRF_wf.size() == 0)
@@ -1145,7 +1136,7 @@ public:
                             y++;
                             DecodeWF();
 
-                            std::cout << "ID";
+                           // std::cout << "ID";
                             latch_IF_wf.clear();
                             deof_wf = true;
                         }
@@ -1160,6 +1151,7 @@ public:
                     }
                     else
                     {
+                        std::cout<<latch_IDRF_wf.size()<<std::endl;
                         if (latch_IDRF_wf.size() == 0)
                         {
                             k = 4;
@@ -1181,10 +1173,20 @@ public:
                         }
                     }
                 }
+                else if(eof_wf && !ishazard_notified_wf){
+                      k = 4;
+                           // pip[y + z][c] = "D";
+                            y++;
+                            DecodeWF();
+
+                            std::cout << "ID";
+                }
             }
+             //  std::cout<<"ex"<<executed_branch_wf<<mis_predict_wf<<std::endl;
             if (latch_IF_wf.size() == 0 && !eof_wf ||(latch_IF_wf.size()==2 &&(miss_fetch || hit_fetch)) )
             {
                 k = 5;
+
             //    pip[y + z][c] = "F";
               //  pip[y + z][0] = std::to_string(PC);
                 y++;
@@ -1196,8 +1198,9 @@ public:
                 {
                     if (mem_access_latency_f > 0)
                     {
-                        // std::cout << " i ran " << opcode << mem_access_latency << std::endl;
+                       //  std::cout << " i ran "  << std::endl;
                         mem_access_latency_f--;
+                        stalls_wf++;
                         loop_wf++;
                         cont = true;
                     }
@@ -1207,6 +1210,7 @@ public:
                     if (cache_latency_f > 0)
                     {
                         cache_latency_f--;
+                        stalls_wf++;
                         loop_wf++;
                         cont = true;
                     }
@@ -1226,11 +1230,18 @@ public:
                     hit_fetch = false;
                 }
                 std::cout << "F";
+                
             }
-            else
+           
+            else if(eof_wf && executed_branch_wf && !mis_predict_wf)
             {
-                std::cout << "came here but a stall;)" << std::endl;
+                //std::cout << "came here but a stall;)" << std::endl;
+                break;
+             
             }
+            // else if(eof_wf && j){
+            //     break;
+            // }
             std::cout << k << std::endl;
             // if (v == 0)
             //     break;
@@ -1246,9 +1257,9 @@ public:
             }
             std::cout << "\nONE cycle finish\n";
             v--;
-            if(v==0 )break;
+           // if(v==0 )break;
         }
-        std::cout << instructions.size() << std::endl;
+        //std::cout << instructions.size() << std::endl;
         // std::cout << stalls_wf << std::endl;
         // std::cout << loop_wf << std::endl;
         std::cout << "WIth Forwarding" << std::endl;
