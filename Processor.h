@@ -1,6 +1,5 @@
 #ifndef PROCESSOR_H
 #define PROCESSOR_H
-
 #include <iostream>
 #include <fstream>
 #include <cmath>

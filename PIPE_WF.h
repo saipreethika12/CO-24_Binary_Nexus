@@ -1110,14 +1110,15 @@ public:
             std::cout << "\nONE cycle finish\n";
           
         }
+        std::cout<<"===============OUTPUT==================="<<std::endl;
+        std::cout << instructions.size() << std::endl;
         std::cout << "WIth Forwarding" << std::endl;
-        std::cout<<"==============OUTPUT===================="<<std::endl;
         std::cout << "No of stalls" << std::endl;
         std::cout << stalls_wf << std::endl;
         std::cout << "No of cycles" << std::endl;
         std::cout << loop_wf << std::endl;
         std::cout << "Instructions per cycle" << std::endl;
-        std::cout << loop_wf / (float)ins_wf << std::endl;
+        std::cout <<  (float)ins_wf/loop_wf  << std::endl;
         std::cout << "Hit Rate" << std::endl;
         std::cout << hits / accesses << std::endl;
         // for (int i = 0; i < 30; i++)

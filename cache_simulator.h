@@ -46,6 +46,7 @@ public:
   {
     for (auto &block : blocks)
     {
+      
       if (block.tag == tag && block.valid == true)
       {
         return true; // Hit
@@ -97,10 +98,10 @@ public:
         size++;
       }
     }
-   // std::cout << "size" << size << std::endl;
+    std::cout << "size" << size << std::endl;
     std::cout << numBlocks << std::endl;
     int index = rand() % numBlocks;
-    //std::cout << "indexrr" << index << std::endl;
+    std::cout << "indexrr" << index << std::endl;
 
     if (size < numBlocks)
     {
@@ -174,6 +175,7 @@ public:
     }
     else
     {
+   
       if(cache_policy_num==1){
       sets_cache[index].block_fetch_viaLRU(tag);
       }else{

@@ -91,7 +91,8 @@ public:
             if (hit_fetch == 1)
                 hits++;
             else{
-                miss_fetch = true;}
+                miss_fetch = true;
+                }
             std::string fetched_instruction = instructions[PC].first;
             if (fetched_instruction.back() == ':')
             {
