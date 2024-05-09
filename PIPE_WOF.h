@@ -983,7 +983,7 @@ public:
         
             
         }
-        std::cout<<"==============OUTPUT===================="<<std::endl;
+        std::cout<<"===============OUTPUT==================="<<std::endl;
         std::cout << "No of stalls" << std::endl;
         std::cout << stalls << std::endl;
         std::cout << "No of cycles" << std::endl;

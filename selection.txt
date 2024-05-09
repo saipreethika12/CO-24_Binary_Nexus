@@ -40,4 +40,8 @@ sw x31 0(x21)
 addi x19 x19 4
 addi x2 x2 1
 j loop1
+<<<<<<< HEAD
 end:
+=======
+end:
+>>>>>>> 4dbd6179c8e7e58255ef879c95db7ce7e535a3a2

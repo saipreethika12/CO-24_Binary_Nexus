@@ -83,7 +83,6 @@ public:
     void set_cache(std::string filename)
     {
         std::map<std::string, std::string> config = parseInputFile(filename, "Cache_Configuration");
-        // Set Cache Configuration
         unsigned int cache_size = std::stoi(config["Cache_size"]);
 
         unsigned int block_size = std::stoi(config["Block_size"]);
@@ -93,16 +92,16 @@ public:
         unsigned int cache_latency = std::stoi(config["Cache_latency"]);
 
         unsigned int memory_latency = std::stoi(config["Memory_latency"]);
-
         int policy_num = std::stoi(config["Policy"]);
 
         Cache_simulator cache(cache_size, block_size, associativity, cache_latency, memory_latency, policy_num);
-        // Cache_simulator cache(, 4, 16, 2, 100);
+
         this->cacheSimulator = cache;
     }
     void run(int x)
     {
         std::string inputFilename = "cache_config.txt";
+   
         set_cache(inputFilename);
 
         std::ifstream instructionsFile1("bubble_sort.txt");
