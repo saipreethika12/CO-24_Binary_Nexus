@@ -80,25 +80,23 @@ public:
         return config;
     }
 
-    void set_cache(std::string filename)
+   void set_cache(std::string filename)
     {
         std::map<std::string, std::string> config = parseInputFile(filename, "Cache_Configuration");
-        unsigned int cache_size = std::stoi(config["Cache_size"]);
-
-        unsigned int block_size = std::stoi(config["Block_size"]);
-
-        unsigned int associativity = std::stoi(config["Associativity"]);
-
-        unsigned int l1_cache_latency = std::stoi(config["L1_Cache_latency"]);
-        unsigned int l2_cache_latency = std::stoi(config["L2_Cache_latency"]);
-
-        unsigned int memory_latency = std::stoi(config["Memory_latency"]);
-        int policy_num = std::stoi(config["Policy"]);
-
-        Cache_simulator cache(cache_size, block_size, associativity, l1_cache_latency,l2_cache_latency, memory_latency, policy_num);
-
+        // Set Cache Configuration
+        unsigned int cache_size_l1 = std::stoi(config["Cache_size_l1"]);
+        unsigned int block_size_l1 = std::stoi(config["Block_size_l1"]);
+        unsigned int associativity_l1 = std::stoi(config["Associativity_l1"]);
+        unsigned int cache_latency_l1 = std::stoi(config["Cache_latency_l1"]);
+        unsigned int cache_size_l2 = std::stoi(config["Cache_size_l2"]);
+        unsigned int block_size_l2 = std::stoi(config["Block_size_l2"]);
+        unsigned int associativity_l2 = std::stoi(config["Associativity_l2"]);
+        unsigned int cache_latency_l2 = std::stoi(config["Cache_latency_l2"]);
+        unsigned int memory_latency = std::stoi(config["Memory_access"]);
+        int policy_num=std::stoi(config["Policy"]);
+        Cache_simulator cache(cache_size_l1, block_size_l1, associativity_l1, cache_latency_l1,cache_size_l2, block_size_l2, associativity_l2, cache_latency_l2,memory_latency,policy_num);
+        // Cache_simulator cache(, 4, 16, 2, 100);
         this->cacheSimulator = cache;
-        std::cout<<"set"<<std::endl;
     }
     void run(int x)
     {
