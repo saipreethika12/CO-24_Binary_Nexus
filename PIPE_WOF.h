@@ -39,6 +39,10 @@ private:
     float hits = 0;
     float accesses = 0;
     bool miss = false;
+    int found_in = 0;
+    int found_f_in = 0;
+     std::pair<bool,int>hit_pair;
+     std::pair<bool,int>hit_f_pair;
 
     std::vector<std::vector<std::string>> pip;
     std::vector<std::string> ins_type1;
@@ -87,8 +91,9 @@ public:
         if (PC < instructions.size())
         {
             accesses++;
-            hit_fetch = sim_cache->access(ins_map[PC]);
-       
+            hit_f_pair = sim_cache->access(ins_map[PC]);
+            hit_fetch = hit_f_pair.first;
+            found_f_in = hit_f_pair.second;
             if (hit_fetch == 1)
                 hits++;
             else{
@@ -593,7 +598,16 @@ public:
             if (opcode == "lw")
             {
                 accesses++;
-                hit = sim_cache->access(result);
+               
+                hit_pair = sim_cache->access(result);
+                hit = hit_pair.first;
+                found_in = hit_pair.second;
+                // if(hit_pair.second == 1 ){
+                //     found_in =1;
+                // }
+                // else if(hit_pair.second == 2 ){
+                //     found_in =2;
+                // }
                 if (!hit)
                 {
                     miss = true;
@@ -630,7 +644,10 @@ public:
                     }
                 }
             
-                hit = sim_cache->access(result);
+               // hit = sim_cache->access(result);
+                hit_pair = sim_cache->access(result);
+                hit = hit_pair.first;
+                found_in = hit_pair.second;
                 if (!hit)
                 {
                     miss = true;
@@ -664,7 +681,10 @@ public:
                 {
                     accesses++;
                     loaded_value = labelToAddress[lbl];
-                    hit = sim_cache->access(loaded_value);
+                    //hit = sim_cache->access(loaded_value);
+                hit_pair = sim_cache->access(result);
+                hit = hit_pair.first;
+                found_in = hit_pair.second;
                     if (hit)
                         hits++;
                     if (!hit)
@@ -734,9 +754,11 @@ public:
         int latency_mul = latency_map["MUL"] - 1;
         int latency_sub = latency_map["SUB"] - 1;
         int mem_access_latency = sim_cache->get_mem_latency() - 1;
-        int cache_latency = sim_cache->get_cache_latency() - 1;
+        int l1_cache_latency = sim_cache->get_l1_cache_latency() - 1;
+        int l2_cache_latency = sim_cache->get_l2_cache_latency()-1;
          int mem_access_latency_f = sim_cache->get_mem_latency() - 1;
-        int cache_latency_f = sim_cache->get_cache_latency() - 1;
+        int l1_cache_latency_f = sim_cache->get_l1_cache_latency() - 1;
+         int l2_cache_latency_f = sim_cache->get_l2_cache_latency() - 1;
 
         while (keep_going)
         {
@@ -787,13 +809,23 @@ public:
                     }
                     else if (hit)
                     {
-                        if (cache_latency > 0)
+                        if(found_in == 1){
+                        if (l1_cache_latency > 0)
                         {
-                            cache_latency--;
+                            l1_cache_latency--;
                             loop++;
                             stalls++;
                             cont = true;
-                        }
+                        }}
+                          if(found_in == 2){
+                        if (l2_cache_latency > 0)
+                        {
+                            l2_cache_latency--;
+                            loop++;
+                            stalls++;
+                            cont = true;
+                        }}
+
                     }
                 }
                 if (cont == true)
@@ -820,9 +852,14 @@ public:
                     mem_access_latency = sim_cache->get_mem_latency() - 1;
                     miss = false;
                 }
-                if (cache_latency == 0)
+                if (l1_cache_latency == 0)
                 {
-                    cache_latency = sim_cache->get_cache_latency() - 1;
+                    l1_cache_latency = sim_cache->get_l1_cache_latency() - 1;
+                    hit = false;
+                }
+                 if (l2_cache_latency == 0)
+                {
+                    l2_cache_latency = sim_cache->get_l2_cache_latency() - 1;
                     hit = false;
                 }
                 latch_EXE.clear();
@@ -937,13 +974,22 @@ public:
                 }
                 else if (hit_fetch)
                 {
-                    if (cache_latency_f > 0)
-                    {
-                        cache_latency_f--;
-                        loop++;
-                        stalls++;
-                        cont = true;
-                    }
+                   if(found_in == 1){
+                        if (l1_cache_latency_f > 0)
+                        {
+                            l1_cache_latency_f--;
+                            loop++;
+                            stalls++;
+                            cont = true;
+                        }}
+                          if(found_in == 2){
+                        if (l2_cache_latency_f > 0)
+                        {
+                            l2_cache_latency_f--;
+                            loop++;
+                            stalls++;
+                            cont = true;
+                        }}
                 }
                 if (cont == true)
                 {
@@ -954,9 +1000,14 @@ public:
                     mem_access_latency_f = sim_cache->get_mem_latency() - 1;
                     miss_fetch = false;
                 }
-                if (cache_latency_f == 0)
+                if (l1_cache_latency_f == 0)
                 {
-                    cache_latency_f = sim_cache->get_cache_latency() - 1;
+                    l1_cache_latency_f = sim_cache->get_l1_cache_latency() - 1;
+                    hit_fetch = false;
+                }
+                 if (l2_cache_latency_f == 0)
+                {
+                    l2_cache_latency_f = sim_cache->get_l2_cache_latency() - 1;
                     hit_fetch = false;
                 }
 
