@@ -856,11 +856,13 @@ public:
                 {
                     l1_cache_latency = sim_cache->get_l1_cache_latency() - 1;
                     hit = false;
+                    found_in = 0;
                 }
                  if (l2_cache_latency == 0)
                 {
                     l2_cache_latency = sim_cache->get_l2_cache_latency() - 1;
                     hit = false;
+                    found_in = 0;
                 }
                 latch_EXE.clear();
             }
@@ -1004,11 +1006,13 @@ public:
                 {
                     l1_cache_latency_f = sim_cache->get_l1_cache_latency() - 1;
                     hit_fetch = false;
+                    found_f_in = 0;
                 }
                  if (l2_cache_latency_f == 0)
                 {
                     l2_cache_latency_f = sim_cache->get_l2_cache_latency() - 1;
                     hit_fetch = false;
+                     found_f_in = 0;
                 }
 
                 std::cout << "F";

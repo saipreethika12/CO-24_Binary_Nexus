@@ -98,6 +98,7 @@ public:
         Cache_simulator cache(cache_size, block_size, associativity, l1_cache_latency,l2_cache_latency, memory_latency, policy_num);
 
         this->cacheSimulator = cache;
+        std::cout<<"set"<<std::endl;
     }
     void run(int x)
     {
@@ -120,7 +121,9 @@ public:
         {
 
             pwf.readInstructionsFromFile("bubble_sort.txt", RAM, visited);
+            std::cout<<"mm"<<std::endl;
             pwf.Step_countWF(RAM, &cacheSimulator);
+            std::cout<<"mmss"<<std::endl;
         }
         else
         {
@@ -128,31 +131,32 @@ public:
         }
 
         instructionsFile1.close();
-
-        std::ifstream instructionsFile2("selection.txt");
-        if (!instructionsFile2.is_open())
-        {
-            std::cerr << "Error opening file " << std::endl;
-            return;
-        }
-        pwof.readInstructionsFromFile("selection.txt", RAM, visited);
-        if (x == 2)
-        {
-            pwof.Step_count(RAM, &cacheSimulator);
-        }
-        else if (x == 1)
-
-        {
-            pwf.readInstructionsFromFile("selection.txt", RAM, visited);
-            pwf.Step_countWF(RAM, &cacheSimulator);
-        }
-        else
-        {
-            std::cout << "Invalid ip" << std::endl;
         }
 
-        instructionsFile2.close();
-    }
+    //     std::ifstream instructionsFile2("selection.txt");
+    //     if (!instructionsFile2.is_open())
+    //     {
+    //         std::cerr << "Error opening file " << std::endl;
+    //         return;
+    //     }
+    //     pwof.readInstructionsFromFile("selection.txt", RAM, visited);
+    //     if (x == 2)
+    //     {
+    //         pwof.Step_count(RAM, &cacheSimulator);
+    //     }
+    //     else if (x == 1)
+
+    //     {
+    //         pwf.readInstructionsFromFile("selection.txt", RAM, visited);
+    //         pwf.Step_countWF(RAM, &cacheSimulator);
+    //     }
+    //     else
+    //     {
+    //         std::cout << "Invalid ip" << std::endl;
+    //     }
+
+    //     instructionsFile2.close();
+    // }
 };
 
 #endif // PROCESSOR_H

@@ -1,6 +1,5 @@
 .data
-arr: .word 40,20,30,10
-arr_len: .word 4
+arr: .word 40,20,30,10,11,12
 .text
   la x19 arr
   la x12 arr

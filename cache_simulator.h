@@ -52,13 +52,14 @@ public:
         return true; // Hit
       }
     }
-    //block_fetch_viaRandom(tag);
+   // block_fetch_viaRandom(tag);
     return false; // Miss
   }
 
   void block_fetch_viaLRU(uint64_t tag)
   {
     int size = 0;
+    std::cout<<"ca"<<std::endl;
     for (auto &block : blocks)
     {
       if (block.tag != 0 && block.valid == true)
@@ -187,9 +188,11 @@ public:
     std::pair<int, int> address_partsl1  = splitAddress_L1(address);
     int tag = address_partsl1.first;
     int index = address_partsl1.second;
+    //std::cout<<tag<<" "<<index<<std::endl;
     std::pair<int, int> address_partsl2  = splitAddress_L2(address);
     int tagl2 = address_partsl2.first;
     int indexl2 = address_partsl2.second;
+    //std::cout<<tagl2<<" "<<indexl2<<std::endl;
     if (L1_cache[index].search(tag))
     {
       
@@ -200,8 +203,10 @@ public:
     }
     else
     {
+      std::cout<<"came "<<std::endl;
    
       if(cache_policy_num==1){
+
       L1_cache[index].block_fetch_viaLRU(tag);
       L2_cache[indexl2].block_fetch_viaLRU(tagl2);
       }else{
