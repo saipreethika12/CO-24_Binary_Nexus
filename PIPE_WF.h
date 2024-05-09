@@ -26,7 +26,7 @@ private:
     int count_wf = 1;
     int deof_wf = false;
     int loop_wf = 0;
-    int v = 200;
+    int v = 10;
     bool hit = false;
     bool miss = false;
     float hits = 0;
@@ -97,9 +97,12 @@ public:
             accesses++;
             std::cout<<"fe"<<std::endl;
              hit_f_pair = sim_cache->access(ins_map[PC]);
-              std::cout<<"fe"<<std::endl;
+            
             hit_fetch = hit_f_pair.first;
             found_f_in = hit_f_pair.second;
+              std::cout<<"fe"<<std::endl;
+              std::cout<<found_f_in<<std::endl;
+             //std::cout<<miss_fetch<<" "<<hit_fetch<<std::endl; 
            // hit_fetch = sim_cache->access(ins_map[PC]);
             if (hit_fetch == 1)
                 hits++;
@@ -108,10 +111,11 @@ public:
                 miss_fetch = true;
             }
            // hit_fetch = sim_cache->access(ins_map[PC]);
-            hit_f_pair = sim_cache->access(ins_map[PC]);
-            hit_fetch = hit_f_pair.first;
-            found_f_in = hit_f_pair.second;
+            // hit_f_pair = sim_cache->access(ins_map[PC]);
+            // hit_fetch = hit_f_pair.first;
+            // found_f_in = hit_f_pair.second;
             std::string fetched_instruction = instructions[PC].first;
+            std::cout<<"fin"<<fetched_instruction<<std::endl;
             if (fetched_instruction.back() == ':')
             {
                 PC = PC + 1;
@@ -1051,6 +1055,7 @@ public:
                     latch_IDRF_wf.clear();
                 }
             }
+            //std::cout<<"b4 dec"<<miss_fetch<<" "<<hit_fetch<<std::endl;
             if (!miss_fetch && !hit_fetch)
             {
 
@@ -1106,8 +1111,10 @@ public:
             {
                 k = 5;
                 y++;
+                //std::cout<<miss_fetch<<" "<<hit_fetch<<std::endl; 
                 if (!miss_fetch && !hit_fetch)
                 {
+                    std::cout<<"cant come"<<std::endl;
                     FetchWF(sim_cache);
                 }
                  if (miss_fetch)
@@ -1123,22 +1130,24 @@ public:
                 }
                 else if (hit_fetch)
                 {
-                    if(found_in == 1){
+                    if(found_f_in == 1){
                         if (l1_cache_latency_f > 0)
                         {
                             l1_cache_latency_f--;
                             loop_wf++;
                             stalls_wf++;
                             cont = true;
-                        }}
-                          if(found_in == 2){
+                        }
+                        }
+                        if(found_f_in == 2){
                         if (l2_cache_latency_f > 0)
                         {
                             l2_cache_latency_f--;
                             loop_wf++;
                             stalls_wf++;
                             cont = true;
-                        }}
+                        }
+                        }
                 }
                 if (cont == true)
                 {
@@ -1167,7 +1176,8 @@ public:
             {
              break;
             }
-          
+            // v--;
+            // if(v==0)break;
           
             if (k == 0)
             {

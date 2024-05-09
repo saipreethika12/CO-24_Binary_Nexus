@@ -976,7 +976,7 @@ public:
                 }
                 else if (hit_fetch)
                 {
-                   if(found_in == 1){
+                   if(found_f_in == 1){
                         if (l1_cache_latency_f > 0)
                         {
                             l1_cache_latency_f--;
@@ -984,7 +984,7 @@ public:
                             stalls++;
                             cont = true;
                         }}
-                          if(found_in == 2){
+                          if(found_f_in == 2){
                         if (l2_cache_latency_f > 0)
                         {
                             l2_cache_latency_f--;

@@ -173,7 +173,7 @@ public:
       set.set_numBlocks(associativity_l1);
     }
      numSets_l2 = cacheSize_l2 / (blockSize_l2 * associativity_l2);
-    L1_cache.resize(numSets_l2, Set(numSets_l2));
+    L2_cache.resize(numSets_l2, Set(numSets_l2));
     for (auto set : L2_cache)
     {
       set.set_numBlocks(associativity_l2);

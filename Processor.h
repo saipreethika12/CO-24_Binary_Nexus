@@ -21,7 +21,7 @@ private:
     PIPE_WF pwf;
 
 public:
-    Processor() : cacheSimulator(1, 1, 1, 1, 1, 1,1)
+    Processor() : cacheSimulator(1, 1, 1, 1, 1, 1,1,1,1,1)
     {
     }
 
@@ -92,7 +92,7 @@ public:
         unsigned int block_size_l2 = std::stoi(config["Block_size_l2"]);
         unsigned int associativity_l2 = std::stoi(config["Associativity_l2"]);
         unsigned int cache_latency_l2 = std::stoi(config["Cache_latency_l2"]);
-        unsigned int memory_latency = std::stoi(config["Memory_access"]);
+        unsigned int memory_latency = std::stoi(config["Memory_latency"]);
         int policy_num=std::stoi(config["Policy"]);
         Cache_simulator cache(cache_size_l1, block_size_l1, associativity_l1, cache_latency_l1,cache_size_l2, block_size_l2, associativity_l2, cache_latency_l2,memory_latency,policy_num);
         // Cache_simulator cache(, 4, 16, 2, 100);
