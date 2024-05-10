@@ -22,7 +22,6 @@ loop2:
         addi x19 x12 0
         addi x2 x2 1
         blt x2 x5 loop1 
-j print_loop
 swap:
         sw x9 0(x19)
         sw x8 4(x19) 
