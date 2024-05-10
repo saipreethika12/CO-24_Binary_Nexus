@@ -26,13 +26,17 @@ private:
     int count_wf = 1;
     int deof_wf = false;
     int loop_wf = 0;
-    int v = 200;
+    int v = 10;
     bool hit = false;
     bool miss = false;
     float hits = 0;
     float accesses = 0;
     bool hit_fetch = false;
     bool miss_fetch = false;
+    int found_in = 0;
+    int found_f_in = 0;
+    std::pair<bool,int>hit_pair;
+    std::pair<bool,int>hit_f_pair;
 
     std::vector<std::vector<std::string>> pip;
     std::vector<std::string> ins_type1_wf;
@@ -91,15 +95,27 @@ public:
         if (PC < instructions.size())
         {
             accesses++;
-            hit_fetch = sim_cache->access(ins_map[PC]);
+            std::cout<<"fe"<<std::endl;
+             hit_f_pair = sim_cache->access(ins_map[PC]);
+            
+            hit_fetch = hit_f_pair.first;
+            found_f_in = hit_f_pair.second;
+              std::cout<<"fe"<<std::endl;
+              std::cout<<found_f_in<<std::endl;
+             //std::cout<<miss_fetch<<" "<<hit_fetch<<std::endl; 
+           // hit_fetch = sim_cache->access(ins_map[PC]);
             if (hit_fetch == 1)
                 hits++;
             else
             {
                 miss_fetch = true;
             }
-            hit_fetch = sim_cache->access(ins_map[PC]);
+           // hit_fetch = sim_cache->access(ins_map[PC]);
+            // hit_f_pair = sim_cache->access(ins_map[PC]);
+            // hit_fetch = hit_f_pair.first;
+            // found_f_in = hit_f_pair.second;
             std::string fetched_instruction = instructions[PC].first;
+            std::cout<<"fin"<<fetched_instruction<<std::endl;
             if (fetched_instruction.back() == ':')
             {
                 PC = PC + 1;
@@ -708,7 +724,10 @@ public:
 
             if (opcode == "lw")
             {
-                hit = sim_cache->access(result);
+                //hit = sim_cache->access(result);
+                 hit_pair = sim_cache->access(result);
+                hit = hit_pair.first;
+                found_in = hit_pair.second;
                 if (!hit)
                 {
                     miss = true;
@@ -747,7 +766,10 @@ public:
                         load_value = stoi(pair.second);
                     }
                 }
-                hit = sim_cache->access(result);
+               // hit = sim_cache->access(result);
+                hit_pair = sim_cache->access(result);
+                hit = hit_pair.first;
+                found_in = hit_pair.second;
                 if (!hit)
                 {
                     miss = true;
@@ -782,7 +804,10 @@ public:
                 {
                     loaded_value = labelToAddress[lbl];
                     reg[returnIndex(rd)] = labelToAddress[lbl];
-                    hit = sim_cache->access(loaded_value);
+                    //hit = sim_cache->access(loaded_value);
+                    hit_pair = sim_cache->access(result);
+                    hit = hit_pair.first;
+                    found_in = hit_pair.second;
                     if (hit)
                         hits++;
                     if (!hit)
@@ -853,9 +878,11 @@ public:
         int latency_mul = latency_map["MUL"] - 1;
         int latency_sub = latency_map["SUB"] - 1;
         int mem_access_latency = sim_cache->get_mem_latency() - 1;
-        int cache_latency = sim_cache->get_cache_latency() - 1;
-        int mem_access_latency_f = sim_cache->get_mem_latency() - 1;
-        int cache_latency_f = sim_cache->get_cache_latency() - 1;
+        int l1_cache_latency = sim_cache->get_l1_cache_latency() - 1;
+        int l2_cache_latency = sim_cache->get_l2_cache_latency()-1;
+         int mem_access_latency_f = sim_cache->get_mem_latency() - 1;
+        int l1_cache_latency_f = sim_cache->get_l1_cache_latency() - 1;
+         int l2_cache_latency_f = sim_cache->get_l2_cache_latency() - 1;
         int c = 1;
         int y = 0, z = 0;
         int k = 0;
@@ -904,13 +931,29 @@ public:
                     }
                     else if (hit)
                     {
-                        if (cache_latency > 0)
+                        // if (cache_latency > 0)
+                        // {
+                        //     cache_latency--;
+                        //     stalls_wf++;
+                        //     loop_wf++;
+                        //     cont = true;
+                        // }
+                         if(found_in == 1){
+                        if (l1_cache_latency > 0)
                         {
-                            cache_latency--;
-                            stalls_wf++;
+                            l1_cache_latency--;
                             loop_wf++;
+                            stalls_wf++;
                             cont = true;
-                        }
+                        }}
+                          if(found_in == 2){
+                        if (l2_cache_latency > 0)
+                        {
+                            l2_cache_latency--;
+                            loop_wf++;
+                            stalls_wf++;
+                            cont = true;
+                        }}
                     }
                 }
                 if (cont == true)
@@ -922,10 +965,17 @@ public:
                     mem_access_latency = sim_cache->get_mem_latency() - 1;
                     miss = false;
                 }
-                if (cache_latency == 0)
+                if (l1_cache_latency == 0)
                 {
-                    cache_latency = sim_cache->get_cache_latency() - 1;
+                    l1_cache_latency = sim_cache->get_l1_cache_latency() - 1;
                     hit = false;
+                    found_in = 0;
+                }
+                 if (l2_cache_latency == 0)
+                {
+                    l2_cache_latency = sim_cache->get_l2_cache_latency() - 1;
+                    hit = false;
+                    found_in = 0;
                 }
 
                 latch_EXE_wf.clear();
@@ -1005,6 +1055,7 @@ public:
                     latch_IDRF_wf.clear();
                 }
             }
+            //std::cout<<"b4 dec"<<miss_fetch<<" "<<hit_fetch<<std::endl;
             if (!miss_fetch && !hit_fetch)
             {
 
@@ -1060,8 +1111,10 @@ public:
             {
                 k = 5;
                 y++;
+                //std::cout<<miss_fetch<<" "<<hit_fetch<<std::endl; 
                 if (!miss_fetch && !hit_fetch)
                 {
+                    std::cout<<"cant come"<<std::endl;
                     FetchWF(sim_cache);
                 }
                  if (miss_fetch)
@@ -1077,13 +1130,24 @@ public:
                 }
                 else if (hit_fetch)
                 {
-                    if (cache_latency_f > 0)
-                    {
-                        cache_latency_f--;
-                        loop_wf++;
-                        stalls_wf++;
-                        cont = true;
-                    }
+                    if(found_f_in == 1){
+                        if (l1_cache_latency_f > 0)
+                        {
+                            l1_cache_latency_f--;
+                            loop_wf++;
+                            stalls_wf++;
+                            cont = true;
+                        }
+                        }
+                        if(found_f_in == 2){
+                        if (l2_cache_latency_f > 0)
+                        {
+                            l2_cache_latency_f--;
+                            loop_wf++;
+                            stalls_wf++;
+                            cont = true;
+                        }
+                        }
                 }
                 if (cont == true)
                 {
@@ -1094,10 +1158,17 @@ public:
                     mem_access_latency_f = sim_cache->get_mem_latency() - 1;
                     miss_fetch = false;
                 }
-                if (cache_latency_f == 0)
+               if (l1_cache_latency_f == 0)
                 {
-                    cache_latency_f = sim_cache->get_cache_latency() - 1;
+                    l1_cache_latency_f = sim_cache->get_l1_cache_latency() - 1;
                     hit_fetch = false;
+                    found_f_in = 0;
+                }
+                 if (l2_cache_latency_f == 0)
+                {
+                    l2_cache_latency_f = sim_cache->get_l2_cache_latency() - 1;
+                    hit_fetch = false;
+                     found_f_in = 0;
                 }
                 std::cout << "F";
             }
@@ -1105,7 +1176,8 @@ public:
             {
              break;
             }
-          
+            // v--;
+            // if(v==0)break;
           
             if (k == 0)
             {

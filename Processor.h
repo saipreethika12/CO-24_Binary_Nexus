@@ -21,7 +21,7 @@ private:
     PIPE_WF pwf;
 
 public:
-    Processor() : cacheSimulator(1, 1, 1, 1, 1, 1)
+    Processor() : cacheSimulator(1, 1, 1, 1, 1, 1,1,1,1,1)
     {
     }
 
@@ -80,29 +80,29 @@ public:
         return config;
     }
 
-    void set_cache(std::string filename)
+   void set_cache(std::string filename)
     {
         std::map<std::string, std::string> config = parseInputFile(filename, "Cache_Configuration");
         // Set Cache Configuration
-        unsigned int cache_size = std::stoi(config["Cache_size"]);
-
-        unsigned int block_size = std::stoi(config["Block_size"]);
-
-        unsigned int associativity = std::stoi(config["Associativity"]);
-
-        unsigned int cache_latency = std::stoi(config["Cache_latency"]);
-
+        std::cout<<"cs"<<std::endl;
+        unsigned int cache_size_l1 = std::stoi(config["Cache_size_l1"]);
+        unsigned int block_size_l1 = std::stoi(config["Block_size_l1"]);
+        unsigned int associativity_l1 = std::stoi(config["Associativity_l1"]);
+        unsigned int cache_latency_l1 = std::stoi(config["Cache_latency_l1"]);
+        unsigned int cache_size_l2 = std::stoi(config["Cache_size_l2"]);
+        unsigned int block_size_l2 = std::stoi(config["Block_size_l2"]);
+        unsigned int associativity_l2 = std::stoi(config["Associativity_l2"]);
+        unsigned int cache_latency_l2 = std::stoi(config["Cache_latency_l2"]);
         unsigned int memory_latency = std::stoi(config["Memory_latency"]);
-
-        int policy_num = std::stoi(config["Policy"]);
-
-        Cache_simulator cache(cache_size, block_size, associativity, cache_latency, memory_latency, policy_num);
+        int policy_num=std::stoi(config["Policy"]);
+        Cache_simulator cache(cache_size_l1, block_size_l1, associativity_l1, cache_latency_l1,cache_size_l2, block_size_l2, associativity_l2, cache_latency_l2,memory_latency,policy_num);
         // Cache_simulator cache(, 4, 16, 2, 100);
         this->cacheSimulator = cache;
     }
     void run(int x)
     {
         std::string inputFilename = "cache_config.txt";
+   
         set_cache(inputFilename);
 
         std::ifstream instructionsFile1("bubble_sort.txt");
@@ -120,7 +120,9 @@ public:
         {
 
             pwf.readInstructionsFromFile("bubble_sort.txt", RAM, visited);
+            std::cout<<"mm"<<std::endl;
             pwf.Step_countWF(RAM, &cacheSimulator);
+            std::cout<<"mmss"<<std::endl;
         }
         else
         {
@@ -128,31 +130,32 @@ public:
         }
 
         instructionsFile1.close();
-
-        std::ifstream instructionsFile2("selection.txt");
-        if (!instructionsFile2.is_open())
-        {
-            std::cerr << "Error opening file " << std::endl;
-            return;
-        }
-        pwof.readInstructionsFromFile("selection.txt", RAM, visited);
-        if (x == 2)
-        {
-            pwof.Step_count(RAM, &cacheSimulator);
-        }
-        else if (x == 1)
-
-        {
-            pwf.readInstructionsFromFile("selection.txt", RAM, visited);
-            pwf.Step_countWF(RAM, &cacheSimulator);
-        }
-        else
-        {
-            std::cout << "Invalid ip" << std::endl;
         }
 
-        instructionsFile2.close();
-    }
+    //     std::ifstream instructionsFile2("selection.txt");
+    //     if (!instructionsFile2.is_open())
+    //     {
+    //         std::cerr << "Error opening file " << std::endl;
+    //         return;
+    //     }
+    //     pwof.readInstructionsFromFile("selection.txt", RAM, visited);
+    //     if (x == 2)
+    //     {
+    //         pwof.Step_count(RAM, &cacheSimulator);
+    //     }
+    //     else if (x == 1)
+
+    //     {
+    //         pwf.readInstructionsFromFile("selection.txt", RAM, visited);
+    //         pwf.Step_countWF(RAM, &cacheSimulator);
+    //     }
+    //     else
+    //     {
+    //         std::cout << "Invalid ip" << std::endl;
+    //     }
+
+    //     instructionsFile2.close();
+    // }
 };
 
 #endif // PROCESSOR_H
