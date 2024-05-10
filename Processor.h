@@ -84,6 +84,7 @@ public:
     {
         std::map<std::string, std::string> config = parseInputFile(filename, "Cache_Configuration");
         // Set Cache Configuration
+        std::cout<<"cs"<<std::endl;
         unsigned int cache_size_l1 = std::stoi(config["Cache_size_l1"]);
         unsigned int block_size_l1 = std::stoi(config["Block_size_l1"]);
         unsigned int associativity_l1 = std::stoi(config["Associativity_l1"]);
