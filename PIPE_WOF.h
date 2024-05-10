@@ -5,7 +5,6 @@
 #include <string>
 #include "PU.h"
 #include "cache_simulator.h"
-#include "TBP.h"
 
 class PIPE_WOF : public Core
 {
@@ -14,7 +13,7 @@ private:
     std::vector<std::pair<std::string, std::string>> latch_IDRF;
     std::vector<std::pair<std::string, std::string>> latch_EXE;
     std::vector<std::pair<std::string, std::string>> latch_MEM;
-    TBP B_predictor;
+
     bool ishazard_notified = false;
     int stalls = 0;
     bool eof = false;
@@ -493,15 +492,13 @@ public:
             std::cout << "EXECUTED BRANCH" << result << std::endl;
             std::string label = search_latch("Label", latch_IDRF);
             std::cout << "branch pred" << predict_branch() << std::endl;
-            bool prediction =B_predictor.prediction();
-            if (result != prediction)
+            if (result != predict_branch())
             {
                
                 mis_predict = true;
                 stalls += 2;
               
             }
-            B_predictor.update(result);
            
 
             branch_flag = false;

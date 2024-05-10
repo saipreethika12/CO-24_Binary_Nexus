@@ -1,7 +1,6 @@
 #ifndef PIPE_WF_H
 #define PIPE_WF_H
 #include "PU.h"
-#include "TBP.h"
 
 class PIPE_WF : public Core
 {
@@ -10,7 +9,7 @@ private:
     std::vector<std::pair<std::string, std::string>> latch_IDRF_wf;
     std::vector<std::pair<std::string, std::string>> latch_EXE_wf;
     std::vector<std::pair<std::string, std::string>> latch_MEM_wf;
-    TBP B_predictor;
+
     bool ishazard_notified_wf = false;
     int stalls_wf = 0;
     bool eof_wf = false;
@@ -353,21 +352,12 @@ public:
                
                 std::cout << result << std::endl;
                 std::string label = tokens[3];
-                // if (result != predict_branch())
-                // {
-                //     mis_predict_wf == true;
-                //     stalls_wf += 1;
+                if (result != predict_branch())
+                {
+                    mis_predict_wf == true;
+                    stalls_wf += 1;
                
-                // }
-             bool prediction =B_predictor.prediction();
-            if (result != prediction)
-            {
-               
-                mis_predict_wf = true;
-                stalls_wf += 2;
-              
-            }
-            B_predictor.update(result);
+                }
 
                 branch_flag_wf = false;
                 latch_IDRF_wf.push_back({"Opcode", opcode});
