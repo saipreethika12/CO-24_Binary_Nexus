@@ -74,9 +74,6 @@ In this phase, the focus is on setting up the basic structure of the simulator a
 ### Supported Platforms
 Any programming language can be used for developing the simulator.
 
-### RISC-V Manual
-Refer to the RISC-V manual [here](link_to_manual) for insights into design decisions and additional context. Focus on relevant sections pertaining to supported instructions and architectural considerations.
-
 ## Getting Started
 1. Clone the repository to your local machine.
 2. Execute the simulator using the provided command-line interface.
