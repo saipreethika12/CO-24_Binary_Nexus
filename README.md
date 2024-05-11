@@ -1,59 +1,68 @@
 # CO-24_Binary_Nexus
 # MOM
-Date:11-5-24<br>
-Members:Ikshitha,Preethika
-Decisions:Implemented SIMD unit, cleaned the code.
-Date:10-5-24<br>
-Members:Ikshitha,Preethika
-Decisions:Debug for L2,was unable to solve the problem hence reverted back to TBP.Worked on implementation of SIMD unit.
-Date:9-5-24<br>
-Members:Ikshitha,Preethika
-Decisions: Encorporated an L2 cache(non-inclusive).Worked on debugging as the number of cycles were wrong.
-Date:8-5-24<br>
-Members:Ikshitha,Preethika
-Decisions: Decided for the implentation of TBP,L2 level cache ans SIMD unit.Implemented TBP.
-Date:9-4-24<br>
-Members:Ikshitha,Preethika<br>
-Decisions:Debugging
-Date:8-4-24<br>
-Members:Ikshitha,Preethika<br>
-Decisions:Debugging
-Date:7-4-24<br>
-Members:Ikshitha,Preethika<br>
-Decisions:Debugging, Implementation considering memory access for instruction fetch 
-Date:4-4-24<br>
-Members:Ikshitha,Preethika<br>
-Decisions:Implemented cache replacment policies,encorporated cache in pipeling
-Date:3-4-24<br>
-Members:Ikshitha,Preethika<br>
-Decisions:Configured cache class <br>
-Date:31-3-24<br>
-Members:Ikshitha,Preethika<br>
-Decisions:Set input file for cache_config<br>
-Date:24-2-24<br>
-Members:Ikshitha,Preethika<br>
-Decisions:Again tried on la, changed the data type of RAM from int to char, so that int is stored as four bytes..,the value in the four bytes is concatinated and converted to int while loading the address or word..implemented selection sort..finally seen that same memory is used for both the cores.  
-Date:23-2-24<br>
-Members:Ikshitha,Preethika<br>
-Decisions:Worked on implementation of la , we were trying to load addresses from the memory into the register..but didn't work and went with lw instead for storing the base address of the array and implemented bubble sort.<br>  
-Date:21-2-24<br>
-Members:Ikshitha,Preethika<br>
-Decisions:Updated prilimnary instructions,implemented jal,jalr,labels, branch instructions<br>
-Date:20-2-24<br>
-Members:Ikshitha,Preethika<br>
-Decisions:Updated prilimnary instructions.
-Date:18-2-24<br>
-Members:Ikshitha,Preethika<br>
-Decisions:Implemented prilimnary instructions<br>
-Date:17-2-24<br>
-Members:Ikshitha,Preethika<br>
-Decisions:Implemented prilimnary instructions<br>
-Date:13-2-24<br>
-Members:Ikshitha,Preethika<br>
-Decisions:Had a change of mind and decided to go with c++ to have better performance.<br>
-Date:12-2-24
-Members:Ikshitha,Preethika<br>
-Decisions:Decided the language to be python, looked at seniors project for reference.
+### MEMBERS 
+-**Ikshitha** , **Preethika**
+### May 11, 2024
+- **Decisions:** 
+  - Implemented SIMD unit.
+  - Cleaned the code.
+
+### May 8-10, 2024
+- **Decisions:** 
+  - Decided to implement TBP (to be phased out), L2 level cache, and SIMD unit.
+  - Implemented TBP.
+  - Debugged for L2 cache, but couldn't resolve the issue, so reverted back to TBP.
+  - Worked on implementing SIMD unit.
+
+### April 7-9, 2024
+- **Decisions:** 
+  - Debugging and implementation considering memory access for instruction fetch.
+  - Encorporated an L2 cache (non-inclusive).
+  - Worked on debugging as the number of cycles were wrong.
+
+### March 31, 2024
+- **Decisions:** 
+  - Set input file for cache configuration.
+
+### March 3-4, 2024
+- **Decisions:** 
+  - Configured cache class.
+  - Implemented cache replacement policies.
+  - Incorporated cache into the pipeline.
+
+### February 24, 2024
+- **Decisions:** 
+  - Made attempts with 'la' (load address) instruction, but it didn't work out.
+  - Changed the data type of RAM from `int` to `char` to store `int` as four bytes.
+  - Implemented selection sort.
+  - Discovered that both cores were using the same memory.
+
+### February 23, 2024
+- **Decisions:** 
+  - Worked on loading addresses from memory into registers.
+  - Implemented `lw` for storing the base address of the array.
+  - Implemented bubble sort.
+
+### February 20-21, 2024
+- **Decisions:** 
+  - Updated preliminary instructions.
+  - Implemented `jal`, `jalr`, labels, and branch instructions.
+
+### February 17-18, 2024
+- **Decisions:** 
+  - Implemented preliminary instructions.
+
+### February 13, 2024
+- **Decisions:** 
+  - Opted for C++ instead of Python for better performance.
+
+### February 12, 2024
+- **Decisions:** 
+  - Chose Python as the language for the project.
+  - Studied senior projects for reference.
+  - Converted the project documentation to Markdown format.
+
+
 
 
 # Multi-Core Simulator
