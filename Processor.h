@@ -5,6 +5,7 @@
 #include <cmath>
 #include "PIPE_WOF.h"
 #include "PIPE_WF.h"
+#include "SIMD_unit.h"
 #include "cache_simulator.h"
 
 class Processor
@@ -19,6 +20,7 @@ private:
     Cache_simulator cacheSimulator;
     PIPE_WOF pwof;
     PIPE_WF pwf;
+    SIMD_unit simd;
 
 public:
     Processor() : cacheSimulator(1, 1, 1, 1, 1, 1,1,1,1,1)
@@ -130,6 +132,7 @@ public:
         }
 
         instructionsFile1.close();
+
         }
 
     //     std::ifstream instructionsFile2("selection.txt");
