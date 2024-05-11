@@ -1,4 +1,16 @@
 # CO-24_Binary_Nexus
+Date:11-5-24<br>
+Members:Ikshitha,Preethika
+Decisions:Implemented SIMD unit, cleaned the code.
+Date:10-5-24<br>
+Members:Ikshitha,Preethika
+Decisions:Debug for L2,was unable to solve the problem hence reverted back to TBP.Worked on implementation of SIMD unit.
+Date:9-5-24<br>
+Members:Ikshitha,Preethika
+Decisions: Encorporated an L2 cache(non-inclusive).Worked on debugging as the number of cycles were wrong.
+Date:8-5-24<br>
+Members:Ikshitha,Preethika
+Decisions: Decided for the implentation of TBP,L2 level cache ans SIMD unit.Implemented TBP.
 Date:9-4-24<br>
 Members:Ikshitha,Preethika<br>
 Decisions:Debugging
