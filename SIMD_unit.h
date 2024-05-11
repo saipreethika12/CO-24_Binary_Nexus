@@ -163,9 +163,11 @@ void readInstructionsFromFile(const std::string& filename,char* RAM, bool* vis) 
         return value.find_first_not_of("0123456789", start) == std::string::npos;
     }
     void execute(char*RAM){
+        std::cout <<"is "<<instructions.size()<<std::endl;
         while(PC<instructions.size())
         {
             std::string ins = instructions[PC].first;
+            std::cout<<ins<<std::endl;
               std::istringstream iss(ins);
               std::string token;
               std::vector<std::string>tokens;
