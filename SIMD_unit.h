@@ -39,7 +39,13 @@ public:
     }
 
     // Function to read instructions from the file
-void readInstructionsFromFile(char* RAM, bool* vis) {
+void readInstructionsFromFile(const std::string& filename,char* RAM, bool* vis) {
+    std::ifstream file;
+      file.open(filename);
+        if (!file.is_open()) {
+            std::cerr << "Error opening file." << std::endl;
+            return;
+        }
     int index = start_of_ins;
     std::string line;
     bool inDataSection = false;
@@ -156,7 +162,7 @@ void readInstructionsFromFile(char* RAM, bool* vis) {
         // Check if the remaining characters are digits
         return value.find_first_not_of("0123456789", start) == std::string::npos;
     }
-    void execute(int *RAM){
+    void execute(char*RAM){
         while(PC<instructions.size())
         {
             std::string ins = instructions[PC].first;
@@ -218,6 +224,7 @@ void readInstructionsFromFile(char* RAM, bool* vis) {
                 v2.push_back(loaded_value);
               }
               if(opcode == "add_vec"){
+                std::cout<<"add ins"<<std::endl;
                       for(int i=0;i<size;i++){
                         int sv = v1[i]+v2[i];
                         for (int i = 0; i < 4; i++) {
@@ -233,6 +240,7 @@ void readInstructionsFromFile(char* RAM, bool* vis) {
                       }
               }
               else if(opcode == "sub_vector"){
+                  std::cout<<"sub ins"<<std::endl;
                 for(int i=0;i<size;i++){
                         int sv = v1[i]-v2[i];
                         for (int i = 0; i < 4; i++) {
@@ -248,6 +256,7 @@ void readInstructionsFromFile(char* RAM, bool* vis) {
                       }
               }
                  else if(opcode == "mul_vector"){
+                      std::cout<<"mul ins"<<std::endl;
                 for(int i=0;i<size;i++){
                         int sv = v1[i]*v2[i];
                         for (int i = 0; i < 4; i++) {
@@ -257,6 +266,7 @@ void readInstructionsFromFile(char* RAM, bool* vis) {
                                     t += pow(2, j);
                             }
                             RAM[store_address] = t;
+                            std::cout<<t<<std::endl;
                             //vis[store_address] = 1;
                             store_address++;
                             }
@@ -268,13 +278,15 @@ void readInstructionsFromFile(char* RAM, bool* vis) {
            PC+=1; 
         }
     }
+
 };
 
 // int main() {
 //     char RAM[4096] = {0}; // Assuming RAM size of 4096 bytes
 //     bool vis[4096] = {0}; // Track visited memory locations
 
-//     SIMD_unit simdUnit("input_file.txt", 1000, RAM, vis); 
+//     SIMD_unit simdUnit; 
+//     simdUnit.readInstructionsFromFile("input_file.txt", RAM, vis);
 
 //     // Print contents of labelToAddress map
 //     std::cout << "Label to Address Map:" << std::endl;
