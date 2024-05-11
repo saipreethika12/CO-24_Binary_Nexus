@@ -1,6 +1,7 @@
 #ifndef PIPE_WF_H
 #define PIPE_WF_H
 #include "PU.h"
+#include "TBP.h"
 
 class PIPE_WF : public Core
 {
@@ -9,7 +10,7 @@ private:
     std::vector<std::pair<std::string, std::string>> latch_IDRF_wf;
     std::vector<std::pair<std::string, std::string>> latch_EXE_wf;
     std::vector<std::pair<std::string, std::string>> latch_MEM_wf;
-
+    TBP B_predictor;
     bool ishazard_notified_wf = false;
     int stalls_wf = 0;
     bool eof_wf = false;
@@ -56,8 +57,8 @@ public:
     }
     void imbibe_stall()
     {
-        std::cout << "STAll"
-                  << " ";
+        // std::cout << "STAll"
+        //           << " ";
     }
     std::string search_latch(const std::string &opcode, const std::vector<std::pair<std::string, std::string>> &latch_IDRF)
     {
@@ -106,7 +107,7 @@ public:
             }
             latch_IF_wf.push_back({"PC", std::to_string(PC)});
             latch_IF_wf.push_back({"fetched_instruction", fetched_instruction});
-            std::cout << fetched_instruction << std::endl;
+           // std::cout << fetched_instruction << std::endl;
             prevprevPC_wf = prevPC_wf;
             prevPC_wf = PC;
             PC += 1;
@@ -139,7 +140,7 @@ public:
             return;
         }
         std::string opcode = tokens[0];
-        std::cout << opcode << std::endl;
+       // std::cout << opcode << std::endl;
         std::string rd;
         if (tokens.size() > 1)
         {
@@ -334,14 +335,23 @@ public:
             {
                 int result = control_executions(opcode, rs1_value, rs2_value);
                
-                std::cout << result << std::endl;
+               // std::cout << result << std::endl;
                 std::string label = tokens[3];
-                if (result != predict_branch())
-                {
-                    mis_predict_wf == true;
-                    stalls_wf += 1;
+                // if (result != predict_branch())
+                // {
+                //     mis_predict_wf == true;
+                //     stalls_wf += 1;
                
-                }
+                // }
+             bool prediction =B_predictor.prediction();
+            if (result != prediction)
+            {
+               
+                mis_predict_wf = true;
+                stalls_wf += 2;
+              
+            }
+            B_predictor.update(result);
 
                 branch_flag_wf = false;
                 latch_IDRF_wf.push_back({"Opcode", opcode});
@@ -574,14 +584,14 @@ public:
         }
         if (std::find(ins_type3_wf.begin(), ins_type3_wf.end(), opcode) != ins_type3_wf.end())
         {
-            for (const auto &pair : latch_EXE_wf)
-            {
-                std::cout << "First: " << pair.first << ", Second: " << pair.second << std::endl;
-            }
-            std::cout << op1 << " " << op2 << std::endl;
+            // for (const auto &pair : latch_EXE_wf)
+            // {
+            //     std::cout << "First: " << pair.first << ", Second: " << pair.second << std::endl;
+            // }
+           // std::cout << op1 << " " << op2 << std::endl;
             result = control_executions(opcode, op1, op2);
     
-            std::cout << result << std::endl;
+           // std::cout << result << std::endl;
             std::string label = search_latch("Label", latch_IDRF_wf);
             if (result == 1)
             {
@@ -601,7 +611,7 @@ public:
             {
                 if (pair.first == "baseReg_value")
                 {
-                    std::cout << "First: " << std::endl;
+                   // std::cout << "First: " << std::endl;
                     baseReg = stoi(pair.second);
                 }
             }
@@ -678,7 +688,7 @@ public:
             {
 
                 result = stoi(pair.second);
-                std::cout << result << std::endl;
+               // std::cout << result << std::endl;
             }
         }
 
@@ -759,7 +769,7 @@ public:
             }
             if (opcode == "la")
             {
-                std::cout << "ff la" << std::endl;
+               // std::cout << "ff la" << std::endl;
                 std::string lbl;
                 for (const auto &pair : latch_EXE_wf)
                 {
@@ -799,7 +809,7 @@ public:
         {
             int result = stoi(search_latch("result", latch_MEM_wf));
 
-            std::cout << "e" << std::endl;
+           // std::cout << "e" << std::endl;
             reg[returnIndex(rd)] = result;
             reg_state[returnIndex(rd)] = 5;
         }
@@ -859,10 +869,10 @@ public:
             {
                 k = 1;
                
-                for (const auto &pair : latch_MEM_wf)
-                {
-                    std::cout << "First: " << pair.first << ", Second: " << pair.second << std::endl;
-                }
+                // for (const auto &pair : latch_MEM_wf)
+                // {
+                //     std::cout << "First: " << pair.first << ", Second: " << pair.second << std::endl;
+                // }
               //  pip[y + z][c] = "W";
                 z++;
                 WriteBackWF(latch_MEM_wf);
@@ -919,7 +929,7 @@ public:
                 }
 
                 latch_EXE_wf.clear();
-                std::cout << "M";
+               // std::cout << "M";
             }
             if (latch_IDRF_wf.size() > 0 )
             {
@@ -927,7 +937,7 @@ public:
                 if (!stall_flag_wf && !stall_flag2_wf)
                 {
                     k = 3;
-                    std::cout << "E";
+                  //  std::cout << "E";
                     std::string op = search_latch("Opcode", latch_IDRF_wf);
 
                    // pip[y + z][c] = "E";
@@ -1009,7 +1019,7 @@ public:
                             y++;
                             DecodeWF();
 
-                            std::cout << "ID";
+                           // std::cout << "ID";
                             latch_IF_wf.clear();
                             deof_wf = true;
                         }
@@ -1031,7 +1041,7 @@ public:
                             y++;
                             DecodeWF();
 
-                            std::cout << "ID";
+                           // std::cout << "ID";
                             latch_IF_wf.clear();
                         }
                         else if ((stall_flag_wf || stall_flag2_wf) && latch_IDRF_wf.size() == 2)
@@ -1041,7 +1051,7 @@ public:
                             y++;
                             DecodeWF();
 
-                            std::cout << "ID";
+                           // std::cout << "ID";
                         }
                     }
                 }
@@ -1089,7 +1099,7 @@ public:
                     cache_latency_f = sim_cache->get_cache_latency() - 1;
                     hit_fetch = false;
                 }
-                std::cout << "F";
+              //  std::cout << "F";
             }
             else if(eof_wf && executed_branch_wf &&  !mis_predict_wf)
             {
@@ -1105,13 +1115,13 @@ public:
             else
             {
                 loop_wf++;
-                std::cout << loop_wf << std::endl;
+               // std::cout << loop_wf << std::endl;
             }
-            std::cout << "\nONE cycle finish\n";
+           // std::cout << "\nONE cycle finish\n";
           
         }
         std::cout<<"===============OUTPUT==================="<<std::endl;
-        std::cout << instructions.size() << std::endl;
+       // std::cout << instructions.size() << std::endl;
         std::cout << "WIth Forwarding" << std::endl;
         std::cout << "No of stalls" << std::endl;
         std::cout << stalls_wf << std::endl;

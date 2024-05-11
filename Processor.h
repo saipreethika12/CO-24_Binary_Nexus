@@ -99,8 +99,9 @@ public:
     }
     void run(int x)
     {
+        std::cout<<"=============CORE 2 PROGRAM================="<<std::endl;
         std::string inputFilename = "cache_config.txt";
-   
+
         set_cache(inputFilename);
 
         std::ifstream instructionsFile1("bubble_sort.txt");
@@ -129,15 +130,15 @@ public:
 
         instructionsFile1.close();
 
-        
+        std::cout<<"=============CORE 2 PROGRAM================="<<std::endl;
 
-        // std::ifstream instructionsFile2("SIMD.txt");
-        // if (!instructionsFile2.is_open())
-        // {
-        //     std::cerr << "Error opening file " << std::endl;
-        //     return;
-        // }
-        // simd.readInstructionsFromFile("SIMD.txt",RAM,visited);
+        std::ifstream instructionsFile2("SIMD.txt");
+        if (!instructionsFile2.is_open())
+        {
+            std::cerr << "Error opening file " << std::endl;
+            return;
+        }
+        simd.readInstructionsFromFile("SIMD.txt",RAM,visited);
         // if (x == 2)
         // {
         //     pwof.Step_count(RAM, &cacheSimulator);
@@ -152,9 +153,9 @@ public:
         // {
         //     std::cout << "Invalid ip" << std::endl;
         // }
-        //simd.print_ram(RAM);
-        // simd.execute(RAM);
-        // instructionsFile2.close();
+        simd.print_ram(RAM);
+        simd.execute(RAM);
+        instructionsFile2.close();
     
 }
 };

@@ -98,10 +98,10 @@ public:
         size++;
       }
     }
-    std::cout << "size" << size << std::endl;
-    std::cout << numBlocks << std::endl;
+    // std::cout << "size" << size << std::endl;
+    // std::cout << numBlocks << std::endl;
     int index = rand() % numBlocks;
-    std::cout << "indexrr" << index << std::endl;
+   // std::cout << "indexrr" << index << std::endl;
 
     if (size < numBlocks)
     {
@@ -133,7 +133,7 @@ private:
   std::pair<int, int> splitAddress(uint64_t address)
   {
     int num_bits_offset = std::log2(blockSize);
-    std::cout << num_bits_offset << std::endl;
+   // std::cout << num_bits_offset << std::endl;
     address >>= num_bits_offset;
     int num_bits = std::log2(numSets);
     int index = address & ((1 << num_bits - 1));

@@ -1,3 +1,6 @@
+#ifndef TBP_H
+#define TBP_H 
+
 class TBP{
    private:
   int state;
@@ -42,3 +45,4 @@ class TBP{
  }
   
 };
+#endif

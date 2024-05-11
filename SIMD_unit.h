@@ -69,7 +69,7 @@ void readInstructionsFromFile(const std::string& filename,char* RAM, bool* vis) 
         if (inDataSection) {
             // Data section: Parse labels and data
             std::istringstream iss(line);
-            std::cout<<line<<std::endl;
+           // std::cout<<line<<std::endl;
             std::string label;
             iss >> label;
 
@@ -95,9 +95,9 @@ void readInstructionsFromFile(const std::string& filename,char* RAM, bool* vis) 
                             continue;
                         if (isInteger(directive))
                         {
-                            std::cout<<"addre"<<add_temp<<std::endl;
+                          //  std::cout<<"addre"<<add_temp<<std::endl;
                             int val = std::stoi(directive);
-                            std::cout<<" value "<<val<<std::endl;
+                           // std::cout<<" value "<<val<<std::endl;
                             for (int i = 0; i < 4; i++)
                             {
                                 int t = 0;
@@ -128,7 +128,7 @@ void readInstructionsFromFile(const std::string& filename,char* RAM, bool* vis) 
                     }
 
                 }
-                std::cout<<lv<<std::endl;
+               // std::cout<<lv<<std::endl;
                         }
                 }
                   labelInfo[label] = std::make_pair(address, length);
@@ -292,7 +292,7 @@ void readInstructionsFromFile(const std::string& filename,char* RAM, bool* vis) 
         while(PC<instructions.size())
         {
             std::string ins = instructions[PC].first;
-            std::cout<<ins<<std::endl;
+            //std::cout<<ins<<std::endl;
               std::istringstream iss(ins);
               std::string token;
               std::vector<std::string>tokens;
@@ -321,14 +321,15 @@ void readInstructionsFromFile(const std::string& filename,char* RAM, bool* vis) 
 
                 }
                 int store_address = lv;
-                std::cout<<"   store add" <<lv<<std::endl;
+                int sat = lv;
+               // std::cout<<"   store add" <<lv<<std::endl;
               int base_address = (labelInfo[tokens[2]].first);
-              std::cout<<"ba"<<base_address<<std::endl;
+             // std::cout<<"ba"<<base_address<<std::endl;
               int size = (labelInfo[tokens[2]].second);
                int base_address_v2 = (labelInfo[tokens[3]].first);
-                std::cout<<"ba2"<<base_address_v2<<std::endl;
+               // std::cout<<"ba2"<<base_address_v2<<std::endl;
               int size_v2 = (labelInfo[tokens[3]].second);
-               std::cout<<"si2"<<size_v2<<std::endl;
+              // std::cout<<"si2"<<size_v2<<std::endl;
               std::vector<int>v1,v2;
               for(int k=0;k<size;k++){
                  long long int loaded_value=0;
@@ -349,13 +350,11 @@ void readInstructionsFromFile(const std::string& filename,char* RAM, bool* vis) 
                     }
 
                 }
-                std::cout<<"loaded"<<loaded_value<<std::endl;
+               // std::cout<<"loaded"<<loaded_value<<std::endl;
                 base_address+=4;
                 v1.push_back(loaded_value);
               }
-                for(auto i : v1){
-                    std::cout<<i<<" ";
-                }
+               
                 for(int k=0;k<size;k++){
                  long long int loaded_value=0;
                       for (int i = 0; i < 4; i++)
@@ -375,7 +374,7 @@ void readInstructionsFromFile(const std::string& filename,char* RAM, bool* vis) 
                     }
                    
                 }
-                  std::cout<<"loaded 2 "<<loaded_value<<std::endl;
+                 
                 base_address_v2+=4;
                 v2.push_back(loaded_value);
               }
@@ -432,12 +431,39 @@ void readInstructionsFromFile(const std::string& filename,char* RAM, bool* vis) 
                 std::cout<<"Invalid Opcode"<<std::endl;
               }
            PC+=1; 
+            printResult(RAM,size,sat);
         } 
-        long long int loaded_value=0;
+        // long long int loaded_value=0;
+        //         for (int i = 0; i < 4; i++)
+        //         {
+                   
+        //             int c = RAM[400+ i];
+        //             for (int j = 0; j < 8; j++)
+        //             {
+        //                 if (i == 3 && j == 7)
+        //                 {
+        //                     if (c >> 7 & 1 == 1)
+        //                         loaded_value -= pow(2, 31);
+        //                     continue;
+        //                 }
+        //                 if (c >> j & 1 == 1)
+        //                     loaded_value += pow(2, 8 * i + j);
+        //             }
+
+             //   }
+
+              
+              
+    }
+    void printResult(char* RAM,int len, int base_adddress){
+            std::cout<<"The values from base address  "<<base_adddress<<std::endl;
+               for(int k=0;k<len*4; k+=4){
+                        long long int loaded_value=0;
+               int b_add=base_adddress+k;
                 for (int i = 0; i < 4; i++)
                 {
                    
-                    int c = RAM[400+ i];
+                    int c = RAM[b_add+ i];
                     for (int j = 0; j < 8; j++)
                     {
                         if (i == 3 && j == 7)
@@ -451,31 +477,10 @@ void readInstructionsFromFile(const std::string& filename,char* RAM, bool* vis) 
                     }
 
                 }
-                std::cout<<"lv"<<loaded_value<<std::endl;
-              
+                std::cout<<loaded_value<<" "<<std::endl;
+                }
+                std::cout<<std::endl;
     }
 
 };
-
-// int main() {
-//     char RAM[4096] = {0}; // Assuming RAM size of 4096 bytes
-//     bool vis[4096] = {0}; // Track visited memory locations
-
-//     SIMD_unit simdUnit; 
-//     simdUnit.readInstructionsFromFile("input_file.txt", RAM, vis);
-
-//     // Print contents of labelToAddress map
-//     std::cout << "Label to Address Map:" << std::endl;
-//     for (const auto& pair : simdUnit.labelToAddress) {
-//         std::cout << pair.first << " => " << pair.second << std::endl;
-//     }
-
-//     // Print contents of labelInfo map
-//     std::cout << "\nLabel Info Map:" << std::endl;
-//     for (const auto& pair : simdUnit.labelInfo) {
-//         std::cout << "Label: " << pair.first << ", Address: " << pair.second.first << ", Length: " << pair.second.second << std::endl;
-//     }
-
-//     return 0;
-// }
 #endif

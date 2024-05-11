@@ -5,6 +5,7 @@
 #include <string>
 #include "PU.h"
 #include "cache_simulator.h"
+#include "TBP.h"
 
 class PIPE_WOF : public Core
 {
@@ -13,7 +14,7 @@ private:
     std::vector<std::pair<std::string, std::string>> latch_IDRF;
     std::vector<std::pair<std::string, std::string>> latch_EXE;
     std::vector<std::pair<std::string, std::string>> latch_MEM;
-
+    TBP B_predictor;
     bool ishazard_notified = false;
     int stalls = 0;
     bool eof = false;
@@ -59,11 +60,11 @@ public:
         ins_type5 = {"j", "jal", "jalr"};
         ins_type6 = {"lui"};
     }
-    void imbibe_stall()
-    {
-        std::cout << "STAll"
-                  << " ";
-    }
+     void imbibe_stall(){
+    // {
+    //     std::cout << "STAll"
+    //               << " ";
+     }
     std::string search_latch(const std::string &opcode, const std::vector<std::pair<std::string, std::string>> &latch_IDRF)
     {
         for (const auto &pair : latch_IDRF)
@@ -101,7 +102,7 @@ public:
             }
             latch_IF.push_back({"PC", std::to_string(PC)});
             latch_IF.push_back({"fetched_instruction", fetched_instruction});
-            std::cout << fetched_instruction << std::endl;
+           // std::cout << fetched_instruction << std::endl;
 
             PC += 1;
             ins++;
@@ -109,7 +110,7 @@ public:
         else
         {
             eof = true;
-            std::cout << "Reached eof" << std::endl;
+           // std::cout << "Reached eof" << std::endl;
         }
         return;
     }
@@ -128,12 +129,12 @@ public:
         }
         if (tokens.empty())
         {
-            std::cout << "at line no" << PC << std::endl;
+           // std::cout << "at line no" << PC << std::endl;
             std::cerr << "Error: Empty instruction." << std::endl;
             return;
         }
         std::string opcode = tokens[0];
-        std::cout << opcode << std::endl;
+       // std::cout << opcode << std::endl;
         std::string rd;
         if (tokens.size() > 1)
         {
@@ -238,7 +239,7 @@ public:
             else
             {
 
-                std::cout << "stall" << std::endl;
+               // std::cout << "stall" << std::endl;
                 stall_flag = true;
                 stalls += 1;
                 count--;
@@ -478,22 +479,24 @@ public:
         }
         if (std::find(ins_type3.begin(), ins_type3.end(), opcode) != ins_type3.end())
         {
-            for (const auto &pair : latch_EXE)
-            {
-                std::cout << "First: " << pair.first << ", Second: " << pair.second << std::endl;
-            }
-            std::cout << op1 << " " << op2 << std::endl;
+            // for (const auto &pair : latch_EXE)
+            // {
+            //     std::cout << "First: " << pair.first << ", Second: " << pair.second << std::endl;
+            // }
+            //std::cout << op1 << " " << op2 << std::endl;
             result = control_executions(opcode, op1, op2);
-            std::cout << "EXECUTED BRANCH" << result << std::endl;
+            //std::cout << "EXECUTED BRANCH" << result << std::endl;
             std::string label = search_latch("Label", latch_IDRF);
             //std::cout << "branch pred" << predict_branch() << std::endl;
-            if (result != predict_branch())
+            bool prediction =B_predictor.prediction();
+            if (result != prediction)
             {
                
                 mis_predict = true;
                 stalls += 2;
               
             }
+            B_predictor.update(result);
            
 
             branch_flag = false;
@@ -508,7 +511,7 @@ public:
             {
                 if (pair.first == "baseReg_value")
                 {
-                    std::cout << "First: " << std::endl;
+                   // std::cout << "First: " << std::endl;
                     baseReg = stoi(pair.second);
                 }
             }
@@ -746,13 +749,13 @@ public:
             if (latch_MEM.size() > 0 && (!hit) && !miss)
             {
                 k = 1;
-                std::cout << "WB";
+               // std::cout << "WB";
                 //  pip[y + z][c] = "W";
                 z++;
-                for (const auto &pair : latch_MEM)
-                {
-                    std::cout << "First: " << pair.first << ", Second: " << pair.second << std::endl;
-                }
+                // for (const auto &pair : latch_MEM)
+                // {
+                //     std::cout << "First: " << pair.first << ", Second: " << pair.second << std::endl;
+                // }
                 WriteBack(latch_MEM);
              
                 latch_MEM.clear();
@@ -761,7 +764,7 @@ public:
             {
 
                 k = 2;
-                std::cout << "M";
+               // std::cout << "M";
                 // pip[y + z][c] = "M";
                 y++;
                 if (!hit && !miss)
@@ -831,7 +834,7 @@ public:
                 {
                     bool f = false;
                     k = 3;
-                    std::cout << "E";
+                   // std::cout << "E";
                     std::string op = search_latch("Opcode", latch_IDRF);
                     // pip[y + z][c] = "E";
                     y++;
@@ -897,7 +900,7 @@ public:
                     y++;
                     Decode();
 
-                    std::cout << "ID";
+                    //std::cout << "ID";
                     latch_IF.clear();
                 }
                 else if ((stall_flag || stall_flag2) && latch_IDRF.size() == 2)
@@ -909,7 +912,7 @@ public:
                     y++;
                     Decode();
 
-                    std::cout << "ID";
+                    //std::cout << "ID";
                     //  latch_IF.clear();
                 }
                 
@@ -957,7 +960,7 @@ public:
                     hit_fetch = false;
                 }
 
-                std::cout << "F";
+               // std::cout << "F";
             }
             else if(eof && executed_branch && !mis_predict)
             {
@@ -973,10 +976,10 @@ public:
             else
             {
                 loop++;
-                std::cout << " "
-                          << "cycles" << loop << std::endl;
+                // std::cout << " "
+                //           << "cycles" << loop << std::endl;
             }
-            std::cout << "\nONE cycle finish\n";
+           // std::cout << "\nONE cycle finish\n";
         
             
         }
