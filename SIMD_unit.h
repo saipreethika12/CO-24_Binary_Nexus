@@ -437,7 +437,7 @@ void readInstructionsFromFile(const std::string& filename,char* RAM, bool* vis) 
                 for (int i = 0; i < 4; i++)
                 {
                    
-                    int c = RAM[300+ i];
+                    int c = RAM[400+ i];
                     for (int j = 0; j < 8; j++)
                     {
                         if (i == 3 && j == 7)

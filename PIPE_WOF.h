@@ -486,7 +486,7 @@ public:
             result = control_executions(opcode, op1, op2);
             std::cout << "EXECUTED BRANCH" << result << std::endl;
             std::string label = search_latch("Label", latch_IDRF);
-            std::cout << "branch pred" << predict_branch() << std::endl;
+            //std::cout << "branch pred" << predict_branch() << std::endl;
             if (result != predict_branch())
             {
                

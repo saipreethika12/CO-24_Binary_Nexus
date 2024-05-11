@@ -99,45 +99,45 @@ public:
     }
     void run(int x)
     {
-        // std::string inputFilename = "cache_config.txt";
+        std::string inputFilename = "cache_config.txt";
    
-        // set_cache(inputFilename);
+        set_cache(inputFilename);
 
-        // std::ifstream instructionsFile1("bubble_sort.txt");
-        // if (!instructionsFile1.is_open())
-        // {
-        //     std::cerr << "Error opening file " << std::endl;
-        //     return;
-        // }
-        // pwof.readInstructionsFromFile("bubble_sort.txt", RAM, visited);
-        // if (x == 2)
-        // {
-        //     pwof.Step_count(RAM, &cacheSimulator);
-        // }
-        // else if (x == 1)
-        // {
-
-        //     pwf.readInstructionsFromFile("bubble_sort.txt", RAM, visited);
-        //     std::cout<<"mm"<<std::endl;
-        //     pwf.Step_countWF(RAM, &cacheSimulator);
-        //     std::cout<<"mmss"<<std::endl;
-        // }
-        // else
-        // {
-        //     std::cout << "Invalid ip" << std::endl;
-        // }
-
-        // instructionsFile1.close();
-
-        
-
-        std::ifstream instructionsFile2("SIMD.txt");
-        if (!instructionsFile2.is_open())
+        std::ifstream instructionsFile1("bubble_sort.txt");
+        if (!instructionsFile1.is_open())
         {
             std::cerr << "Error opening file " << std::endl;
             return;
         }
-        simd.readInstructionsFromFile("SIMD.txt",RAM,visited);
+        pwof.readInstructionsFromFile("bubble_sort.txt", RAM, visited);
+        if (x == 2)
+        {
+            pwof.Step_count(RAM, &cacheSimulator);
+        }
+        else if (x == 1)
+        {
+
+            pwf.readInstructionsFromFile("bubble_sort.txt", RAM, visited);
+            std::cout<<"mm"<<std::endl;
+            pwf.Step_countWF(RAM, &cacheSimulator);
+            std::cout<<"mmss"<<std::endl;
+        }
+        else
+        {
+            std::cout << "Invalid ip" << std::endl;
+        }
+
+        instructionsFile1.close();
+
+        
+
+        // std::ifstream instructionsFile2("SIMD.txt");
+        // if (!instructionsFile2.is_open())
+        // {
+        //     std::cerr << "Error opening file " << std::endl;
+        //     return;
+        // }
+        // simd.readInstructionsFromFile("SIMD.txt",RAM,visited);
         // if (x == 2)
         // {
         //     pwof.Step_count(RAM, &cacheSimulator);
@@ -153,8 +153,8 @@ public:
         //     std::cout << "Invalid ip" << std::endl;
         // }
         //simd.print_ram(RAM);
-        simd.execute(RAM);
-        instructionsFile2.close();
+        // simd.execute(RAM);
+        // instructionsFile2.close();
     
 }
 };

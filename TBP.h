@@ -3,7 +3,7 @@ class TBP{
   int state;
   public:
   TBP(){
-    this->state = 0;
+    this->state = 2;
   }
   void update(bool result){
         if(result ==1 && state == 0){
