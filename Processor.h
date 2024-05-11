@@ -152,6 +152,7 @@ public:
         // {
         //     std::cout << "Invalid ip" << std::endl;
         // }
+        //simd.print_ram(RAM);
         simd.execute(RAM);
         instructionsFile2.close();
     

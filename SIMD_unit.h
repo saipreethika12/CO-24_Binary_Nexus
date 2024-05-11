@@ -81,38 +81,111 @@ void readInstructionsFromFile(const std::string& filename,char* RAM, bool* vis) 
 
                 long long int address = get_index(vis);
                 labelToAddress[label] = address;
+                  
 
                 int length = 0;
+                int add_temp = address;
                 std::string directive;
                 while (iss >> directive) {
                     if (directive == ".len") {
                         iss>>length;
-                        break;
+                        //break;
                     }
-                }
-                std::cout<<label<<std::endl;
-             
-                labelInfo[label] = std::make_pair(address, length);
-
-                while (iss >> directive) {
-                    if (directive == ".word") {
-                        for (int i = 0; i < length; i++) {
-                            int value;
-                            if (iss >> value) {
-                                RAM[address] = value;
-                                vis[address] = 1;
-                                address++;
-                            } else {
-                                std::cerr << "Error parsing data." << std::endl;
-                                break;
+                      if (directive == ".word")
+                            continue;
+                        if (isInteger(directive))
+                        {
+                            std::cout<<"addre"<<add_temp<<std::endl;
+                            int val = std::stoi(directive);
+                            std::cout<<" value "<<val<<std::endl;
+                            for (int i = 0; i < 4; i++)
+                            {
+                                int t = 0;
+                                for (int j = 0; j < 8; j++)
+                                {
+                                    if ((val >> (8 * i + j) & 1 == 1))
+                                        t += pow(2, j);
+                                }
+                                RAM[add_temp] = t;
+                                vis[add_temp] = 1;
+                                add_temp++;
                             }
+                            int lv=0;
+                               for (int i = 0; i < 4; i++)
+                {
+                  
+                    int c = RAM[41 + i];
+                    for (int j = 0; j < 8; j++)
+                    {
+                        if (i == 3 && j == 7)
+                        {
+                            if (c >> 7 & 1 == 1)
+                                lv -= pow(2, 31);
+                            continue;
                         }
+                        if (c >> j & 1 == 1)
+                            lv += pow(2, 8 * i + j);
                     }
+
                 }
+                std::cout<<lv<<std::endl;
+                        }
+                }
+                  labelInfo[label] = std::make_pair(address, length);
+                //std::cout<<label<<std::endl;
+             
+            
+
+               // while (iss >> directive) {
+                    // if (directive == ".word") {
+                    //     std::string value;
+                    //     for (int i = 0; i < length; i++) {
+    
+                    //         if (iss >> value) {
+                    //                int val = std::stoi(value);
+                    //         for (int i = 0; i < 4; i++)
+                    //         {
+                    //             int t = 0;
+                    //             for (int j = 0; j < 8; j++)
+                    //             {
+                    //                 if ((val >> (8 * i + j) & 1 == 1))
+                    //                     t += pow(2, j);
+                    //             }
+                    //             RAM[address] = t;
+                    //             vis[address] = 1;
+                    //             address++;
+                    //         }
+                    //         } else {
+                    //             std::cerr << "Error parsing data." << std::endl;
+                    //             break;
+                    //         }
+                    //     }
+                    // }
+                  
+                        // if (directive == ".word")
+                        //     continue;
+                        // if (isInteger(directive))
+                        // {
+                        //     int val = std::stoi(directive);
+                        //     for (int i = 0; i < 4; i++)
+                        //     {
+                        //         int t = 0;
+                        //         for (int j = 0; j < 8; j++)
+                        //         {
+                        //             if ((val >> (8 * i + j) & 1 == 1))
+                        //                 t += pow(2, j);
+                        //         }
+                        //         RAM[address] = t;
+                        //         vis[address] = 1;
+                        //         address++;
+                        //     }
+                        // }
+                    
+               // }
             }
         } else {
             // Text section: Process instructions
-              std::cout<<"add ins"<<std::endl;
+             // std::cout<<"add ins"<<std::endl;
             instructions.push_back(std::make_pair(line, index));
             ins_map[index] = index;
 
@@ -130,6 +203,30 @@ void readInstructionsFromFile(const std::string& filename,char* RAM, bool* vis) 
             // }
         }
     }
+    //  int store = 0;
+    //     for (int i = 0; i < 1024; i++){
+            
+    //          int lv =0;
+    //                for (int i = 0; i < 4; i++)
+    //             {
+                  
+    //                 int c = RAM[store + i];
+    //                 for (int j = 0; j < 8; j++)
+    //                 {
+    //                     if (i == 3 && j == 7)
+    //                     {
+    //                         if (c >> 7 & 1 == 1)
+    //                             lv -= pow(2, 31);
+    //                         continue;
+    //                     }
+    //                     if (c >> j & 1 == 1)
+    //                         lv += pow(2, 8 * i + j);
+    //                 }
+
+    //             }
+    //             store+=4;
+    //             std::cout<<i<<" "<<lv<<std::endl;
+    //     }
 
     file.close();
 }
@@ -163,9 +260,35 @@ void readInstructionsFromFile(const std::string& filename,char* RAM, bool* vis) 
         // Check if the remaining characters are digits
         return value.find_first_not_of("0123456789", start) == std::string::npos;
     }
+    void print_ram(char*RAM){
+        // int store = 0;
+        // for (int i = 0; i < 1024; i++){
+            
+        //      int lv =0;
+        //            for (int i = 0; i < 4; i++)
+        //         {
+                  
+        //             int c = RAM[store + i];
+        //             for (int j = 0; j < 8; j++)
+        //             {
+        //                 if (i == 3 && j == 7)
+        //                 {
+        //                     if (c >> 7 & 1 == 1)
+        //                         lv -= pow(2, 31);
+        //                     continue;
+        //                 }
+        //                 if (c >> j & 1 == 1)
+        //                     lv += pow(2, 8 * i + j);
+        //             }
+
+        //         }
+        //         store+=4;
+        //         std::cout<<i<<" "<<lv<<std::endl;
+        // }
+    }
     void execute(char*RAM){
-        std::cout <<"is "<<instructions.size()<<std::endl;
-        std::cout<<PC<<std::endl;
+        // std::cout <<"is "<<instructions.size()<<std::endl;
+        // std::cout<<PC<<std::endl;
         while(PC<instructions.size())
         {
             std::string ins = instructions[PC].first;
@@ -178,6 +301,7 @@ void readInstructionsFromFile(const std::string& filename,char* RAM, bool* vis) 
               }
               std:: string opcode=tokens[0];
               int store = labelInfo[tokens[1]].first;
+             // std::cout<<"store"<<store<<std::endl;
               int lv=0;
                      for (int i = 0; i < 4; i++)
                 {
@@ -197,11 +321,14 @@ void readInstructionsFromFile(const std::string& filename,char* RAM, bool* vis) 
 
                 }
                 int store_address = lv;
-                std::cout<<"   LV" <<lv<<std::endl;
+                std::cout<<"   store add" <<lv<<std::endl;
               int base_address = (labelInfo[tokens[2]].first);
+              std::cout<<"ba"<<base_address<<std::endl;
               int size = (labelInfo[tokens[2]].second);
                int base_address_v2 = (labelInfo[tokens[3]].first);
+                std::cout<<"ba2"<<base_address_v2<<std::endl;
               int size_v2 = (labelInfo[tokens[3]].second);
+               std::cout<<"si2"<<size_v2<<std::endl;
               std::vector<int>v1,v2;
               for(int k=0;k<size;k++){
                  long long int loaded_value=0;
@@ -222,10 +349,14 @@ void readInstructionsFromFile(const std::string& filename,char* RAM, bool* vis) 
                     }
 
                 }
+                std::cout<<"loaded"<<loaded_value<<std::endl;
                 base_address+=4;
                 v1.push_back(loaded_value);
               }
-                for(int k=0;k<size_v2;k++){
+                for(auto i : v1){
+                    std::cout<<i<<" ";
+                }
+                for(int k=0;k<size;k++){
                  long long int loaded_value=0;
                       for (int i = 0; i < 4; i++)
                 {
@@ -242,19 +373,20 @@ void readInstructionsFromFile(const std::string& filename,char* RAM, bool* vis) 
                         if (c >> j & 1 == 1)
                             loaded_value += pow(2, 8 * i + j);
                     }
-
+                   
                 }
+                  std::cout<<"loaded 2 "<<loaded_value<<std::endl;
                 base_address_v2+=4;
                 v2.push_back(loaded_value);
               }
               if(opcode == "add_vec"){
-                std::cout<<"add ins"<<std::endl;
+               // std::cout<<"add ins"<<std::endl;
                       for(int i=0;i<size;i++){
                         int sv = v1[i]+v2[i];
                         for (int i = 0; i < 4; i++) {
                             int t = 0;
                             for (int j = 0; j < 8; j++) {
-                                if ((store_address >> (8 * i + j) & 1) == 1)
+                                if ((sv >> (8 * i + j) & 1) == 1)
                                     t += pow(2, j);
                             }
                             RAM[store_address] = t;
@@ -264,13 +396,13 @@ void readInstructionsFromFile(const std::string& filename,char* RAM, bool* vis) 
                       }
               }
               else if(opcode == "sub_vec"){
-                  std::cout<<"sub ins"<<std::endl;
+                 // std::cout<<"sub ins"<<std::endl;
                 for(int i=0;i<size;i++){
                         int sv = v1[i]-v2[i];
                         for (int i = 0; i < 4; i++) {
                             int t = 0;
                             for (int j = 0; j < 8; j++) {
-                                if ((store_address >> (8 * i + j) & 1) == 1)
+                                if ((sv >> (8 * i + j) & 1) == 1)
                                     t += pow(2, j);
                             }
                             RAM[store_address] = t;
@@ -280,17 +412,17 @@ void readInstructionsFromFile(const std::string& filename,char* RAM, bool* vis) 
                       }
               }
                  else if(opcode == "mul_vec"){
-                      std::cout<<"mul ins"<<std::endl;
+                     // std::cout<<"mul ins"<<std::endl;
                 for(int i=0;i<size;i++){
                         int sv = v1[i]*v2[i];
                         for (int i = 0; i < 4; i++) {
                             int t = 0;
                             for (int j = 0; j < 8; j++) {
-                                if ((store_address >> (8 * i + j) & 1) == 1)
+                                if ((sv >> (8 * i + j) & 1) == 1)
                                     t += pow(2, j);
                             }
                             RAM[store_address] = t;
-                            std::cout<<t<<std::endl;
+                            //std::cout<<t<<std::endl;
                             //vis[store_address] = 1;
                             store_address++;
                             }
@@ -300,7 +432,27 @@ void readInstructionsFromFile(const std::string& filename,char* RAM, bool* vis) 
                 std::cout<<"Invalid Opcode"<<std::endl;
               }
            PC+=1; 
-        }
+        } 
+        long long int loaded_value=0;
+                for (int i = 0; i < 4; i++)
+                {
+                   
+                    int c = RAM[300+ i];
+                    for (int j = 0; j < 8; j++)
+                    {
+                        if (i == 3 && j == 7)
+                        {
+                            if (c >> 7 & 1 == 1)
+                                loaded_value -= pow(2, 31);
+                            continue;
+                        }
+                        if (c >> j & 1 == 1)
+                            loaded_value += pow(2, 8 * i + j);
+                    }
+
+                }
+                std::cout<<"lv"<<loaded_value<<std::endl;
+              
     }
 
 };
