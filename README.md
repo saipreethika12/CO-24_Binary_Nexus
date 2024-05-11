@@ -90,12 +90,6 @@ Any programming language can be used for developing the simulator.
 ## Running Example Programs
 Included in the repository are assembly programs demonstrating bubble sort and selection sort algorithms for individual processors. Instructions for running these programs are provided in the respective README files.
 
-
----
-
-Now, let's continue with Phase 2.
-Certainly, here's the revised section with the correct tense:
-
 ---
 
 ## Phase 2: Pipelining and Instruction Latency
@@ -121,9 +115,6 @@ The `predict()` function supports basic branch prediction strategies such as  "a
 3. Execute programs and observe the output statistics including stalls and IPC.
 4. Evaluate the performance of different configurations and branch prediction strategies.
 
----
-
-To extend the README for Phase 3, we'll include the new features and requirements as follows:
 
 ---
 
@@ -150,11 +141,6 @@ The cache is designed to cache both instructions and data, serving both cores in
 2. Run the simulator with the specified configuration.
 3. Execute programs and observe the output statistics including stalls, cache miss rate, and IPC.
 4. Analyze the impact of cache configuration on performance and optimize as needed.
-
-
----
-To incorporate the SIMD unit and the two-bit branch predictor into the existing simulator, let's update the README for Phase 4:
-
 ---
 
 
