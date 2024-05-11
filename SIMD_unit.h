@@ -35,7 +35,7 @@ public:
     //     readInstructionsFromFile(RAM, vis);
     // }
     SIMD_unit(){
-        
+        PC=0;
     }
 
     // Function to read instructions from the file
@@ -112,21 +112,22 @@ void readInstructionsFromFile(const std::string& filename,char* RAM, bool* vis) 
             }
         } else {
             // Text section: Process instructions
+              std::cout<<"add ins"<<std::endl;
             instructions.push_back(std::make_pair(line, index));
             ins_map[index] = index;
 
 
             // Store instruction in RAM (assuming 4 bytes per instruction)
-            for (int i = 0; i < 4; i++) {
-                int t = 0;
-                for (int j = 0; j < 8; j++) {
-                    if ((index >> (8 * i + j) & 1) == 1)
-                        t += pow(2, j);
-                }
-                RAM[index] = t;
-                vis[index] = 1;
-                index++;
-            }
+            // for (int i = 0; i < 4; i++) {
+            //     int t = 0;
+            //     for (int j = 0; j < 8; j++) {
+            //         if ((index >> (8 * i + j) & 1) == 1)
+            //             t += pow(2, j);
+            //     }
+            //     RAM[index] = t;
+            //     vis[index] = 1;
+            //     index++;
+            // }
         }
     }
 
@@ -164,6 +165,7 @@ void readInstructionsFromFile(const std::string& filename,char* RAM, bool* vis) 
     }
     void execute(char*RAM){
         std::cout <<"is "<<instructions.size()<<std::endl;
+        std::cout<<PC<<std::endl;
         while(PC<instructions.size())
         {
             std::string ins = instructions[PC].first;
@@ -175,7 +177,27 @@ void readInstructionsFromFile(const std::string& filename,char* RAM, bool* vis) 
                 tokens.push_back(token);
               }
               std:: string opcode=tokens[0];
-              int store_address = labelInfo[tokens[1]].first;
+              int store = labelInfo[tokens[1]].first;
+              int lv=0;
+                     for (int i = 0; i < 4; i++)
+                {
+                   
+                    int c = RAM[store + i];
+                    for (int j = 0; j < 8; j++)
+                    {
+                        if (i == 3 && j == 7)
+                        {
+                            if (c >> 7 & 1 == 1)
+                                lv -= pow(2, 31);
+                            continue;
+                        }
+                        if (c >> j & 1 == 1)
+                            lv += pow(2, 8 * i + j);
+                    }
+
+                }
+                int store_address = lv;
+                std::cout<<"   LV" <<lv<<std::endl;
               int base_address = (labelInfo[tokens[2]].first);
               int size = (labelInfo[tokens[2]].second);
                int base_address_v2 = (labelInfo[tokens[3]].first);
@@ -241,7 +263,7 @@ void readInstructionsFromFile(const std::string& filename,char* RAM, bool* vis) 
                             }
                       }
               }
-              else if(opcode == "sub_vector"){
+              else if(opcode == "sub_vec"){
                   std::cout<<"sub ins"<<std::endl;
                 for(int i=0;i<size;i++){
                         int sv = v1[i]-v2[i];
@@ -257,7 +279,7 @@ void readInstructionsFromFile(const std::string& filename,char* RAM, bool* vis) 
                             }
                       }
               }
-                 else if(opcode == "mul_vector"){
+                 else if(opcode == "mul_vec"){
                       std::cout<<"mul ins"<<std::endl;
                 for(int i=0;i<size;i++){
                         int sv = v1[i]*v2[i];
