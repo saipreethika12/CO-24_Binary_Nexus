@@ -1,7 +1,7 @@
 # CO-24_Binary_Nexus
 # MOM
 ### MEMBERS 
--**Ikshitha** , **Preethika**
+- **Ikshitha** , **Preethika**
 ### May 11, 2024
 - **Decisions:** 
   - Implemented SIMD unit.
